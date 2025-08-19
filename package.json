@@ -1,0 +1,30 @@
+{
+  "name": "app",
+  "private": true,
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "type": "module",
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "workspaces": [
+    "./server",
+    "./client"
+  ],
+  "scripts": {
+    "build": "cd client && npm run build && cp -r dist/ ../server/public",
+    "dev": "node --watch index.mjs & cd client && npm run dev",
+    "start": "node index.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1"
+  }
+}
