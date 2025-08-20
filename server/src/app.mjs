@@ -27,6 +27,7 @@ app.use(
 app.use('/api', api);
 
 // Error handling route.
+/* eslint-disable-next-line */
 app.use((error, req, res, next) => {
   return res.send({
     status: 'error',
