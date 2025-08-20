@@ -26,4 +26,14 @@ app.use(
 // Put routers and stuff here.
 app.use('/api', api);
 
+// Error handling route.
+app.use((error, req, res, next) => {
+  return res.send({
+    status: 'error',
+    data: {
+      message: error.message,
+    },
+  });
+});
+
 export default app;
