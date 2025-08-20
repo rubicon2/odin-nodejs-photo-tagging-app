@@ -10,7 +10,7 @@ function App() {
   async function hitServer(event) {
     event.preventDefault();
     try {
-      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api`);
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/v1`);
       if (response.ok) {
         const json = await response.json();
         if (json.data?.message) {
