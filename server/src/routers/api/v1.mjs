@@ -7,6 +7,8 @@ const v1 = Router();
 
 v1.get('/', controller.get);
 v1.get('/photo', controller.getPhoto);
+v1.get('/photo/:id', controller.getPhoto);
+v1.delete('/photo', upload.none(), controller.deletePhoto);
 v1.post('/photo', isDevMode, upload.single('image'), controller.postPhoto);
 
 export default v1;

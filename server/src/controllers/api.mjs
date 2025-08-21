@@ -1,3 +1,5 @@
+import fs from 'node:fs/promises';
+
 function get(req, res) {
   return res.send({
     status: 'success',
@@ -43,4 +45,27 @@ function getPhoto(req, res) {
   });
 }
 
-export { get, getPhoto, postPhoto };
+async function deletePhoto(req, res, next) {
+  // const { id } = req.params;
+  const { filepath } = req.body;
+  try {
+    // Use id to get url from db and remove entry.
+    // const path = `${process.env.RAILWAY_VOLUME_MOUNT_PATH}/1755781118016-132746841-icon.png`;
+    // Remove from file system.
+    await fs.rm(filepath);
+    const files = await fs.readdir(`${process.env.RAILWAY_VOLUME_MOUNT_PATH}`);
+    for (const file of files) {
+      console.log(file);
+    }
+    return res.send({
+      status: 'success',
+      data: {
+        message: `Image at ${filepath} deleted and cleared from db`,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export { get, getPhoto, postPhoto, deletePhoto };

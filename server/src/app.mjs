@@ -6,6 +6,7 @@ import path from 'path';
 import 'dotenv/config';
 
 const app = express();
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(import.meta.dirname, '../public')));
 app.use('/data', express.static(process.env.RAILWAY_VOLUME_MOUNT_PATH));
 

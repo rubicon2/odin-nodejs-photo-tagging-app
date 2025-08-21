@@ -68,6 +68,27 @@ function App() {
     }
   }
 
+  async function deletePhoto(event) {
+    event.preventDefault();
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/api/v1/photo`,
+        {
+          method: 'delete',
+          body: new URLSearchParams(new FormData(event.target)),
+        },
+      );
+      if (response.ok) {
+        const json = await response?.json();
+        if (json?.data?.message) {
+          setMsg(json.data.message);
+        }
+      }
+    } catch (error) {
+      setMsg(error.message);
+    }
+  }
+
   return (
     <>
       <div>
@@ -90,6 +111,10 @@ function App() {
           <input type="file" name="image" required />
           <input type="text" name="test" />
           <button>Post Photo</button>
+        </form>
+        <form onSubmit={deletePhoto}>
+          <input type="text" name="filepath" required />
+          <button>Delete Photo</button>
         </form>
         <p>
           Edit <code>src/App.jsx</code> and save to test HMR
