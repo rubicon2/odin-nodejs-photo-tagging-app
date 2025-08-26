@@ -1,3 +1,5 @@
+import { VITE_SERVER_URL } from '../env.mjs';
+
 function get(req, res) {
   return res.send({
     status: 'success',
@@ -21,7 +23,7 @@ function postPhoto(req, res) {
     data: {
       message: 'Post photo mode successfully accessed!',
       image: {
-        url: `${process.env.VITE_SERVER_URL}/data/${image.filename}`,
+        url: `${VITE_SERVER_URL}/data/${image.filename}`,
       },
     },
   });
@@ -35,7 +37,7 @@ function getPhoto(req, res) {
     data: {
       image: {
         // Now this is working, how to upload new images and set up stuff?
-        url: `${process.env.VITE_SERVER_URL}/data/dale.jpg`,
+        url: `${VITE_SERVER_URL}/data/dale.jpg`,
       },
     },
   });
