@@ -6,7 +6,9 @@ import cors from 'cors';
 import path from 'path';
 
 const app = express();
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(import.meta.dirname, '../public')));
+app.use('/data', express.static(RAILWAY_VOLUME_MOUNT_PATH));
 
 const whitelist = JSON.parse(SERVER_CORS_WHITELIST);
 console.log('CORS whitelist:', whitelist);
