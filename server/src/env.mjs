@@ -1,0 +1,46 @@
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config({
+  path: path.join(import.meta.dirname, '../../.env'),
+});
+
+const MODE = process.env.MODE;
+const VITE_SERVER_URL = process.env.VITE_SERVER_URL;
+const SERVER_PORT = process.env.SERVER_PORT;
+const SERVER_CORS_WHITELIST = process.env.SERVER_CORS_WHITELIST;
+const RAILWAY_VOLUME_MOUNT_PATH = process.env.RAILWAY_VOLUME_MOUNT_PATH;
+
+// So if we forget to add .env vars and e.g. deploy fails, we will have useful errors.
+function checkEnvComplete() {
+  let errorMsg = '';
+  if (!MODE) {
+    errorMsg +=
+      '\nMODE not defined in .env!\nShould be "development" or "production".\n';
+  }
+  if (!VITE_SERVER_URL) {
+    errorMsg +=
+      '\nVITE_SERVER_URL not defined in .env!\nInclude protocol and port.\n';
+  }
+  if (!SERVER_PORT) {
+    errorMsg += '\nSERVER_PORT not defined in .env!\n';
+  }
+  if (!SERVER_CORS_WHITELIST) {
+    errorMsg +=
+      '\nSERVER_CORS_WHITELIST not defined in .env!\nShould be a JSON array.\n';
+  }
+  if (!RAILWAY_VOLUME_MOUNT_PATH) {
+    errorMsg += '\nRAILWAY_VOLUME_MOUNT_PATH not defined in .env!';
+  }
+  if (errorMsg.length !== 0) throw new Error(errorMsg);
+}
+
+checkEnvComplete();
+
+export {
+  MODE,
+  VITE_SERVER_URL,
+  SERVER_PORT,
+  SERVER_CORS_WHITELIST,
+  RAILWAY_VOLUME_MOUNT_PATH,
+};
