@@ -148,3 +148,6 @@ server/public
 **/generated/
 
 TODO.md
+
+# Dev mode file uploads will land here. Do not want in repo.
+data/
