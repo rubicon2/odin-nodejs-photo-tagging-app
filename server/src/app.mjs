@@ -1,14 +1,14 @@
 import api from './routers/api.mjs';
+import { RAILWAY_VOLUME_MOUNT_PATH, SERVER_CORS_WHITELIST } from './env.mjs';
 
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import 'dotenv/config';
 
 const app = express();
 app.use(express.static(path.join(import.meta.dirname, '../public')));
 
-const whitelist = JSON.parse(process.env.SERVER_CORS_WHITELIST);
+const whitelist = JSON.parse(SERVER_CORS_WHITELIST);
 console.log('CORS whitelist:', whitelist);
 app.use(
   cors({
