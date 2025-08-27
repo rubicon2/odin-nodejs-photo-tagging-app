@@ -145,7 +145,7 @@ client/dist
 server/public
 
 # Prisma generated files
-**/generated/
+**/generated/prisma
 
 TODO.md
 
