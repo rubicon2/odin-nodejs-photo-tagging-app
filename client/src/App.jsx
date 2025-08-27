@@ -5,6 +5,7 @@ import './App.css';
 function App() {
   const [msg, setMsg] = useState(null);
   const [image, setImage] = useState(null);
+  const [files, setFiles] = useState(null);
 
   async function hitServer(event) {
     event.preventDefault();
@@ -21,7 +22,7 @@ function App() {
     }
   }
 
-  async function getPhoto(event) {
+  async function getPhotoIndex(event) {
     event.preventDefault();
     try {
       const response = await fetch(
@@ -32,8 +33,8 @@ function App() {
         if (json.data?.message) {
           setMsg(json.data.message);
         }
-        if (json.data?.image) {
-          setImage(json.data.image);
+        if (json.data?.files) {
+          setFiles(json.data.files);
         }
       }
     } catch (error) {
@@ -70,7 +71,7 @@ function App() {
       <h1>Photo Tagging App</h1>
       <div className="card">
         <button onClick={hitServer}>Hit Dat Server</button>
-        <button onClick={getPhoto}>Get Photo</button>
+        <button onClick={getPhotoIndex}>Get Photo Index</button>
         <form onSubmit={postPhoto} encType="multipart/form-data">
           <legend>Upload Photo</legend>
           <input type="file" name="image" required />
@@ -86,6 +87,13 @@ function App() {
       </p>
       {msg && <p>{msg}</p>}
       {image && <img src={image.url} />}
+      {files && (
+        <ul>
+          {files.map((file) => (
+            <li key={file}>{file}</li>
+          ))}
+        </ul>
+      )}
     </>
   );
 }

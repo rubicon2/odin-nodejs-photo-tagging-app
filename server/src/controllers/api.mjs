@@ -1,4 +1,6 @@
+import { RAILWAY_VOLUME_MOUNT_PATH, VITE_SERVER_URL } from '../env.mjs';
 import client from '../db/client.mjs';
+import fs from 'node:fs/promises';
 import createImgUrl from '../ext/createImgUrl.mjs';
 
 function get(req, res) {
@@ -42,6 +44,20 @@ async function postPhoto(req, res) {
   });
 }
 
+async function getPhotoIndex(req, res, next) {
+  try {
+    const files = await fs.readdir(RAILWAY_VOLUME_MOUNT_PATH);
+    return res.send({
+      status: 'success',
+      data: {
+        files,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 function getPhoto(req, res) {
   // return db entry of photo. that will contain the url to the public /static/photo url,
   // and other details. E.g. id, which can be used to check db tags when user clicks on the image.
@@ -56,4 +72,4 @@ function getPhoto(req, res) {
   });
 }
 
-export { get, getPhoto, postPhoto };
+export { get, getPhoto, postPhoto, getPhotoIndex };
