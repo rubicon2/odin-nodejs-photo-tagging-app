@@ -1,7 +1,8 @@
 import { RAILWAY_VOLUME_MOUNT_PATH, VITE_SERVER_URL } from '../env.mjs';
 import client from '../db/client.mjs';
-import fs from 'node:fs/promises';
 import createImgUrl from '../ext/createImgUrl.mjs';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 function get(req, res) {
   return res.send({
@@ -72,4 +73,28 @@ function getPhoto(req, res) {
   });
 }
 
-export { get, getPhoto, postPhoto, getPhotoIndex };
+async function deleteAllPhotos(req, res, next) {
+  try {
+    const images = await client.image.findMany();
+    for (const image of images) {
+      // For each entry removed from db, delete corresponding file.
+      const filepath = path.join(RAILWAY_VOLUME_MOUNT_PATH, image.url);
+      await fs.rm(filepath);
+      console.log('File deleted:', filepath);
+      await client.image.delete({ where: { id: image.id } });
+      console.log('Database entry removed - image id:', image.id);
+    }
+    // Clear any photos that may exist on filesystem but not on db?
+    return res.json({
+      status: 'success',
+      data: {
+        message: 'All photos successfully deleted from the filesystem and db',
+        images,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export { get, getPhoto, postPhoto, getPhotoIndex, deleteAllPhotos };
