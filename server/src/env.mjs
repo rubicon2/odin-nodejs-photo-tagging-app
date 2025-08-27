@@ -9,6 +9,7 @@ const MODE = process.env.MODE;
 const VITE_SERVER_URL = process.env.VITE_SERVER_URL;
 const SERVER_PORT = process.env.SERVER_PORT;
 const SERVER_CORS_WHITELIST = process.env.SERVER_CORS_WHITELIST;
+const SERVER_DATABASE_URL = process.env.SERVER_DATABASE_URL;
 const RAILWAY_VOLUME_MOUNT_PATH = process.env.RAILWAY_VOLUME_MOUNT_PATH;
 
 // So if we forget to add .env vars and e.g. deploy fails, we will have useful errors.
@@ -28,6 +29,9 @@ function checkEnvComplete() {
   if (!SERVER_CORS_WHITELIST) {
     errorMsg +=
       '\nSERVER_CORS_WHITELIST not defined in .env!\nShould be a JSON array.\n';
+  }
+  if (!SERVER_DATABASE_URL) {
+    errorMsg += '\nSERVER_DATABASE_URL not defined in .env!';
   }
   if (!RAILWAY_VOLUME_MOUNT_PATH) {
     errorMsg += '\nRAILWAY_VOLUME_MOUNT_PATH not defined in .env!';
