@@ -1,4 +1,5 @@
-import { VITE_SERVER_URL } from '../env.mjs';
+import client from '../db/client.mjs';
+import createImgUrl from '../ext/createImgUrl.mjs';
 
 function get(req, res) {
   return res.send({
@@ -9,13 +10,24 @@ function get(req, res) {
   });
 }
 
-function postPhoto(req, res) {
+async function postPhoto(req, res) {
   // Multer gets file data.
   const image = req.file;
   // Contains details of people tagged in the photo.
-  const body = req.body;
+  const { altText } = req.body;
 
   console.log('image uploaded:', image);
+
+  // Putting server domain as part of url is a bad idea, since it could change!
+  // Save filename as url and put it together with domain and static dir before sending.
+  const dbEntry = await client.image.create({
+    data: {
+      url: image.filename,
+      altText,
+    },
+  });
+
+  console.log('new db image entry:', dbEntry);
 
   // Form can also include data like tagged people. E.g. 'tag' and you click on the image and it logs it.
   return res.send({
@@ -23,7 +35,8 @@ function postPhoto(req, res) {
     data: {
       message: 'Post photo mode successfully accessed!',
       image: {
-        url: `${VITE_SERVER_URL}/data/${image.filename}`,
+        ...dbEntry,
+        url: createImgUrl(dbEntry.url),
       },
     },
   });
