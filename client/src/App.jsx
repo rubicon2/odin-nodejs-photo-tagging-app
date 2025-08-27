@@ -75,7 +75,7 @@ function App() {
         <form onSubmit={postPhoto} encType="multipart/form-data">
           <legend>Upload Photo</legend>
           <input type="file" name="image" required />
-          <input type="text" name="test" />
+          <input type="text" name="altText" required />
           <button>Post Photo</button>
         </form>
         <p>
@@ -86,7 +86,9 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
       {msg && <p>{msg}</p>}
-      {image && <img src={image.url} />}
+      {image && (
+        <img src={image.url} alt={image.altText} />
+      )}
       {files && (
         <ul>
           {files.map((file) => (
