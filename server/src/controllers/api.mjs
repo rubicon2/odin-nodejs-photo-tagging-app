@@ -1,8 +1,6 @@
-import { RAILWAY_VOLUME_MOUNT_PATH, VITE_SERVER_URL } from '../env.mjs';
 import client from '../db/client.mjs';
 import createImgUrl from '../ext/createImgUrl.mjs';
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import { deleteFile } from '../ext/volume.mjs';
 
 function get(req, res) {
   return res.send({
@@ -15,29 +13,29 @@ function get(req, res) {
 
 async function postPhoto(req, res) {
   // Multer gets file data.
-  const image = req.file;
+  const photo = req.file;
   // Contains details of people tagged in the photo.
   const { altText } = req.body;
 
-  console.log('image uploaded:', image);
+  console.log('Image uploaded:', photo);
 
   // Putting server domain as part of url is a bad idea, since it could change!
-  // Save filename as url and put it together with domain and static dir before sending.
+  // Save filename as url and put it together with domain and static dir before sending later.
   const dbEntry = await client.image.create({
     data: {
-      url: image.filename,
+      url: photo.filename,
       altText,
     },
   });
 
-  console.log('new db image entry:', dbEntry);
+  console.log('New db image entry:', dbEntry);
 
   // Form can also include data like tagged people. E.g. 'tag' and you click on the image and it logs it.
   return res.send({
     status: 'success',
     data: {
       message: 'Post photo mode successfully accessed!',
-      image: {
+      photo: {
         ...dbEntry,
         url: createImgUrl(dbEntry.url),
       },
@@ -45,13 +43,18 @@ async function postPhoto(req, res) {
   });
 }
 
-async function getPhotoIndex(req, res, next) {
+async function getAllPhotos(req, res, next) {
   try {
-    const files = await fs.readdir(RAILWAY_VOLUME_MOUNT_PATH);
+    const photos = await client.image.findMany();
+    const photosWithUrls = photos.map((photo) => ({
+      ...photo,
+      url: createImgUrl(photo.url),
+    }));
     return res.send({
       status: 'success',
       data: {
-        files,
+        message: 'All photos successfully retrieved.',
+        photos: photosWithUrls,
       },
     });
   } catch (error) {
@@ -59,37 +62,94 @@ async function getPhotoIndex(req, res, next) {
   }
 }
 
-function getPhoto(req, res) {
-  // return db entry of photo. that will contain the url to the public /static/photo url,
-  // and other details. E.g. id, which can be used to check db tags when user clicks on the image.
-  return res.send({
-    status: 'success',
-    data: {
-      image: {
-        // Now this is working, how to upload new images and set up stuff?
-        url: `${VITE_SERVER_URL}/data/dale.jpg`,
+async function getPhoto(req, res, next) {
+  try {
+    const { id } = req.params;
+    const photo = await client.image.findUnique({
+      where: {
+        id,
       },
-    },
-  });
+    });
+
+    if (!photo) {
+      return res.send({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
+    // If an image with that id was found.
+    return res.send({
+      status: 'success',
+      data: {
+        message: 'Photo successfully retrieved.',
+        photo: {
+          ...photo,
+          url: createImgUrl(photo.url),
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function putPhoto(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { url, altText } = req.body;
+
+    // If field missing from body, do not update to empty field/undefined/null on db.
+    const data = {};
+    if (url) {
+      // If new url, delete image stored at old url.
+      // Otherwise we will lose path to this file and be unable to access or delete it!
+      const { url: previousUrl } = await client.image.findUnique({
+        where: { id },
+      });
+      deleteFile(previousUrl);
+      data.url = url;
+    }
+    if (altText) data.altText = altText;
+
+    const photo = await client.image.update({
+      where: {
+        id,
+      },
+      data,
+    });
+
+    console.log('Photo updated:', photo.id);
+
+    return res.json({
+      status: 'success',
+      data: {
+        message: 'Photo successfully updated.',
+        photo,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 
 async function deleteAllPhotos(req, res, next) {
   try {
-    const images = await client.image.findMany();
-    for (const image of images) {
+    const photos = await client.image.findMany();
+    for (const photo of photos) {
       // For each entry removed from db, delete corresponding file.
-      const filepath = path.join(RAILWAY_VOLUME_MOUNT_PATH, image.url);
-      await fs.rm(filepath);
-      console.log('File deleted:', filepath);
-      await client.image.delete({ where: { id: image.id } });
-      console.log('Database entry removed - image id:', image.id);
+      deleteFile(photo.url);
+      await client.image.delete({ where: { id: photo.id } });
+      console.log('Photo deleted:', photo.id);
     }
     // Clear any photos that may exist on filesystem but not on db?
     return res.json({
       status: 'success',
       data: {
         message: 'All photos successfully deleted from the filesystem and db',
-        images,
+        photos,
       },
     });
   } catch (error) {
@@ -97,4 +157,42 @@ async function deleteAllPhotos(req, res, next) {
   }
 }
 
-export { get, getPhoto, postPhoto, getPhotoIndex, deleteAllPhotos };
+async function deletePhoto(req, res, next) {
+  try {
+    const { id } = req.params;
+    const photo = await client.image.delete({
+      where: {
+        id,
+      },
+    });
+
+    if (!photo) {
+      return res.send({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
+    return res.send({
+      status: 'success',
+      data: {
+        message: 'Photo successfully deleted.',
+        photo,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export {
+  get,
+  postPhoto,
+  getAllPhotos,
+  getPhoto,
+  putPhoto,
+  deleteAllPhotos,
+  deletePhoto,
+};
