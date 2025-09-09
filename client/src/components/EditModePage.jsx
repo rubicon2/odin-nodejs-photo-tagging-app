@@ -41,6 +41,7 @@ export default function EditModePage() {
       ) : (
         <PhotoDetails
           photo={photos?.find(({ id }) => id === selectedPhotoId)}
+          onDelete={fetchPhotos}
         />
       )}
     </>
