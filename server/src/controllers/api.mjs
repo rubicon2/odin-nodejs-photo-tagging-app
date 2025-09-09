@@ -166,6 +166,9 @@ async function deletePhoto(req, res, next) {
       },
     });
 
+    // Delete from filesystem. Probably don't have to wait for this, but just in case.
+    await deleteFile(photo.url);
+
     if (!photo) {
       return res.send({
         status: 'fail',
