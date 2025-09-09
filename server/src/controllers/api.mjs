@@ -140,7 +140,7 @@ async function deleteAllPhotos(req, res, next) {
     const photos = await client.image.findMany();
     for (const photo of photos) {
       // For each entry removed from db, delete corresponding file.
-      deleteFile(photo.url);
+      await deleteFile(photo.url);
       await client.image.delete({ where: { id: photo.id } });
       console.log('Photo deleted:', photo.id);
     }
