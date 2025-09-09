@@ -9,8 +9,8 @@
   },
   "scripts": {
     "dev": "node --watch src/app.mjs",
-    "test": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --watchAll",
-    "test:coverage": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --watchAll --coverage",
+    "test": "NODE_ENV=testing node --experimental-vm-modules ../node_modules/jest/bin/jest.js --watchAll",
+    "test:coverage": "NODE_ENV=testing node --experimental-vm-modules ../node_modules/jest/bin/jest.js --watchAll --coverage",
     "start": "node src/app.mjs"
   },
   "keywords": [],
