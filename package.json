@@ -12,8 +12,8 @@
     "./client"
   ],
   "scripts": {
-    "test": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test": "vitest -c ./vitest.config.js",
+    "test:coverage": "vitest -c ./vitest.config.js run --coverage",
     "dev": "node --watch index.mjs & cd client && npm run dev",
     "migrate": "npx prisma migrate deploy",
     "build": "cd client && npm run build && cp -r dist/ ../server/public",
