@@ -9,8 +9,6 @@
   },
   "scripts": {
     "dev": "node --watch src/app.mjs",
-    "test": "NODE_ENV=testing node --experimental-vm-modules ../node_modules/jest/bin/jest.js --watchAll",
-    "test:coverage": "NODE_ENV=testing node --experimental-vm-modules ../node_modules/jest/bin/jest.js --watchAll --coverage",
     "start": "node src/app.mjs"
   },
   "keywords": [],
@@ -24,12 +22,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
-    "@jest/globals": "^30.0.5",
     "eslint": "^9.33.0",
-    "eslint-plugin-jest": "^29.0.1",
-    "globals": "^16.3.0",
-    "jest": "^30.0.5",
-    "node-mocks-http": "^1.17.2",
-    "supertest": "^7.1.4"
+    "globals": "^16.3.0"
   }
 }

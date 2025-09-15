@@ -1,5 +1,5 @@
 import app from '../src/app.mjs';
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 
 describe('app', () => {
   it('default export should have a listen function for responding to requests', () => {

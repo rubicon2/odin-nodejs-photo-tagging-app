@@ -1,5 +1,5 @@
 import isDevMode from '../../src/middleware/isDevMode.mjs';
-import { jest, beforeEach, describe, it, expect } from '@jest/globals';
+import { beforeEach, vi, describe, it, expect } from 'vitest';
 import httpMocks from 'node-mocks-http';
 
 let req;
@@ -9,7 +9,7 @@ let next;
 beforeEach(() => {
   req = httpMocks.createRequest();
   res = httpMocks.createResponse();
-  next = jest.fn();
+  next = vi.fn();
 });
 
 describe('isDevMode', () => {
