@@ -7,6 +7,7 @@ dotenv.config({
 
 const MODE = process.env.MODE;
 const VITE_SERVER_URL = process.env.VITE_SERVER_URL;
+const VITE_IS_ADMIN = process.env.VITE_IS_ADMIN;
 const SERVER_PORT = process.env.SERVER_PORT;
 const SERVER_CORS_WHITELIST = process.env.SERVER_CORS_WHITELIST;
 const SERVER_DATABASE_URL = process.env.SERVER_DATABASE_URL;
@@ -25,6 +26,10 @@ function checkEnvComplete() {
   if (!VITE_SERVER_URL) {
     errorMsg +=
       '\nVITE_SERVER_URL not defined in .env!\nInclude protocol and port.\n';
+  }
+  if (!VITE_IS_ADMIN) {
+    errorMsg +=
+      '\nVITE_IS_ADMIN not defined in .env!\nShould be true or false.\n';
   }
   if (!SERVER_PORT) {
     errorMsg += '\nSERVER_PORT not defined in .env!\n';
@@ -53,6 +58,7 @@ checkEnvComplete();
 export {
   MODE,
   VITE_SERVER_URL,
+  VITE_IS_ADMIN,
   SERVER_PORT,
   SERVER_CORS_WHITELIST,
   RAILWAY_VOLUME_MOUNT_PATH,
