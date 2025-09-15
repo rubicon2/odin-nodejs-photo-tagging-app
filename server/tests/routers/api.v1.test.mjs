@@ -1,6 +1,6 @@
 import v1 from '../../src/routers/api/v1.mjs';
 import express from 'express';
-import { describe, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 
 const app = express();
@@ -10,37 +10,38 @@ app.use(v1);
 
 describe('v1 api', () => {
   it('GET / returns test message', () => {
-    request(app)
+    return request(app)
       .get('/')
       .expect('Content-Type', /json/)
       .expect(200)
-      .expect({
-        status: 'success',
-        data: {
-          message: 'A message from the api.',
-        },
-      })
-      .end((err) => {
-        if (err) throw err;
+      .then((res) => {
+        expect(res.body).toEqual({
+          status: 'success',
+          data: {
+            message: 'A message from the api.',
+          },
+        });
       });
   });
 
-  it('GET /photo returns all photo entries on the db', async () => {
+  it('GET /photo returns all photo entries on the db', () => {
     // Guess we'll need a test db for this.
 
-    request(app)
+    process.env.VITE_IS_ADMIN = 'false';
+
+    // Must return async request otherwise tests won't run properly! Will get incorrectly passing tests.
+    return request(app)
       .get('/photo')
       .expect('Content-Type', /json/)
       .expect(200)
-      .expect({
-        status: 'success',
-        data: {
-          message: 'All photos successfully retrieved.',
-          photos: [],
-        },
-      })
-      .end((err) => {
-        if (err) throw err;
+      .then((res) => {
+        expect(res.body).toEqual({
+          status: 'success',
+          data: {
+            message: 'All photos successfully retrieved.',
+            photos: [],
+          },
+        });
       });
   });
 
