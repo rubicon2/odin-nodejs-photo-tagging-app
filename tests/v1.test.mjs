@@ -1,16 +1,16 @@
 import v1 from '../server/src/routers/api/v1.mjs';
-import { clearDb } from '../server/src/db/helpers.mjs';
+import {
+  postTestData,
+  testImageData,
+  testImageDataAbsoluteUrl,
+  testImageTagData,
+} from './helpers/helpers.mjs';
 import express from 'express';
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 
 const app = express();
 app.use(v1);
-
-// Before all tests, clear test db and fill with test data.
-beforeEach(async () => {
-  await clearDb();
-});
 
 describe('v1 api', () => {
   it('GET / returns test message', () => {
@@ -28,8 +28,9 @@ describe('v1 api', () => {
       });
   });
 
-  it('GET /photo returns all photo entries on the db', () => {
-    // Guess we'll need a test db for this.
+  it('GET /photo returns all photo entries on the db', async () => {
+    // Add test data.
+    await postTestData();
 
     process.env.VITE_IS_ADMIN = 'false';
 
@@ -43,7 +44,7 @@ describe('v1 api', () => {
           status: 'success',
           data: {
             message: 'All photos successfully retrieved.',
-            photos: ['plop'],
+            photos: testImageDataAbsoluteUrl,
           },
         });
       });

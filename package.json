@@ -12,8 +12,9 @@
     "./client"
   ],
   "scripts": {
-    "test": "vitest -c ./vitest.config.js",
-    "test:coverage": "vitest -c ./vitest.config.js run --coverage",
+    "test:unit": "vitest -c ./vitest.unit.config.js",
+    "test:unit:coverage": "vitest -c ./vitest.unit.config.js run --coverage",
+    "test:int": "./scripts/run-integration-tests.sh",
     "dev": "node --watch index.mjs & cd client && npm run dev",
     "migrate": "npx prisma migrate deploy",
     "build": "cd client && npm run build && cp -r dist/ ../server/public",

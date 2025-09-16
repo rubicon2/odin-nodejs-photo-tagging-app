@@ -13,8 +13,7 @@ const SERVER_CORS_WHITELIST = process.env.SERVER_CORS_WHITELIST;
 const SERVER_DATABASE_URL = process.env.SERVER_DATABASE_URL;
 const RAILWAY_VOLUME_MOUNT_PATH = process.env.RAILWAY_VOLUME_MOUNT_PATH;
 
-// Development/testing only.
-const SERVER_TEST_DATABASE_URL = process.env.SERVER_TEST_DATABASE_URL;
+console.log('MODE:', MODE);
 
 // So if we forget to add .env vars and e.g. deploy fails, we will have useful errors.
 function checkEnvComplete() {
@@ -45,11 +44,6 @@ function checkEnvComplete() {
     errorMsg += '\nRAILWAY_VOLUME_MOUNT_PATH not defined in .env!';
   }
 
-  // We only care aboue this in development mode.
-  if (!SERVER_TEST_DATABASE_URL && MODE === 'development') {
-    errorMsg += '\nSERVER_TEST_DATABASE_URL not defined in .env!';
-  }
-
   if (errorMsg.length !== 0) throw new Error(errorMsg);
 }
 
@@ -63,5 +57,4 @@ export {
   SERVER_CORS_WHITELIST,
   RAILWAY_VOLUME_MOUNT_PATH,
   SERVER_DATABASE_URL,
-  SERVER_TEST_DATABASE_URL,
 };
