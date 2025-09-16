@@ -1,4 +1,4 @@
-import isAdmin from '../../src/middleware/isAdmin.mjs';
+import isAdmin from './isAdmin.mjs';
 import { beforeEach, vi, describe, it, expect } from 'vitest';
 import httpMocks from 'node-mocks-http';
 

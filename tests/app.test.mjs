@@ -1,4 +1,4 @@
-import app from '../src/app.mjs';
+import app from '../server/src/app.mjs';
 import { describe, it, expect } from 'vitest';
 
 describe('app', () => {

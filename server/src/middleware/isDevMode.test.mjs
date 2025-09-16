@@ -1,4 +1,4 @@
-import isDevMode from '../../src/middleware/isDevMode.mjs';
+import isDevMode from './isDevMode.mjs';
 import { beforeEach, vi, describe, it, expect } from 'vitest';
 import httpMocks from 'node-mocks-http';
 

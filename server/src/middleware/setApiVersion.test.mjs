@@ -1,4 +1,4 @@
-import setApiVersion from '../../src/middleware/setApiVersion.mjs';
+import setApiVersion from './setApiVersion.mjs';
 import { beforeEach, vi, describe, it, expect } from 'vitest';
 import httpMocks from 'node-mocks-http';
 

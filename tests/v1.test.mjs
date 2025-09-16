@@ -1,12 +1,16 @@
-import v1 from '../../src/routers/api/v1.mjs';
+import v1 from '../server/src/routers/api/v1.mjs';
+import { clearDb } from '../server/src/db/helpers.mjs';
 import express from 'express';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 
 const app = express();
 app.use(v1);
 
 // Before all tests, clear test db and fill with test data.
+beforeEach(async () => {
+  await clearDb();
+});
 
 describe('v1 api', () => {
   it('GET / returns test message', () => {
@@ -39,7 +43,7 @@ describe('v1 api', () => {
           status: 'success',
           data: {
             message: 'All photos successfully retrieved.',
-            photos: [],
+            photos: ['plop'],
           },
         });
       });
