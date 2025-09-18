@@ -29,6 +29,7 @@ export default function PhotoDetails({ photo, onDelete }) {
       {photo ? (
         <>
           <h3>Photo Details Panel - {photo.id}</h3>
+          <img src={photo.url} />
           <button type="button" onClick={deletePhoto}>
             Delete
           </button>
