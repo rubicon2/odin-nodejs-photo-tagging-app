@@ -47,6 +47,13 @@ const testImageTagData = [
   },
 ];
 
+const testImageDataAbsoluteUrlWithTags = testImageDataAbsoluteUrl.map(
+  (image) => ({
+    ...image,
+    tags: testImageTagData.filter((tag) => image.id === tag.imageId),
+  }),
+);
+
 async function postTestData() {
   // Create test data for tests about retrieving data.
   await db.image.createMany({
@@ -63,5 +70,6 @@ export {
   testImageData,
   testImageDataAbsoluteUrl,
   testImageTagData,
+  testImageDataAbsoluteUrlWithTags,
   postTestData,
 };

@@ -7,7 +7,7 @@ export default function AddPhotoForm({ onPostPhoto }) {
     event.preventDefault();
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/api/v1/photo`,
+        `${import.meta.env.VITE_SERVER_URL}/api/admin/v1/photo`,
         {
           method: 'post',
           body: new FormData(event.target),

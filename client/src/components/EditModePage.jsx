@@ -10,7 +10,7 @@ export default function EditModePage() {
 
   async function fetchPhotos() {
     const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/api/v1/photo`,
+      `${import.meta.env.VITE_SERVER_URL}/api/v1/admin/photo`,
     );
     if (response.ok) {
       const json = await response?.json();

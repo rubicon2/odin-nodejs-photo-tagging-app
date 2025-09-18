@@ -1,0 +1,198 @@
+import client from '../db/client.mjs';
+import createImgUrl from '../ext/createImgUrl.mjs';
+import { deleteFile } from '../ext/volume.mjs';
+
+async function postPhoto(req, res) {
+  // Multer gets file data.
+  const photo = req.file;
+  // Contains details of people tagged in the photo.
+  const { altText } = req.body;
+
+  console.log('Image uploaded:', photo);
+
+  // Putting server domain as part of url is a bad idea, since it could change!
+  // Save filename as url and put it together with domain and static dir before sending later.
+  const dbEntry = await client.image.create({
+    data: {
+      url: photo.filename,
+      altText,
+    },
+  });
+
+  console.log('New db image entry:', dbEntry);
+
+  // Form can also include data like tagged people. E.g. 'tag' and you click on the image and it logs it.
+  return res.send({
+    status: 'success',
+    data: {
+      message: 'Post photo mode successfully accessed!',
+      photo: {
+        ...dbEntry,
+        url: createImgUrl(dbEntry.url),
+      },
+    },
+  });
+}
+
+async function getAllPhotosAndTags(req, res, next) {
+  try {
+    const photos = await client.image.findMany({
+      include: {
+        tags: true,
+      },
+    });
+    const photosWithUrls = photos.map((photo) => ({
+      ...photo,
+      url: createImgUrl(photo.url),
+    }));
+    return res.send({
+      status: 'success',
+      data: {
+        message: 'All photos with tags successfully retrieved.',
+        photos: photosWithUrls,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getPhotoAndTags(req, res, next) {
+  try {
+    const { id } = req.params;
+    const photo = await client.image.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        tags: true,
+      },
+    });
+
+    if (!photo) {
+      return res.send({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
+    // If an image with that id was found.
+    return res.send({
+      status: 'success',
+      data: {
+        message: 'Photo with tags successfully retrieved.',
+        photo: {
+          ...photo,
+          url: createImgUrl(photo.url),
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function putPhoto(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { url, altText } = req.body;
+
+    // If field missing from body, do not update to empty field/undefined/null on db.
+    const data = {};
+    if (url) {
+      // If new url, delete image stored at old url.
+      // Otherwise we will lose path to this file and be unable to access or delete it!
+      const { url: previousUrl } = await client.image.findUnique({
+        where: { id },
+      });
+      deleteFile(previousUrl);
+      data.url = url;
+    }
+    if (altText) data.altText = altText;
+
+    const photo = await client.image.update({
+      where: {
+        id,
+      },
+      data,
+    });
+
+    console.log('Photo updated:', photo.id);
+
+    return res.json({
+      status: 'success',
+      data: {
+        message: 'Photo successfully updated.',
+        photo,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function deleteAllPhotos(req, res, next) {
+  try {
+    const photos = await client.image.findMany();
+    for (const photo of photos) {
+      // For each entry removed from db, delete corresponding file.
+      await deleteFile(photo.url);
+      await client.image.delete({ where: { id: photo.id } });
+      console.log('Photo deleted:', photo.id);
+    }
+    // Clear any photos that may exist on filesystem but not on db?
+    return res.json({
+      status: 'success',
+      data: {
+        message: 'All photos successfully deleted from the filesystem and db',
+        photos,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function deletePhoto(req, res, next) {
+  try {
+    const { id } = req.params;
+    const photo = await client.image.delete({
+      where: {
+        id,
+      },
+    });
+
+    // Delete from filesystem. Probably don't have to wait for this, but just in case.
+    await deleteFile(photo.url);
+
+    if (!photo) {
+      return res.send({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
+    return res.send({
+      status: 'success',
+      data: {
+        message: 'Photo successfully deleted.',
+        photo,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export {
+  postPhoto,
+  getAllPhotosAndTags,
+  getPhotoAndTags,
+  putPhoto,
+  deleteAllPhotos,
+  deletePhoto,
+};

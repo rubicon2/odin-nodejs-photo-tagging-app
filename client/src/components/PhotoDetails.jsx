@@ -7,7 +7,7 @@ export default function PhotoDetails({ photo, onDelete }) {
   async function deletePhoto(event) {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/api/v1/photo/${photo.id}`,
+        `${import.meta.env.VITE_SERVER_URL}/api/v1/admin/photo/${photo.id}`,
         {
           method: 'delete',
         },
