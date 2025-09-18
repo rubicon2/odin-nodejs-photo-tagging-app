@@ -13,12 +13,11 @@ beforeEach(() => {
 });
 
 describe('isAdmin', () => {
-  it('does not call next middleware if process.env.VITE_IS_ADMIN is not equal to "true"', () => {
+  it('does not call next middleware and returns a 403 (forbidden) if process.env.VITE_IS_ADMIN is not equal to "true"', () => {
     process.env.VITE_IS_ADMIN = 'literally anything else';
-    expect(() => isAdmin(req, res, next)).toThrow(
-      'Can only access this route as admin',
-    );
+    isAdmin(req, res, next);
     expect(next.mock.calls).toHaveLength(0);
+    expect(res.statusCode).toEqual(403);
   });
 
   it('calls next middleware if process.env.MODE equals "true"', () => {
