@@ -38,3 +38,6 @@ if [ $? -eq 0 ]; then
 else
   echo "Database timed out. Migration and tests cancelled"
 fi
+
+# Once script fails or tests are finished, destroy container.
+docker-compose down
