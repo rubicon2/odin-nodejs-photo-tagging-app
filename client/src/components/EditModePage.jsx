@@ -9,9 +9,7 @@ export default function EditModePage() {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   async function fetchPhotos() {
-    const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/api/v1/admin/photo`,
-    );
+    const response = await fetch(`/api/v1/admin/photo`);
     if (response.ok) {
       const json = await response?.json();
       if (json.data?.photos) {

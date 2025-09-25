@@ -4,17 +4,47 @@ services:
     restart: always
     environment:
       # For docker set up of db.
-      - POSTGRES_DB=test
+      - POSTGRES_DB=photo_tagging_app
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       # For postgres itself.
       - PGUSER=postgres
       - PGPASSWORD=postgres
     ports:
+      # Expose different port from default as on dev machine, psql is running on 5432.
       - '5433:5432'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d photo_tagging_app"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
     volumes:
       - db_data:/var/lib/postgresql/data
+    command: postgres -c listen_addresses='*'
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+  
+  server:
+    # Need to build the backend for it to keep running. Without an open process, it just quits immediately.
+    image: rubicon2/photo-tagging-app
+    environment:
+      - MODE
+      - VITE_SERVER_URL
+      - VITE_IS_ADMIN
+      - SERVER_PORT
+      - SERVER_CORS_WHITELIST
+      - SERVER_DATABASE_URL=postgres://postgres:postgres@db:5432/photo_tagging_app
+      - RAILWAY_VOLUME_MOUNT_PATH=/vol/server_data
+    ports:
+      - '8080:8080'
+    volumes:
+      - server_data:/vol/server_data
+    depends_on:
+      db: 
+        condition: service_healthy
+
 volumes:
   db_data:
-    driver: local
-  
+  server_data:

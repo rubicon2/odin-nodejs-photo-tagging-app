@@ -6,13 +6,10 @@ export default function AddPhotoForm({ onPostPhoto }) {
   async function postPhoto(event) {
     event.preventDefault();
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/api/admin/v1/photo`,
-        {
-          method: 'post',
-          body: new FormData(event.target),
-        },
-      );
+      const response = await fetch(`/api/v1/admin/photo`, {
+        method: 'post',
+        body: new FormData(event.target),
+      });
       if (response.ok) {
         const json = await response.json();
         if (json.data?.message) {
