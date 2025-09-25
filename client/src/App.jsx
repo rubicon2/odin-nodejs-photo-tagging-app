@@ -4,8 +4,8 @@ import React from 'react';
 import './App.css';
 
 function App() {
-  const isDevMode = import.meta.env.MODE === 'development';
-  return <>{isDevMode ? <EditModePage /> : <ViewModePage />}</>;
+  const isAdmin = import.meta.env.VITE_IS_ADMIN === 'true';
+  return <>{isAdmin ? <EditModePage /> : <ViewModePage />}</>;
 }
 
 export default App;
