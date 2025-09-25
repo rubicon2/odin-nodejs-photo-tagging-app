@@ -3,7 +3,6 @@ WORKDIR /usr/local/app
 
 # This env var is necessary for the client to be built - the value gets baked in.
 # Docker compose envs are not in existence when this image is getting built.
-ARG VITE_SERVER_URL
 ARG VITE_IS_ADMIN
 
 COPY . .
