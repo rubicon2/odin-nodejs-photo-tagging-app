@@ -13,7 +13,14 @@ const SERVER_CORS_WHITELIST = process.env.SERVER_CORS_WHITELIST;
 const SERVER_DATABASE_URL = process.env.SERVER_DATABASE_URL;
 const RAILWAY_VOLUME_MOUNT_PATH = process.env.RAILWAY_VOLUME_MOUNT_PATH;
 
-console.log('MODE:', MODE);
+console.log('ENVIRONMENT LOADED');
+console.log('                     MODE:', MODE);
+console.log('          VITE_SERVER_URL:', VITE_SERVER_URL);
+console.log('            VITE_IS_ADMIN:', VITE_IS_ADMIN);
+console.log('              SERVER_PORT:', SERVER_PORT);
+console.log('    SERVER_CORS_WHITELIST:', SERVER_CORS_WHITELIST);
+console.log('      SERVER_DATABASE_URL:', SERVER_DATABASE_URL);
+console.log('RAILWAY_VOLUME_MOUNT_PATH:', RAILWAY_VOLUME_MOUNT_PATH);
 
 // So if we forget to add .env vars and e.g. deploy fails, we will have useful errors.
 function checkEnvComplete() {
