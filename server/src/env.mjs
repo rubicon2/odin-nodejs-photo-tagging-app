@@ -18,29 +18,29 @@ console.log('MODE:', MODE);
 // So if we forget to add .env vars and e.g. deploy fails, we will have useful errors.
 function checkEnvComplete() {
   let errorMsg = '';
-  if (!MODE) {
+  if (MODE === undefined) {
     errorMsg +=
       '\nMODE not defined in .env!\nShould be "development" or "production".\n';
   }
-  if (!VITE_SERVER_URL) {
+  if (VITE_SERVER_URL === undefined) {
     errorMsg +=
       '\nVITE_SERVER_URL not defined in .env!\nInclude protocol and port.\n';
   }
-  if (!VITE_IS_ADMIN) {
+  if (VITE_IS_ADMIN === undefined) {
     errorMsg +=
       '\nVITE_IS_ADMIN not defined in .env!\nShould be true or false.\n';
   }
-  if (!SERVER_PORT) {
+  if (SERVER_PORT === undefined) {
     errorMsg += '\nSERVER_PORT not defined in .env!\n';
   }
-  if (!SERVER_CORS_WHITELIST) {
+  if (SERVER_CORS_WHITELIST === undefined) {
     errorMsg +=
       '\nSERVER_CORS_WHITELIST not defined in .env!\nShould be a JSON array.\n';
   }
-  if (!SERVER_DATABASE_URL) {
+  if (SERVER_DATABASE_URL === undefined) {
     errorMsg += '\nSERVER_DATABASE_URL not defined in .env!';
   }
-  if (!RAILWAY_VOLUME_MOUNT_PATH) {
+  if (RAILWAY_VOLUME_MOUNT_PATH === undefined) {
     errorMsg += '\nRAILWAY_VOLUME_MOUNT_PATH not defined in .env!';
   }
 

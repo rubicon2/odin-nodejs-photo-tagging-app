@@ -6,9 +6,12 @@ export default function PhotoDetails({ photo, onDelete }) {
 
   async function deletePhoto(event) {
     try {
-      const response = await fetch(`/api/v1/admin/photo/${photo.id}`, {
-        method: 'delete',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/api/v1/admin/photo/${photo.id}`,
+        {
+          method: 'delete',
+        },
+      );
       if (response.ok) {
         const json = await response?.json();
         if (json.data?.message) {
