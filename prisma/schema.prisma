@@ -22,10 +22,10 @@ model Image {
 }
 
 model ImageTag {
-  id      String  @id @default(uuid())
-  posX    Decimal
-  posY    Decimal
+  id      String @id @default(uuid())
+  posX    Float
+  posY    Float
   name    String
   imageId String
-  image   Image   @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  image   Image  @relation(fields: [imageId], references: [id], onDelete: Cascade)
 }

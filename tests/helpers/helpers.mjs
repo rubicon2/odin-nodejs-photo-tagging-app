@@ -26,22 +26,22 @@ const testImageDataAbsoluteUrl = testImageData.map((image) => ({
 const testImageTagData = [
   {
     id: '1',
-    posX: '100',
-    posY: '200',
+    posX: 100,
+    posY: 200,
     name: 'sam',
     imageId: '1',
   },
   {
     id: '2',
-    posX: '200',
-    posY: '200',
+    posX: 200,
+    posY: 200,
     name: "sam's sister",
     imageId: '1',
   },
   {
     id: '3',
-    posX: '720',
-    posY: '79',
+    posX: 720,
+    posY: 79,
     name: 'hiro',
     imageId: '2',
   },
