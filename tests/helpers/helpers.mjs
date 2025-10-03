@@ -70,9 +70,13 @@ async function readVolumeFile(from) {
 
 async function postTestData() {
   // Create test data for tests about retrieving data.
-  await db.image.createMany({
+  const images = await db.image.createManyAndReturn({
     data: testImageData,
   });
+
+  for (const image of images) {
+    await uploadVolumeFile(image.url);
+  }
 
   await db.imageTag.createMany({
     data: testImageTagData,
