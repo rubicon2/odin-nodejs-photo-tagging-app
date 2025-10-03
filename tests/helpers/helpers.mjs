@@ -57,6 +57,11 @@ const testImageDataAbsoluteUrlWithTags = testImageDataAbsoluteUrl.map(
   }),
 );
 
+function createTailRegExp(str) {
+  // Matches the end of a string and ignores any leading characters.
+  return new RegExp(`^.*${str}`);
+}
+
 async function uploadVolumeFile(to, from = testImagePath) {
   await fs.copyFile(from, `${process.env.RAILWAY_VOLUME_MOUNT_PATH}/${to}`);
 }
@@ -85,6 +90,7 @@ async function postTestData() {
 
 export {
   clearDb,
+  createTailRegExp,
   testImagePath,
   testImageData,
   testImageDataAbsoluteUrl,
