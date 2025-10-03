@@ -1,9 +1,12 @@
 import db from '../../server/src/db/client.mjs';
 import createImgUrl from '../../server/src/ext/createImgUrl.mjs';
+import fs from 'node:fs/promises';
 
 async function clearDb() {
   await db.$transaction([db.image.deleteMany(), db.imageTag.deleteMany()]);
 }
+
+const testImagePath = `${process.cwd()}/tests/test_image.png`;
 
 const testImageData = [
   {
@@ -54,6 +57,17 @@ const testImageDataAbsoluteUrlWithTags = testImageDataAbsoluteUrl.map(
   }),
 );
 
+async function uploadVolumeFile(to, from = testImagePath) {
+  await fs.copyFile(from, `${process.env.RAILWAY_VOLUME_MOUNT_PATH}/${to}`);
+}
+
+async function readVolumeFile(from) {
+  const uploadedFile = await fs.readFile(
+    `${process.env.RAILWAY_VOLUME_MOUNT_PATH}/${from}`,
+  );
+  return uploadedFile;
+}
+
 async function postTestData() {
   // Create test data for tests about retrieving data.
   await db.image.createMany({
@@ -67,9 +81,12 @@ async function postTestData() {
 
 export {
   clearDb,
+  testImagePath,
   testImageData,
   testImageDataAbsoluteUrl,
   testImageTagData,
   testImageDataAbsoluteUrlWithTags,
   postTestData,
+  uploadVolumeFile,
+  readVolumeFile,
 };
