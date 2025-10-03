@@ -88,6 +88,10 @@ async function postTestData() {
   });
 }
 
+function logError(error, req, res, next) {
+  console.error(error);
+}
+
 export {
   clearDb,
   createTailRegExp,
@@ -99,4 +103,5 @@ export {
   postTestData,
   uploadVolumeFile,
   readVolumeFile,
+  logError,
 };
