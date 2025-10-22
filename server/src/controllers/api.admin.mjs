@@ -100,14 +100,28 @@ async function putPhoto(req, res, next) {
     const url = req.body?.url;
     const altText = req.body?.altText;
 
+    // Check id exists on db table before doing anything else.
+    const existingPhoto = await client.image.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingPhoto) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
     // If field missing from body, do not update to empty field/undefined/null on db.
     const data = {};
     if (url) {
       // If new url, delete image stored at old url.
       // Otherwise we will lose path to this file and be unable to access or delete it!
-      const { url: previousUrl } = await client.image.findUnique({
-        where: { id },
-      });
+      const previousUrl = existingPhoto.url;
       deleteFile(previousUrl);
       data.url = url;
     }

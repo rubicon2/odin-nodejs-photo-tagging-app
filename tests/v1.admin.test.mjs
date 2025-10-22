@@ -4,7 +4,9 @@ import { RAILWAY_VOLUME_MOUNT_PATH } from '../server/src/env.mjs';
 import {
   testImagePath,
   postTestData,
+  testImageData,
   testImageDataAbsoluteUrlWithTags,
+  createTailRegExp,
   logError,
 } from './helpers/helpers.mjs';
 
@@ -160,6 +162,10 @@ describe('v1 admin api', () => {
       });
 
       expect(dbEntry.url).toMatch(/^.*my-updated-url.png/);
+    });
+
+    it('returns a 404 status code if the id does not exist on the db table', () => {
+      return request(app).put('/photo/my-made-up-id').expect(404);
     });
   });
 });
