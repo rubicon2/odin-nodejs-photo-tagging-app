@@ -97,7 +97,8 @@ async function getPhotoAndTags(req, res, next) {
 async function putPhoto(req, res, next) {
   try {
     const { id } = req.params;
-    const { url, altText } = req.body;
+    const url = req.body?.url;
+    const altText = req.body?.altText;
 
     // If field missing from body, do not update to empty field/undefined/null on db.
     const data = {};
