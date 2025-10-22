@@ -124,5 +124,42 @@ describe('v1 admin api', () => {
     });
   });
 
-  it.skip('PUT /photo/:id updates an existing db entry', () => {});
+  describe('PUT /photo/:id', () => {
+    it("updates an existing db entry's altText correctly", async () => {
+      await postTestData();
+      const image = testImageData[0];
+      const putRes = await request(app)
+        .put(`/photo/${image.id}`)
+        .field('altText', 'my updated alt text');
+      expect(putRes.statusCode).toStrictEqual(200);
+
+      // Check the db has been updated with the details on the put request.
+      const dbEntry = await db.image.findUnique({
+        where: {
+          id: image.id,
+        },
+      });
+
+      expect(dbEntry.altText).toStrictEqual('my updated alt text');
+      expect(dbEntry.url).toMatch(createTailRegExp(image.url));
+    });
+
+    it("updates an existing db entry's url correctly", async () => {
+      await postTestData();
+      const image = testImageData[0];
+      const putRes = await request(app)
+        .put(`/photo/${image.id}`)
+        .field('url', 'my-updated-url.png');
+      expect(putRes.statusCode).toStrictEqual(200);
+
+      // Check the db has been updated with the details on the put request.
+      const dbEntry = await db.image.findUnique({
+        where: {
+          id: image.id,
+        },
+      });
+
+      expect(dbEntry.url).toMatch(/^.*my-updated-url.png/);
+    });
+  });
 });
