@@ -1,9 +1,24 @@
+import { RAILWAY_VOLUME_MOUNT_PATH } from '../../server/src/env.mjs';
 import db from '../../server/src/db/client.mjs';
 import createImgUrl from '../../server/src/ext/createImgUrl.mjs';
 import fs from 'node:fs/promises';
 
 async function clearDb() {
   await db.$transaction([db.image.deleteMany(), db.imageTag.deleteMany()]);
+}
+
+async function clearFiles() {
+  const allImages = await db.image.findMany();
+  const allUrls = allImages.map((image) => image.url);
+  for (const url of allUrls) {
+    try {
+      const absoluteUrl = `${RAILWAY_VOLUME_MOUNT_PATH}/${url}`;
+      await fs.rm(absoluteUrl);
+      console.log('Deleted:', absoluteUrl);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 
 const testImagePath = `${process.cwd()}/tests/test_image.png`;
@@ -94,6 +109,7 @@ function logError(error, req, res, next) {
 
 export {
   clearDb,
+  clearFiles,
   createTailRegExp,
   testImagePath,
   testImageData,
