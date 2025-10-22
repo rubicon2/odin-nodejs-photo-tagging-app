@@ -5,6 +5,7 @@ import {
   testImagePath,
   postTestData,
   testImageDataAbsoluteUrlWithTags,
+  logError,
 } from './helpers/helpers.mjs';
 
 import express from 'express';
@@ -15,6 +16,7 @@ import fs from 'node:fs/promises';
 const app = express();
 app.use('/data', express.static(RAILWAY_VOLUME_MOUNT_PATH));
 app.use(admin);
+app.use(logError);
 
 describe('v1 admin api', () => {
   it('GET /photo returns all photo entries on the db, with absolute urls and includes tags', async () => {
