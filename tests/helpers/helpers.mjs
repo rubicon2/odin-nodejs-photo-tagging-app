@@ -105,6 +105,7 @@ async function postTestData() {
 
 function logError(error, req, res, next) {
   console.error(error);
+  res.status(500).send(error);
 }
 
 export {
