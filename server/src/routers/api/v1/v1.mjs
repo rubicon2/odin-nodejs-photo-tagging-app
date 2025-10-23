@@ -5,11 +5,13 @@ import { Router } from 'express';
 
 const v1 = Router();
 
-// Some routes only available as admin - when setting up images in production will just set admin to true, then false once done.
+// Some routes only available as admin. User can enable admin mode by providing a password.
 // Do not send list of tags to non-admin client, otherwise it would be easy for client user to cheat.
 v1.use('/admin', isAdmin, adminRouter);
 
 // Standard non-admin routes.
+v1.post('/enable-admin', controller.postEnableAdminMode);
+v1.post('/disable-admin', controller.postDisableAdminMode);
 v1.get('/photo', controller.getAllPhotos);
 v1.get('/photo/:id', controller.getPhoto);
 // And a method for posting a click location to check if tag has been found.
