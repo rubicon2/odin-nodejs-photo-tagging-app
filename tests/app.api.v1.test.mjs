@@ -1,0 +1,51 @@
+import app from '../server/src/app.mjs';
+import { postTestData, testImageDataAbsoluteUrl } from './helpers/helpers.mjs';
+
+import { describe, it, expect } from 'vitest';
+import request from 'supertest';
+
+describe('/api/v1', () => {
+  describe('/photo', () => {
+    describe('GET', () => {
+      it('GET returns all photo entries on the db, with absolute urls', async () => {
+        // Setup environment, add data, etc.
+        await postTestData();
+        // Must return async request otherwise tests won't run properly! Will get incorrectly passing tests.
+        return request(app)
+          .get('/api/v1/photo')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .then((res) => {
+            expect(res.body).toEqual({
+              status: 'success',
+              data: {
+                message: 'All photos successfully retrieved.',
+                photos: testImageDataAbsoluteUrl,
+              },
+            });
+          });
+      });
+    });
+
+    describe('/:id', () => {
+      describe('GET', () => {
+        it('returns db entry for matching photo id without tags', async () => {
+          await postTestData();
+          return request(app)
+            .get(`/api/v1/photo/${testImageDataAbsoluteUrl[0].id}`)
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .then((res) => {
+              expect(res.body).toStrictEqual({
+                status: 'success',
+                data: {
+                  message: 'Photo successfully retrieved.',
+                  photo: testImageDataAbsoluteUrl[0],
+                },
+              });
+            });
+        });
+      });
+    });
+  });
+});

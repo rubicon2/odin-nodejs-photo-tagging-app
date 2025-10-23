@@ -1,0 +1,189 @@
+import app from '../server/src/app.mjs';
+import db from '../server/src/db/client.mjs';
+import {
+  testImagePath,
+  testImageData,
+  postTestData,
+  testImageDataAbsoluteUrlWithTags,
+  createTailRegExp,
+} from './helpers/helpers.mjs';
+
+import { describe, it, expect, beforeEach } from 'vitest';
+import request from 'supertest';
+import fs from 'node:fs/promises';
+
+beforeEach(() => {
+  process.env.ADMIN_ENABLED = 'true';
+});
+
+describe('/api/v1/admin', () => {
+  it('responds with a 403 status code if admin mode is not enabled', async () => {
+    process.env.ADMIN_ENABLED = 'false';
+    await request(app).get('/api/v1/admin').expect(403);
+    await request(app).post('/api/v1/admin').expect(403);
+    await request(app).put('/api/v1/admin').expect(403);
+    await request(app).delete('/api/v1/admin').expect(403);
+  });
+
+  describe('/photo', () => {
+    describe('GET', () => {
+      it('returns all photo entries on the db, with absolute urls and tags', async () => {
+        // Setup environment, add data, etc.
+        await postTestData();
+        // Must return (or await) async request otherwise tests won't run properly! Will get incorrectly passing tests.
+        return request(app)
+          .get('/api/v1/admin/photo')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .then((res) => {
+            expect(res.body).toEqual({
+              status: 'success',
+              data: {
+                message: 'All photos with tags successfully retrieved.',
+                photos: testImageDataAbsoluteUrlWithTags,
+              },
+            });
+          });
+      });
+    });
+
+    describe('POST', () => {
+      it('creates a new db entry and returns it in the response body', async () => {
+        return (
+          request(app)
+            .post('/api/v1/admin/photo')
+            .field('altText', 'my new photo')
+            // Doesn't seem to actually be attaching the image to the request... ?
+            // Because relative file path was not working, and using buffer from fs.readFile was not working.
+            // Although docs make it look like those should both work fine. Whatever.
+            .attach('photo', testImagePath)
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .then(async (res) => {
+              // Check database directly with prisma client to see if the data is there.
+              const body = res.body;
+              const photo = body.data.photo;
+              const dbEntry = await db.image.findUnique({
+                where: {
+                  id: photo.id,
+                },
+              });
+              expect(dbEntry.altText).toStrictEqual('my new photo');
+              expect(dbEntry.url).toMatch(/.?test_image.png/);
+            })
+        );
+      });
+
+      it('uploads a file to the location pointed to by the returned url', async () => {
+        const postRes = await request(app)
+          .post('/api/v1/admin/photo')
+          .field('altText', 'my new photo')
+          .attach('photo', testImagePath);
+
+        expect(postRes.headers['content-type']).toMatch(/json/);
+        expect(postRes.statusCode).toStrictEqual(200);
+
+        // Photo should contain a url that we can use to get the photo file.
+        const photo = postRes.body.data.photo;
+        // Don't test if the file exists on the server - that is an implementation detail - just test that we can get it.
+        const getPhotoRes = await request(app).get(photo.url);
+        expect(getPhotoRes.statusCode).toStrictEqual(200);
+
+        // To compare binary files, use equals method on buffer.
+        // It seems that none of the matchers work with binary files.
+        const originalFile = await fs.readFile(testImagePath);
+        expect(originalFile.equals(getPhotoRes.body)).toEqual(true);
+      });
+
+      it('can upload the same file with the same name twice without issues', async () => {
+        const postResA = await request(app)
+          .post('/api/v1/admin/photo')
+          .field('altText', 'my new photo')
+          .attach('photo', testImagePath);
+        const postResB = await request(app)
+          .post('/api/v1/admin/photo')
+          .field('altText', 'my new photo')
+          .attach('photo', testImagePath);
+
+        // Expect second request to have been successful.
+        expect(postResB.statusCode).toStrictEqual(200);
+
+        // Check the entries were made on the db as expected.
+        const images = await db.image.findMany();
+        expect(images.length).toStrictEqual(2);
+        for (const image of images) {
+          expect(image.altText).toStrictEqual('my new photo');
+          expect(image.url).toMatch(/^.*test_image.png/);
+        }
+      });
+    });
+
+    describe('/:id', () => {
+      describe('GET', () => {
+        it('returns db entry for matching photo id and includes tags', async () => {
+          await postTestData();
+          return request(app)
+            .get(
+              `/api/v1/admin/photo/${testImageDataAbsoluteUrlWithTags[0].id}`,
+            )
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .then((res) => {
+              expect(res.body).toEqual({
+                status: 'success',
+                data: {
+                  message: 'Photo with tags successfully retrieved.',
+                  photo: testImageDataAbsoluteUrlWithTags[0],
+                },
+              });
+            });
+        });
+      });
+
+      describe('PUT', () => {
+        it("updates an existing db entry's altText correctly", async () => {
+          await postTestData();
+          const image = testImageData[0];
+          const putRes = await request(app)
+            .put(`/api/v1/admin/photo/${image.id}`)
+            .field('altText', 'my updated alt text');
+          expect(putRes.statusCode).toStrictEqual(200);
+
+          // Check the db has been updated with the details on the put request.
+          const dbEntry = await db.image.findUnique({
+            where: {
+              id: image.id,
+            },
+          });
+
+          expect(dbEntry.altText).toStrictEqual('my updated alt text');
+          expect(dbEntry.url).toMatch(createTailRegExp(image.url));
+        });
+
+        it("updates an existing db entry's url correctly", async () => {
+          await postTestData();
+          const image = testImageData[0];
+          const putRes = await request(app)
+            .put(`/api/v1/admin/photo/${image.id}`)
+            .field('url', 'my-updated-url.png');
+          expect(putRes.statusCode).toStrictEqual(200);
+
+          // Check the db has been updated with the details on the put request.
+          const dbEntry = await db.image.findUnique({
+            where: {
+              id: image.id,
+            },
+          });
+
+          expect(dbEntry.url).toMatch(/^.*my-updated-url.png/);
+        });
+
+        it('returns a 404 status code if the id does not exist on the db table', () => {
+          return request(app)
+            .put('/api/v1/admin/photo/my-made-up-id')
+            .expect(404);
+        });
+      });
+    });
+  });
+});
