@@ -1,4 +1,4 @@
-import * as controller from '../../../controllers/api.mjs';
+import * as controller from '../../../controllers/v1/api.mjs';
 import authRouter from './v1.auth.mjs';
 import adminRouter from './v1.admin.mjs';
 import isAdmin from '../../../middleware/isAdmin.mjs';

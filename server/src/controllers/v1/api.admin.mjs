@@ -1,6 +1,6 @@
-import client from '../db/client.mjs';
-import createImgUrl from '../ext/createImgUrl.mjs';
-import { deleteFile } from '../ext/volume.mjs';
+import client from '../../db/client.mjs';
+import createImgUrl from '../../ext/createImgUrl.mjs';
+import { deleteFile } from '../../ext/volume.mjs';
 
 async function postPhoto(req, res) {
   // Multer gets file data.

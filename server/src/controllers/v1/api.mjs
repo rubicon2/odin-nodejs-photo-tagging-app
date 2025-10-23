@@ -1,5 +1,5 @@
-import client from '../db/client.mjs';
-import createImgUrl from '../ext/createImgUrl.mjs';
+import client from '../../db/client.mjs';
+import createImgUrl from '../../ext/createImgUrl.mjs';
 
 async function getAllPhotos(req, res, next) {
   try {

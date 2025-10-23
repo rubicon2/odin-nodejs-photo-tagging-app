@@ -1,4 +1,4 @@
-import * as controller from '../../../controllers/api.admin.mjs';
+import * as controller from '../../../controllers/v1/api.admin.mjs';
 import upload from '../../../middleware/multer.mjs';
 import { Router } from 'express';
 
