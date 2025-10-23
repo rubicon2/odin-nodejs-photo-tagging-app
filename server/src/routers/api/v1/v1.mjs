@@ -1,4 +1,5 @@
 import * as controller from '../../../controllers/api.mjs';
+import authRouter from './v1.auth.mjs';
 import adminRouter from './v1.admin.mjs';
 import isAdmin from '../../../middleware/isAdmin.mjs';
 import { Router } from 'express';
@@ -9,9 +10,10 @@ const v1 = Router();
 // Do not send list of tags to non-admin client, otherwise it would be easy for client user to cheat.
 v1.use('/admin', isAdmin, adminRouter);
 
+// For enabling/disabling admin mode.
+v1.use('/auth', authRouter);
+
 // Standard non-admin routes.
-v1.post('/enable-admin', controller.postEnableAdminMode);
-v1.post('/disable-admin', controller.postDisableAdminMode);
 v1.get('/photo', controller.getAllPhotos);
 v1.get('/photo/:id', controller.getPhoto);
 // And a method for posting a click location to check if tag has been found.
