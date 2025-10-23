@@ -15,6 +15,17 @@ import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import fs from 'node:fs/promises';
 
+/*
+  These tests are terribly convoluted.
+
+  I think that maybe, just maybe, the methodology of these tests is truly rubbish.
+  Testing the router on its own, we are having to fake so much stuff that is part of the whole application,
+  e.g. making sure we add a static volume, adding error logging, blah blah blah.
+  Surely as an integration test, it would be better to test the whole thing? Not a unit test.
+  But doing the whole tests in one file would be too long. Maybe, different files for each thing,
+  but all just use the server > app.mjs export?
+*/
+
 const app = express();
 app.use('/data', express.static(RAILWAY_VOLUME_MOUNT_PATH));
 app.use(admin);

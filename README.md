@@ -1,43 +1,18 @@
-# Full Stack Project Template
+# odin-nodejs-photo-tagging-app
 
-Set up with express server and vite client as separate npm packages in their own sub-directories. Should be ready to run and test.
+## Problems
 
-## Package Scripts
+- Since this was a project with one client and server (opposed to multiple clients), I decided to make everything all within one parent folder, server, clients, everything. I am not finished yet, and can tell you this is a bad idea. Just navigating the folder to find what I need is a pain. The increased mental load of having everything there all the time, instead of hidden away when I am not working on it. I am not a fan of this way of working. So this was an experiment in project structure which has achieved a clear result: doing this is bad, don't do it.
+- Learning how to do integration tests with docker was a pain but now I am more used to it, it is nice and convenient and works well.
+- I also had the bright idea to have a js file that loads all the environment variables needed for the application and checks they exist. It was also useful to avoid having to do the dotenv config, since the server isn't in the root of the project, it had to be told where the env file was and it was kind of fiddly. The file then exports the env variables and the rest of the application just uses the exports. However, that means if the env variables change (e.g. as part of a test) then this isn't reflected in the results. Maybe I will change the env file just to load and check they exist. Nothing will be exported and everything else will use process.env instead. Maybe then process.env variables can be used instead of global ref based vars.
+- I thought, I'll only need an admin mode when the application is being set up, so I will just set the environment variable IS_ADMIN to true, add the photos and tags with the app, and then set IS_ADMIN to false and re-deploy. This value gets "baked in" to the client in the build process. This has ended up being a huge problem with testing with docker. The build process gets done, then the docker image being used for the tests is either the admin or user version and cannot be changed. The solution, I guess, is instead of Dockerfile.dev for all build images, have Dockerfile.admin.dev for the admin version, and Dockerfile.user.dev for the user version, and run the tests separately. This totally sucks though, since you can't run all the integration tests at once. You have to run them once for the admin version, and again for the user version. It will be easy to break something and not know until the other version is tested. And running the tests simulatenously in two different terminals isn't going to work - the db will be updated by a test in one terminal, and before it gets cleared the other terminal will run a test against the db and fail. It ruins the instant feedback that tests are great at providing. In conclusion: in the future, no matter how small or briefly required the admin functionality is - do not have that admin functionality hidden behind an env variable and a re-deploy. Instead, just do the whole thing of logging in with sessions. It will make everything easier in the long run when it has been set up. Possible solutions to my current predicament:
+  - Implement user/password log in
+  - Find a way to change the env variables within the app without re-deploying. The admin value could be just internal to the application, and could have a server-side env password required to change it? So IS_ADMIN is no longer an environment variable, but something stored on the server side. But then the client would have to get the status of IS_ADMIN.
 
-There are scripts on the root package for dev servers, testing and deployment. Due to the name, I thought that vitest was only suitable for testing vite, but actually it can be used as a drop-in replacement for jest, and I will use it as such in all future projects. It is a lot easier to use, especially since it supports es6 imports/exports. Jest doesn't, and you have to run node with a flag for "experimental-vm-modules" or something. Not intuitive. Vitest just works.
+## Stuff that was learned by me
 
-Unit tests are run with the following command:
-
-```bash
-npm run test:unit
-```
-
-Integration tests are located in tests/ and requires docker installed to run, as it spins up a fresh instance of a postgresql database for testing. The shell scripts located in scripts/ exist for this purpose and require execute permissions so you will need to run from the root directory to allow them to run:
-
-```bash
-chmod +x ./scripts/*
-```
-
-And the tests are run with the following command:
-
-```bash
-npm run test:int
-```
-
-### Scripts List
-
-- npm run dev (starts express server on SERVER_PORT and vite client on port 5173)
-- npm run build (builds vite client and copies it into the server public folder, ready to be served)
-- npm run start (starts express server on SERVER_PORT)
-- npm run test:unit (runs unit tests)
-- npm run test:int (runs integration tests, as detailed above)
-
-## Env Requirements
-
-- MODE (i.e. production or development)
-- VITE_IS_ADMIN (whether the application should be running in admin mode or not. Admin mode will be used to upload and set up photos and their tags, and once done the this will be changed to FALSE.)
-- VITE_SERVER_URL (so vite client is able to make calls to the server)
-- SERVER_PORT (tells the server which port to listen on)
-- SERVER_CORS_WHITELIST (as a JSON array, like so: '["https://duckduckgo.com", "https://wikipedia.org"]', and yes it has to be single quotes around the array otherwise it won't load)
-- SERVER_DATABASE_URL (exactly as it sounds)
-- RAILWAY_VOLUME_MOUNT_PATH (the directory to which uploaded files will be saved)
+- Docker
+- JSDoc (when making npm packages)
+- A bit more advanced shell scripting
+- Practiced making npm packages
+- Integration tests!! I made two npm packages in the process of doing this project: @rubicon2/object-transformer and @rubicon2/object-transformer-prisma. These transform objects according to a ruleset provided by the user and the prisma package is a set of common rules and options to use with prisma. I previously made a package called url-query-to-prisma but it was far too limited in what it could do. I needed something more flexible. With object-transformer-prisma in particular, I wanted integration tests to test each rule against a real case of hitting a database with the prisma client.
