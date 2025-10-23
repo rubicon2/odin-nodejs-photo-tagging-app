@@ -1,6 +1,5 @@
 import admin from '../server/src/routers/api/v1/v1.admin.mjs';
 import db from '../server/src/db/client.mjs';
-import { RAILWAY_VOLUME_MOUNT_PATH } from '../server/src/env.mjs';
 import {
   testImagePath,
   postTestData,
@@ -27,7 +26,7 @@ import fs from 'node:fs/promises';
 */
 
 const app = express();
-app.use('/data', express.static(RAILWAY_VOLUME_MOUNT_PATH));
+app.use('/data', express.static(process.env.VOLUME_MOUNT_PATH));
 app.use(admin);
 app.use(logError);
 
@@ -108,9 +107,9 @@ describe('v1 admin api', () => {
       const getPhotoRes = await request(app).get(photo.url);
       expect(getPhotoRes.statusCode).toStrictEqual(200);
 
-      const originalFile = await fs.readFile(testImagePath);
       // To compare binary files, use equals method on buffer.
       // It seems that none of the matchers work with binary files.
+      const originalFile = await fs.readFile(testImagePath);
       expect(originalFile.equals(getPhotoRes.body)).toEqual(true);
     });
 

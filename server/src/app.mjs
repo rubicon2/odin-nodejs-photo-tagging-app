@@ -1,5 +1,4 @@
 import api from './routers/api.mjs';
-import { RAILWAY_VOLUME_MOUNT_PATH, SERVER_CORS_WHITELIST } from './env.mjs';
 
 import express from 'express';
 import cors from 'cors';
@@ -8,9 +7,9 @@ import path from 'path';
 const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(import.meta.dirname, '../public')));
-app.use('/data', express.static(RAILWAY_VOLUME_MOUNT_PATH));
+app.use('/data', express.static(process.env.VOLUME_MOUNT_PATH));
 
-const whitelist = JSON.parse(SERVER_CORS_WHITELIST);
+const whitelist = JSON.parse(process.env.SERVER_CORS_WHITELIST);
 console.log('CORS whitelist:', whitelist);
 app.use(
   cors({
