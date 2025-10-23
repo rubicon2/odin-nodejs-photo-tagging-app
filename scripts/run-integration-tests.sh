@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
+docker_down() {
+  echo "Shutting down docker containers..."
+  # -v removes volumes.
+  docker-compose down -v
+  echo "Docker containers shut down"
+
+  echo "Pruning docker cache..."
+  docker system prune -f
+  echo "Pruned"
+}
+
+# So that if terminal is running within another program that closes, will still clean up.
+trap docker_down SIGHUP
+
 echo "Starting docker containers..."
 
 # Start test database and containerized backend for storing uploads.
@@ -7,9 +21,6 @@ echo "Starting docker containers..."
 docker-compose up --build --watch
 
 # Once script fails or tests are finished, destroy container and volumes.
-echo "Shutting down docker containers..."
+docker_down
 
-# -v removes volumes.
-docker-compose down -v
-
-echo "Docker containers shut down"
+echo "Exiting run-integration-tests.sh..."
