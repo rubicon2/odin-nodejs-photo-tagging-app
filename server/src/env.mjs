@@ -1,31 +1,18 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-dotenv.config({
-  path: path.join(import.meta.dirname, '../../.env'),
-});
-
-const MODE = process.env.MODE;
-const VITE_SERVER_URL = process.env.VITE_SERVER_URL;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const SERVER_PORT = process.env.SERVER_PORT;
-const SERVER_CORS_WHITELIST = process.env.SERVER_CORS_WHITELIST;
-const SERVER_DATABASE_URL = process.env.SERVER_DATABASE_URL;
-const VOLUME_MOUNT_PATH = process.env.VOLUME_MOUNT_PATH;
-
-console.log('ENVIRONMENT LOADED');
-console.log('                     MODE:', MODE);
-console.log('          VITE_SERVER_URL:', VITE_SERVER_URL);
-console.log(
-  '           ADMIN_PASSWORD: omitted to avoid being recorded in shell history',
-);
-console.log('          SERVER_PORT:', SERVER_PORT);
-console.log('SERVER_CORS_WHITELIST:', SERVER_CORS_WHITELIST);
-console.log('  SERVER_DATABASE_URL:', SERVER_DATABASE_URL);
-console.log('    VOLUME_MOUNT_PATH:', VOLUME_MOUNT_PATH);
-
 // So if we forget to add .env vars and e.g. deploy fails, we will have useful errors.
 function checkEnvComplete() {
+  const {
+    MODE,
+    VITE_SERVER_URL,
+    ADMIN_PASSWORD,
+    SERVER_PORT,
+    SERVER_CORS_WHITELIST,
+    SERVER_DATABASE_URL,
+    VOLUME_MOUNT_PATH,
+  } = process.env;
+
   let errorMsg = '';
   if (MODE === undefined) {
     errorMsg +=
@@ -55,4 +42,12 @@ function checkEnvComplete() {
   if (errorMsg.length !== 0) throw new Error(errorMsg);
 }
 
-checkEnvComplete();
+function loadEnv() {
+  dotenv.config({
+    path: path.join(import.meta.dirname, '../../.env'),
+  });
+
+  checkEnvComplete();
+}
+
+export default loadEnv;

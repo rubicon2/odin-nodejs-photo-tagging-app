@@ -1,8 +1,11 @@
+import loadEnv from './env.mjs';
 import api from './routers/api.mjs';
 
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+
+loadEnv();
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
