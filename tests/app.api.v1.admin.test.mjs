@@ -227,85 +227,101 @@ describe('/api/v1/admin', () => {
       });
 
       describe('GET', () => {
-        it('returns db entry for matching photo id, with absolute url and tags', async () => {
-          await postTestData();
-          return request(app)
-            .get(
-              `/api/v1/admin/photo/${testImageDataAbsoluteUrlWithTags[0].id}`,
-            )
-            .expect('Content-Type', /json/)
-            .expect(200)
-            .then((res) => {
-              expect(res.body).toEqual({
-                status: 'success',
-                data: {
-                  message: 'Photo with tags successfully retrieved.',
-                  photo: testImageDataAbsoluteUrlWithTags[0],
-                },
+        describe('with a valid id', () => {
+          it('responds with a status code 200', async () => {
+            await postTestData();
+            return request(app)
+              .get(
+                `/api/v1/admin/photo/${testImageDataAbsoluteUrlWithTags[0].id}`,
+              )
+              .expect(200);
+          });
+
+          it('returns db entry for matching photo id, with absolute url and tags', async () => {
+            await postTestData();
+            return request(app)
+              .get(
+                `/api/v1/admin/photo/${testImageDataAbsoluteUrlWithTags[0].id}`,
+              )
+              .expect('Content-Type', /json/)
+              .then((res) => {
+                expect(res.body).toEqual({
+                  status: 'success',
+                  data: {
+                    message: 'Photo with tags successfully retrieved.',
+                    photo: testImageDataAbsoluteUrlWithTags[0],
+                  },
+                });
               });
-            });
+          });
         });
 
-        it('responds with a json message if there is no entry for the id', () => {
-          return request(app)
-            .get('/api/v1/admin/photo/my-made-up-id')
-            .expect({
-              status: 'fail',
-              data: {
-                message: 'That photo does not exist.',
-              },
-            });
+        describe('with an invalid id', () => {
+          it('responds with a json message if there is no entry for the id', () => {
+            return request(app)
+              .get('/api/v1/admin/photo/my-made-up-id')
+              .expect({
+                status: 'fail',
+                data: {
+                  message: 'That photo does not exist.',
+                },
+              });
+          });
         });
       });
 
       describe('PUT', () => {
-        it("updates an existing db entry's altText correctly", async () => {
-          await postTestData();
-          const image = testImageData[0];
-          const putRes = await request(app)
-            .put(`/api/v1/admin/photo/${image.id}`)
-            .field('altText', 'my updated alt text');
-          expect(putRes.statusCode).toStrictEqual(200);
+        describe('with a valid id', () => {
+          it("updates an existing db entry's altText correctly", async () => {
+            await postTestData();
+            const image = testImageData[0];
+            const putRes = await request(app)
+              .put(`/api/v1/admin/photo/${image.id}`)
+              .field('altText', 'my updated alt text');
+            expect(putRes.statusCode).toStrictEqual(200);
 
-          // Check the db has been updated with the details on the put request.
-          const dbEntry = await db.image.findUnique({
-            where: {
-              id: image.id,
-            },
-          });
-
-          expect(dbEntry.altText).toStrictEqual('my updated alt text');
-          expect(testImageDataAbsoluteUrl[0].url).toMatch(dbEntry.url);
-        });
-
-        it("updates an existing db entry's url correctly", async () => {
-          await postTestData();
-          const image = testImageData[0];
-          const putRes = await request(app)
-            .put(`/api/v1/admin/photo/${image.id}`)
-            .field('url', 'my-updated-url.png');
-          expect(putRes.statusCode).toStrictEqual(200);
-
-          // Check the db has been updated with the details on the put request.
-          const dbEntry = await db.image.findUnique({
-            where: {
-              id: image.id,
-            },
-          });
-
-          expect(dbEntry.altText).toStrictEqual(testImageData[0].altText);
-          expect('my-updated-url.png').toMatch(dbEntry.url);
-        });
-
-        it('responds with a json message if there is no entry for the id', () => {
-          return request(app)
-            .put('/api/v1/admin/photo/my-made-up-id')
-            .expect({
-              status: 'fail',
-              data: {
-                message: 'That photo does not exist.',
+            // Check the db has been updated with the details on the put request.
+            const dbEntry = await db.image.findUnique({
+              where: {
+                id: image.id,
               },
             });
+
+            expect(dbEntry.altText).toStrictEqual('my updated alt text');
+            expect(testImageDataAbsoluteUrl[0].url).toMatch(dbEntry.url);
+          });
+
+          it("updates an existing db entry's url correctly", async () => {
+            await postTestData();
+            const image = testImageData[0];
+            const putRes = await request(app)
+              .put(`/api/v1/admin/photo/${image.id}`)
+              .field('url', 'my-updated-url.png');
+            expect(putRes.statusCode).toStrictEqual(200);
+
+            // Check the db has been updated with the details on the put request.
+            const dbEntry = await db.image.findUnique({
+              where: {
+                id: image.id,
+              },
+            });
+
+            expect(dbEntry.altText).toStrictEqual(testImageData[0].altText);
+            expect('my-updated-url.png').toMatch(dbEntry.url);
+          });
+        });
+
+        describe('with an invalid id', () => {
+          it('responds with a json message if there is no entry for the id', () => {
+            return request(app)
+              .put('/api/v1/admin/photo/my-made-up-id')
+              .expect({
+                status: 'fail',
+                data: {
+                  message: 'That photo does not exist.',
+                },
+              });
+          });
         });
       });
     });
