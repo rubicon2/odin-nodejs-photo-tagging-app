@@ -5,8 +5,20 @@ import { deleteFile } from '../../ext/volume.mjs';
 async function postPhoto(req, res) {
   // Multer gets file data.
   const photo = req.file;
-  // Contains details of people tagged in the photo.
-  const { altText } = req.body;
+  // Get altText from body if it is there.
+  const altText = req.body?.altText;
+
+  if (!photo || !altText) {
+    let validation = {};
+    if (!photo) validation.photo = 'Photo is a required field';
+    if (!altText) validation.altText = 'Alt text is a required field';
+    return res.status(400).send({
+      status: 'fail',
+      data: {
+        validation,
+      },
+    });
+  }
 
   console.log('Image uploaded:', photo);
 

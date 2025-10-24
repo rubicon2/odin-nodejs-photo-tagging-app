@@ -52,6 +52,96 @@ describe('/api/v1/admin', () => {
     });
 
     describe('POST', () => {
+      describe('with no altText or photo present on request', () => {
+        it('returns a status code 400', () => {
+          return request(app).post('/api/v1/admin/photo').expect(400);
+        });
+
+        it('returns json with validation messages', () => {
+          return request(app)
+            .post('/api/v1/admin/photo')
+            .expect({
+              status: 'fail',
+              data: {
+                validation: {
+                  photo: 'Photo is a required field',
+                  altText: 'Alt text is a required field',
+                },
+              },
+            });
+        });
+      });
+
+      describe('with blank altText present on request', () => {
+        it('returns a status code 400', () => {
+          return request(app)
+            .post('/api/v1/admin/photo')
+            .field('altText', '')
+            .attach('photo', testImagePath)
+            .expect(400);
+        });
+
+        it('returns json with validation messages', () => {
+          return request(app)
+            .post('/api/v1/admin/photo')
+            .attach('photo', testImagePath)
+            .expect({
+              status: 'fail',
+              data: {
+                validation: {
+                  altText: 'Alt text is a required field',
+                },
+              },
+            });
+        });
+      });
+
+      describe('with only altText present on request', () => {
+        it('returns a status code 400', () => {
+          return request(app)
+            .post('/api/v1/admin/photo')
+            .field('altText', '')
+            .expect(400);
+        });
+
+        it('returns json with validation messages', () => {
+          return request(app)
+            .post('/api/v1/admin/photo')
+            .field('altText', 'my new photo')
+            .expect({
+              status: 'fail',
+              data: {
+                validation: {
+                  photo: 'Photo is a required field',
+                },
+              },
+            });
+        });
+      });
+
+      describe('with only photo present on request', () => {
+        it('returns a status code 400', () => {
+          return request(app)
+            .post('/api/v1/admin/photo')
+            .attach('photo', testImagePath)
+            .expect(400);
+        });
+
+        it('returns json with validation messages', () => {
+          return request(app)
+            .post('/api/v1/admin/photo')
+            .attach('photo', testImagePath)
+            .expect({
+              status: 'fail',
+              data: {
+                validation: {
+                  altText: 'Alt text is a required field',
+                },
+              },
+            });
+        });
+      });
+
       describe('with altText and photo present on request', () => {
         it('creates a new db entry and returns it in the response body', () => {
           return (
