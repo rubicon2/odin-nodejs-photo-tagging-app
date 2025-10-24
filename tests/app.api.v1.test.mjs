@@ -7,7 +7,7 @@ import request from 'supertest';
 describe('/api/v1', () => {
   describe('/photo', () => {
     describe('GET', () => {
-      it('GET returns all photo entries on the db, with absolute urls', async () => {
+      it('GET returns all db entries, with absolute urls and no tags', async () => {
         // Setup environment, add data, etc.
         await postTestData();
         // Must return async request otherwise tests won't run properly! Will get incorrectly passing tests.
@@ -29,7 +29,7 @@ describe('/api/v1', () => {
 
     describe('/:id', () => {
       describe('GET', () => {
-        it('returns db entry for matching photo id without tags', async () => {
+        it('returns db entry for matching photo id, with absolute url and no tags', async () => {
           await postTestData();
           return request(app)
             .get(`/api/v1/photo/${testImageDataAbsoluteUrl[0].id}`)
@@ -46,7 +46,7 @@ describe('/api/v1', () => {
             });
         });
 
-        it('responds with a 404 status code if there is no entry for the id', () => {
+        it('responds with a 404 status code and json message if there is no entry for the id', () => {
           return request(app)
             .get('/api/v1/photo/my-made-up-id')
             .expect(404)
