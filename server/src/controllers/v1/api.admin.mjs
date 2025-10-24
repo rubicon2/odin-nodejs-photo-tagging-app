@@ -70,7 +70,7 @@ async function getPhotoAndTags(req, res, next) {
     });
 
     if (!photo) {
-      return res.send({
+      return res.status(404).send({
         status: 'fail',
         data: {
           message: 'That photo does not exist.',
@@ -173,7 +173,24 @@ async function deleteAllPhotos(req, res, next) {
 async function deletePhoto(req, res, next) {
   try {
     const { id } = req.params;
-    const photo = await client.image.delete({
+
+    // Check if photo exists before deleting, otherwise prisma could throw an error.
+    const photo = await client.image.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!photo) {
+      return res.status(404).send({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
+    await client.image.delete({
       where: {
         id,
       },
@@ -181,15 +198,6 @@ async function deletePhoto(req, res, next) {
 
     // Delete from filesystem. Probably don't have to wait for this, but just in case.
     await deleteFile(photo.url);
-
-    if (!photo) {
-      return res.send({
-        status: 'fail',
-        data: {
-          message: 'That photo does not exist.',
-        },
-      });
-    }
 
     return res.send({
       status: 'success',
