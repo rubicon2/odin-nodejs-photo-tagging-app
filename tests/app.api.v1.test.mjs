@@ -29,33 +29,46 @@ describe('/api/v1', () => {
 
     describe('/:id', () => {
       describe('GET', () => {
-        it('returns db entry for matching photo id, with absolute url and no tags', async () => {
-          await postTestData();
-          return request(app)
-            .get(`/api/v1/photo/${testImageDataAbsoluteUrl[0].id}`)
-            .expect('Content-Type', /json/)
-            .expect(200)
-            .then((res) => {
-              expect(res.body).toStrictEqual({
-                status: 'success',
-                data: {
-                  message: 'Photo successfully retrieved.',
-                  photo: testImageDataAbsoluteUrl[0],
-                },
+        describe('with a valid id', () => {
+          it('responds with a status code 200', async () => {
+            await postTestData();
+            return request(app)
+              .get(`/api/v1/photo/${testImageDataAbsoluteUrl[0].id}`)
+              .expect(200);
+          });
+
+          it('returns db entry for matching photo id, with absolute url and no tags', async () => {
+            await postTestData();
+            return request(app)
+              .get(`/api/v1/photo/${testImageDataAbsoluteUrl[0].id}`)
+              .expect('Content-Type', /json/)
+              .then((res) => {
+                expect(res.body).toStrictEqual({
+                  status: 'success',
+                  data: {
+                    message: 'Photo successfully retrieved.',
+                    photo: testImageDataAbsoluteUrl[0],
+                  },
+                });
               });
-            });
+          });
         });
 
-        it('responds with a 404 status code and json message if there is no entry for the id', () => {
-          return request(app)
-            .get('/api/v1/photo/my-made-up-id')
-            .expect(404)
-            .expect({
-              status: 'fail',
-              data: {
-                message: 'That photo does not exist.',
-              },
-            });
+        describe('with an invalid id', () => {
+          it('responds with a status code 404', () => {
+            return request(app).get('/api/v1/photo/my-made-up-id').expect(404);
+          });
+
+          it('responds with a json message', () => {
+            return request(app)
+              .get('/api/v1/photo/my-made-up-id')
+              .expect({
+                status: 'fail',
+                data: {
+                  message: 'That photo does not exist.',
+                },
+              });
+          });
         });
       });
     });
