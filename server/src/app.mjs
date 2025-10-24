@@ -34,7 +34,7 @@ app.use('/api', api);
 /* eslint-disable-next-line */
 app.use((error, req, res, next) => {
   console.error(error);
-  return res.send({
+  return res.status(500).send({
     status: 'error',
     data: {
       message: error.message,
