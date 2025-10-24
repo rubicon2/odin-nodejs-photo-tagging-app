@@ -7,7 +7,7 @@ function postEnableAdminMode(req, res) {
     process.env.ADMIN_ENABLED === 'true' ||
     password === process.env.ADMIN_PASSWORD
   ) {
-    process.env.ADMIN_ENABLED = true;
+    process.env.ADMIN_ENABLED = 'true';
     return res.json({
       status: 'success',
       data: {
@@ -19,7 +19,7 @@ function postEnableAdminMode(req, res) {
   return res.status(401).json({
     status: 'fail',
     data: {
-      message: 'Password was not correct, admin mode was not enabled.',
+      message: 'Incorrect password.',
     },
   });
 }
