@@ -45,6 +45,18 @@ describe('/api/v1', () => {
               });
             });
         });
+
+        it('responds with a 404 status code if there is no entry for the id', () => {
+          return request(app)
+            .get('/api/v1/photo/my-made-up-id')
+            .expect(404)
+            .expect({
+              status: 'fail',
+              data: {
+                message: 'That photo does not exist.',
+              },
+            });
+        });
       });
     });
   });

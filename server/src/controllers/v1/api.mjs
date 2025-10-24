@@ -30,7 +30,7 @@ async function getPhoto(req, res, next) {
     });
 
     if (!photo) {
-      return res.send({
+      return res.status(404).send({
         status: 'fail',
         data: {
           message: 'That photo does not exist.',
