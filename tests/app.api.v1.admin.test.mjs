@@ -324,6 +324,77 @@ describe('/api/v1/admin', () => {
           });
         });
       });
+
+      describe('DELETE', () => {
+        describe('with a valid id', () => {
+          const testImage = testImageDataAbsoluteUrl[0];
+
+          it('responds with a status code 200', async () => {
+            await postTestData();
+            const response = await request(app).delete(
+              `/api/v1/admin/photo/${testImage.id}`,
+            );
+            expect(response.statusCode).toStrictEqual(200);
+          });
+
+          it('responds with a json message', async () => {
+            await postTestData();
+            const response = await request(app).delete(
+              `/api/v1/admin/photo/${testImage.id}`,
+            );
+            expect(response.body).toStrictEqual({
+              status: 'success',
+              data: {
+                message: 'Photo successfully deleted.',
+                photo: testImage,
+              },
+            });
+          });
+
+          it('removes the corresponding db entry', async () => {
+            await postTestData();
+            await request(app).delete(`/api/v1/admin/photo/${testImage.id}`);
+            const dbEntry = await db.image.findUnique({
+              where: {
+                id: testImage.id,
+              },
+            });
+            expect(dbEntry).toBeNull();
+            // Check that the other entries are unaffected.
+            const allEntries = await db.image.findMany();
+            expect(allEntries).toStrictEqual(
+              testImageData.filter((image) => image.id !== testImage.id),
+            );
+          });
+
+          it('removes the corresponding file on the server', async () => {
+            await postTestData();
+            await request(app).delete(`/api/v1/admin/photo/${testImage.id}`);
+            // Don't test if the file exists on the server - that is an implementation detail - just test that we can't get it.
+            await request(app).get(`${testImage.url}`).expect(404);
+            // Check all other files are unaffected.
+            for (const image of testImageDataAbsoluteUrl) {
+              // Skip the one we just deleted.
+              if (image.id === testImage.id) continue;
+              await request(app).get(`${image.url}`).expect(200);
+            }
+          });
+        });
+
+        describe('with an invalid id', () => {
+          it('responds with a json message', async () => {
+            await postTestData();
+            return request(app)
+              .delete('/api/v1/admin/photo/my-made-up-id')
+              .expect({
+                status: 'fail',
+                data: {
+                  message: 'That photo does not exist.',
+                },
+              });
+          });
+        });
+      });
     });
   });
 });

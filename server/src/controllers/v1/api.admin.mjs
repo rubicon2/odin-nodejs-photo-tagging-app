@@ -215,7 +215,10 @@ async function deletePhoto(req, res, next) {
       status: 'success',
       data: {
         message: 'Photo successfully deleted.',
-        photo,
+        photo: {
+          ...photo,
+          url: createImgUrl(photo.url),
+        },
       },
     });
   } catch (error) {
