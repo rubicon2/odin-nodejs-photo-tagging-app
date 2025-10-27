@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../server/src/generated/prisma"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("SERVER_DATABASE_URL")
+}
+
+model Image {
+  id      String     @id @default(uuid())
+  url     String
+  altText String
+  tags    ImageTag[]
+}
+
+model ImageTag {
+  id      String @id @default(uuid())
+  posX    Float
+  posY    Float
+  name    String
+  imageId String
+  image   Image  @relation(fields: [imageId], references: [id], onDelete: Cascade)
+}

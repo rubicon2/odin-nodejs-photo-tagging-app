@@ -145,6 +145,9 @@ client/dist
 server/public
 
 # Prisma generated files
-**/generated/
+**/generated/prisma
 
 TODO.md
+
+# Dev mode file uploads will land here. Do not want in repo.
+data/

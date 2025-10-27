@@ -12,8 +12,12 @@
     "./client"
   ],
   "scripts": {
-    "build": "cd client && npm run build && cp -r dist/ ../server/public",
+    "test:unit": "vitest -c ./vitest.unit.config.js",
+    "test:unit:coverage": "vitest -c ./vitest.unit.config.js run --coverage",
+    "test:int": "./scripts/run-integration-tests.sh",
     "dev": "node --watch index.mjs & cd client && npm run dev",
+    "migrate": "npx prisma migrate deploy",
+    "build": "rm -rf server/public/* && cd client && npm run build && cp -r dist/ ../server/public",
     "start": "node index.mjs"
   },
   "keywords": [],
@@ -22,9 +26,14 @@
   "description": "",
   "devDependencies": {
     "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.6.2"
+    "node-mocks-http": "^1.17.2",
+    "prettier": "^3.6.2",
+    "prisma": "^6.14.0",
+    "supertest": "^7.1.4",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@prisma/client": "^6.14.0",
     "dotenv": "^17.2.1"
   }
 }

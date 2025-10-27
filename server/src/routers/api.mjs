@@ -1,8 +1,8 @@
-import * as controller from '../controllers/api.mjs';
+import v1 from './api/v1/v1.mjs';
 import { Router } from 'express';
 
 const api = Router();
 
-api.get('/', controller.get);
+api.use('/v1', v1);
 
 export default api;
