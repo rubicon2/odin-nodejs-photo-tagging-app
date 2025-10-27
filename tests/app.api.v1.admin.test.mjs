@@ -257,7 +257,7 @@ describe('/api/v1/admin', () => {
         });
 
         describe('with an invalid id', () => {
-          it('responds with a json message if there is no entry for the id', () => {
+          it('responds with a json message', () => {
             return request(app)
               .get('/api/v1/admin/photo/my-made-up-id')
               .expect({
@@ -312,7 +312,7 @@ describe('/api/v1/admin', () => {
         });
 
         describe('with an invalid id', () => {
-          it('responds with a json message if there is no entry for the id', () => {
+          it('responds with a json message', () => {
             return request(app)
               .put('/api/v1/admin/photo/my-made-up-id')
               .expect({
