@@ -18,119 +18,94 @@ beforeEach(() => {
 
 describe('/api/v1/admin/photo', () => {
   describe('GET', () => {
-    it('responds with a status code 200', () => {
-      return request(app).get('/api/v1/admin/photo').expect(200);
-    });
-
-    it('returns all photo entries on the db, with absolute urls and tags', async () => {
-      // Setup environment, add data, etc.
+    it('responds with a status code 200 and all db entries, with absolute urls and tags', async () => {
       await postTestData();
-      // Must return (or await) async request otherwise tests won't run properly! Will get incorrectly passing tests.
-      return request(app)
-        .get('/api/v1/admin/photo')
-        .expect('Content-Type', /json/)
-        .then((res) => {
-          expect(res.body).toStrictEqual({
-            status: 'success',
-            data: {
-              message: 'All photos with tags successfully retrieved.',
-              photos: testImageDataAbsoluteUrlWithTags,
-            },
-          });
-        });
+      const response = await request(app).get('/api/v1/admin/photo');
+
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body).toStrictEqual({
+        status: 'success',
+        data: {
+          message: 'All photos with tags successfully retrieved.',
+          photos: testImageDataAbsoluteUrlWithTags,
+        },
+      });
     });
   });
 
   describe('POST', () => {
-    describe('with no altText or photo present on request', () => {
-      it('returns a status code 400', () => {
-        return request(app).post('/api/v1/admin/photo').expect(400);
-      });
-
-      it('returns json with validation messages', () => {
-        return request(app)
-          .post('/api/v1/admin/photo')
-          .expect({
-            status: 'fail',
-            data: {
-              validation: {
-                photo: 'Photo is a required field',
-                altText: 'Alt text is a required field',
-              },
+    it.each([
+      {
+        testType: 'no altText or photo',
+        altTextValue: '',
+        photoValue: '',
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'Photo is a required field',
+              path: 'photo',
+              type: 'field',
+              value: '',
             },
-          });
-      });
-    });
-
-    describe('with blank altText present on request', () => {
-      it('returns a status code 400', () => {
-        return request(app)
-          .post('/api/v1/admin/photo')
-          .field('altText', '')
-          .attach('photo', testImagePath)
-          .expect(400);
-      });
-
-      it('returns json with validation messages', () => {
-        return request(app)
-          .post('/api/v1/admin/photo')
-          .attach('photo', testImagePath)
-          .expect({
-            status: 'fail',
-            data: {
-              validation: {
-                altText: 'Alt text is a required field',
-              },
+            {
+              location: 'body',
+              msg: 'AltText is a required field',
+              path: 'altText',
+              type: 'field',
+              value: '',
             },
-          });
-      });
-    });
-
-    describe('with only altText present on request', () => {
-      it('returns a status code 400', () => {
-        return request(app)
-          .post('/api/v1/admin/photo')
-          .field('altText', '')
-          .expect(400);
-      });
-
-      it('returns json with validation messages', () => {
-        return request(app)
-          .post('/api/v1/admin/photo')
-          .field('altText', 'my new photo')
-          .expect({
-            status: 'fail',
-            data: {
-              validation: {
-                photo: 'Photo is a required field',
-              },
+          ],
+        },
+      },
+      {
+        testType: 'no altText',
+        altTextValue: '',
+        photoValue: testImagePath,
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'AltText is a required field',
+              path: 'altText',
+              type: 'field',
+              value: '',
             },
-          });
-      });
-    });
-
-    describe('with only photo present on request', () => {
-      it('returns a status code 400', () => {
-        return request(app)
-          .post('/api/v1/admin/photo')
-          .attach('photo', testImagePath)
-          .expect(400);
-      });
-
-      it('returns json with validation messages', () => {
-        return request(app)
-          .post('/api/v1/admin/photo')
-          .attach('photo', testImagePath)
-          .expect({
-            status: 'fail',
-            data: {
-              validation: {
-                altText: 'Alt text is a required field',
-              },
+          ],
+        },
+      },
+      {
+        testType: 'no photo',
+        altTextValue: 'my alt text',
+        photoValue: '',
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'Photo is a required field',
+              path: 'photo',
+              type: 'field',
+              value: '',
             },
-          });
-      });
-    });
+          ],
+        },
+      },
+    ])(
+      'when provided with $testType, responds with a status code 400 and validation errors',
+      async ({ altTextValue, photoValue, expectedValidationObj }) => {
+        const response = await request(app)
+          .post('/api/v1/admin/photo')
+          .field('altText', altTextValue)
+          .attach('photo', photoValue);
+        expect(response.statusCode).toStrictEqual(400);
+        expect(response.body).toStrictEqual({
+          status: 'fail',
+          data: {
+            validation: expectedValidationObj,
+          },
+        });
+      },
+    );
 
     describe('with altText and photo present on request', () => {
       it('creates a new db entry and returns it in the response body', () => {
@@ -214,41 +189,33 @@ describe('api/v1/admin/photo/:photoId', () => {
   });
 
   describe('GET', () => {
-    describe('with a valid id', () => {
-      it('responds with a status code 200', async () => {
-        await postTestData();
-        return request(app)
-          .get(`/api/v1/admin/photo/${testImageDataAbsoluteUrlWithTags[0].id}`)
-          .expect(200);
-      });
+    it('with a valid id, responds with status code 200 and the db entry, with absolute url and tags', async () => {
+      await postTestData();
+      const response = await request(app).get(
+        `/api/v1/admin/photo/${testImageDataAbsoluteUrlWithTags[0].id}`,
+      );
 
-      it('returns db entry for matching photo id, with absolute url and tags', async () => {
-        await postTestData();
-        return request(app)
-          .get(`/api/v1/admin/photo/${testImageDataAbsoluteUrlWithTags[0].id}`)
-          .expect('Content-Type', /json/)
-          .then((res) => {
-            expect(res.body).toStrictEqual({
-              status: 'success',
-              data: {
-                message: 'Photo with tags successfully retrieved.',
-                photo: testImageDataAbsoluteUrlWithTags[0],
-              },
-            });
-          });
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body).toStrictEqual({
+        status: 'success',
+        data: {
+          message: 'Photo with tags successfully retrieved.',
+          photo: testImageDataAbsoluteUrlWithTags[0],
+        },
       });
     });
 
-    describe('with an invalid id', () => {
-      it('responds with a json message', () => {
-        return request(app)
-          .get('/api/v1/admin/photo/my-made-up-id')
-          .expect({
-            status: 'fail',
-            data: {
-              message: 'That photo does not exist.',
-            },
-          });
+    it('with an invalid id, responds with status code 404 and a json message', async () => {
+      const response = await request(app).get(
+        '/api/v1/admin/photo/my-made-up-id',
+      );
+
+      expect(response.statusCode).toStrictEqual(404);
+      expect(response.body).toStrictEqual({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
       });
     });
   });

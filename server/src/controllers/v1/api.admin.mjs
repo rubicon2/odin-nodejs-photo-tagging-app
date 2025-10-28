@@ -9,10 +9,32 @@ async function postPhoto(req, res) {
   // Get altText from body if it is there.
   const altText = req.body?.altText;
 
+  // Mimic the format of express-validator errors, so the client can use one method to display both.
   if (!photo || !altText) {
-    let validation = {};
-    if (!photo) validation.photo = 'Photo is a required field';
-    if (!altText) validation.altText = 'Alt text is a required field';
+    let validation = {
+      errors: [],
+    };
+
+    if (!photo) {
+      validation.errors.push({
+        location: 'body',
+        msg: 'Photo is a required field',
+        path: 'photo',
+        type: 'field',
+        value: '',
+      });
+    }
+
+    if (!altText) {
+      validation.errors.push({
+        location: 'body',
+        msg: 'AltText is a required field',
+        path: 'altText',
+        type: 'field',
+        value: '',
+      });
+    }
+
     return res.status(400).send({
       status: 'fail',
       data: {
