@@ -1,6 +1,7 @@
 import client from '../../db/client.mjs';
 import createImgUrl from '../../ext/createImgUrl.mjs';
 import { deleteFile } from '../../ext/volume.mjs';
+import { validationResult, matchedData } from 'express-validator';
 
 async function postPhoto(req, res) {
   // Multer gets file data.
@@ -306,6 +307,56 @@ async function getPhotoTag(req, res, next) {
   }
 }
 
+async function postPhotoTag(req, res, next) {
+  try {
+    // Check photo exists before trying to create a tag for it.
+    const existingPhoto = await client.image.findUnique({
+      where: {
+        id: req.params.photoId,
+      },
+    });
+
+    if (!existingPhoto) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
+    const validation = validationResult(req);
+
+    if (!validation.isEmpty()) {
+      return res.status(400).json({
+        status: 'fail',
+        data: {
+          validation,
+        },
+      });
+    }
+
+    const validatedData = matchedData(req);
+
+    const tag = await client.imageTag.create({
+      data: {
+        imageId: req.params.photoId,
+        ...validatedData,
+      },
+    });
+
+    return res.json({
+      status: 'success',
+      data: {
+        message: 'Tag successfully created.',
+        tag,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export {
   postPhoto,
   getAllPhotosAndTags,
@@ -315,4 +366,5 @@ export {
   deletePhoto,
   getAllPhotoTags,
   getPhotoTag,
+  postPhotoTag,
 };

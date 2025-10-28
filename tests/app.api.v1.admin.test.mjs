@@ -354,6 +354,194 @@ describe('/api/v1/admin', () => {
             });
           });
         });
+
+        describe('POST', () => {
+          describe('with an invalid photoId', () => {
+            it('responds with a status code 404 and a json message', async () => {
+              const response = await request(app).post(
+                '/api/v1/admin/photo/my-made-up-id/tag',
+              );
+              expect(response.statusCode).toStrictEqual(404);
+              expect(response.body).toStrictEqual({
+                status: 'fail',
+                data: {
+                  message: 'That photo does not exist.',
+                },
+              });
+            });
+          });
+
+          describe('with a valid photoId', () => {
+            it.each([
+              {
+                testType: 'no posX',
+                sendString: 'posY=0.75&name=Jennifer',
+                expectedValidationObj: {
+                  errors: [
+                    {
+                      location: 'body',
+                      msg: 'Position X is a required field',
+                      path: 'posX',
+                      type: 'field',
+                      value: '',
+                    },
+                    {
+                      location: 'body',
+                      msg: 'Position X should be a number',
+                      path: 'posX',
+                      type: 'field',
+                      value: '',
+                    },
+                  ],
+                },
+              },
+              {
+                testType: 'invalid posX',
+                sendString: 'posX=some_string&posY=0.75&name=Jennifer',
+                expectedValidationObj: {
+                  errors: [
+                    {
+                      location: 'body',
+                      msg: 'Position X should be a number',
+                      path: 'posX',
+                      type: 'field',
+                      value: 'some_string',
+                    },
+                  ],
+                },
+              },
+              {
+                testType: 'no posY',
+                sendString: 'posX=0.25&name=Jennifer',
+                expectedValidationObj: {
+                  errors: [
+                    {
+                      location: 'body',
+                      msg: 'Position Y is a required field',
+                      path: 'posY',
+                      type: 'field',
+                      value: '',
+                    },
+                    {
+                      location: 'body',
+                      msg: 'Position Y should be a number',
+                      path: 'posY',
+                      type: 'field',
+                      value: '',
+                    },
+                  ],
+                },
+              },
+              {
+                testType: 'invalid posX',
+                sendString: 'posX=0.25&posY=some_string&name=Jennifer',
+                expectedValidationObj: {
+                  errors: [
+                    {
+                      location: 'body',
+                      msg: 'Position Y should be a number',
+                      path: 'posY',
+                      type: 'field',
+                      value: 'some_string',
+                    },
+                  ],
+                },
+              },
+              {
+                testType: 'no name',
+                sendString: 'posX=0.25&posY=0.75',
+                expectedValidationObj: {
+                  errors: [
+                    {
+                      location: 'body',
+                      msg: 'Name is a required field',
+                      path: 'name',
+                      type: 'field',
+                      value: '',
+                    },
+                    {
+                      location: 'body',
+                      msg: 'Name should contain alphanumeric characters only',
+                      path: 'name',
+                      type: 'field',
+                      value: '',
+                    },
+                  ],
+                },
+              },
+              {
+                testType: 'invalid name',
+                sendString: 'posX=0.25&posY=0.75&name=j@m',
+                expectedValidationObj: {
+                  errors: [
+                    {
+                      location: 'body',
+                      msg: 'Name should contain alphanumeric characters only',
+                      path: 'name',
+                      type: 'field',
+                      value: 'j@m',
+                    },
+                  ],
+                },
+              },
+            ])(
+              'when provided with $testType, responds with a status code 400 and validation errors',
+              async ({ sendString, expectedValidationObj }) => {
+                await postTestData();
+                const testImage = testImageDataAbsoluteUrl[0];
+                const response = await request(app)
+                  .post(`/api/v1/admin/photo/${testImage.id}/tag`)
+                  .send(sendString);
+                expect(response.statusCode).toStrictEqual(400);
+                expect(response.body).toStrictEqual({
+                  status: 'fail',
+                  data: {
+                    validation: expectedValidationObj,
+                  },
+                });
+              },
+            );
+
+            describe('when provided the correct parameters: posX, posY, name', () => {
+              it('responds with a status code 200', async () => {
+                await postTestData();
+                const testImage = testImageDataAbsoluteUrl[0];
+                const response = await request(app)
+                  .post(`/api/v1/admin/photo/${testImage.id}/tag`)
+                  .send('posX=0.25&posY=0.75&name=Jennifer');
+                expect(response.statusCode).toStrictEqual(200);
+              });
+
+              it('creates a new db entry and returns it in the response body', async () => {
+                await postTestData();
+                const testImage = testImageDataAbsoluteUrl[0];
+                const postRes = await request(app)
+                  .post(`/api/v1/admin/photo/${testImage.id}/tag`)
+                  .send('posX=0.25&posY=0.75&name=Jennifer');
+                // Check directly against database.
+                const dbEntry = await db.imageTag.findUnique({
+                  where: {
+                    id: postRes.body.data.tag.id,
+                  },
+                });
+                // Make sure it has the correct data.
+                expect(dbEntry).toMatchObject({
+                  posX: 0.25,
+                  posY: 0.75,
+                  name: 'Jennifer',
+                });
+                // Make sure the db entry matches what was returned by the post response.
+                expect(postRes.body).toStrictEqual({
+                  status: 'success',
+                  data: {
+                    message: 'Tag successfully created.',
+                    tag: dbEntry,
+                  },
+                });
+              });
+            });
+          });
+        });
       });
 
       describe('GET', () => {

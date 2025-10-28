@@ -1,6 +1,6 @@
 import { body } from 'express-validator';
 
-const createPostTagChain = () => [
+const createPostTagValidationChain = () => [
   body('posX')
     .trim()
     .notEmpty()
@@ -23,4 +23,4 @@ const createPostTagChain = () => [
     .withMessage('Name should contain alphanumeric characters only'),
 ];
 
-export { createPostTagChain };
+export { createPostTagValidationChain };
