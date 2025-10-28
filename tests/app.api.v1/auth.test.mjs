@@ -1,4 +1,4 @@
-import app from '../server/src/app.mjs';
+import app from '../../server/src/app.mjs';
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 
