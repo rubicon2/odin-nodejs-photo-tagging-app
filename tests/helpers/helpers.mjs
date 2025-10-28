@@ -21,6 +21,7 @@ async function clearFiles() {
 }
 
 const testImagePath = `${process.cwd()}/tests/test_image.png`;
+const testImage2Path = `${process.cwd()}/tests/test_image_2.png`;
 
 const testImageData = [
   {
@@ -112,6 +113,7 @@ export {
   clearFiles,
   createTailRegExp,
   testImagePath,
+  testImage2Path,
   testImageData,
   testImageDataAbsoluteUrl,
   testImageTagData,
