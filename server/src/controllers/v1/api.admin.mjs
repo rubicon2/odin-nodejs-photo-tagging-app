@@ -50,8 +50,15 @@ async function postPhoto(req, res) {
 async function getAllPhotosAndTags(req, res, next) {
   try {
     const photos = await client.image.findMany({
+      orderBy: {
+        id: 'asc',
+      },
       include: {
-        tags: true,
+        tags: {
+          orderBy: {
+            id: 'asc',
+          },
+        },
       },
     });
     const photosWithUrls = photos.map((photo) => ({
@@ -78,7 +85,11 @@ async function getPhotoAndTags(req, res, next) {
         id,
       },
       include: {
-        tags: true,
+        tags: {
+          orderBy: {
+            id: 'asc',
+          },
+        },
       },
     });
 
@@ -249,6 +260,9 @@ async function getAllPhotoTags(req, res, next) {
     const tags = await client.imageTag.findMany({
       where: {
         imageId: req.params.photoId,
+      },
+      orderBy: {
+        id: 'asc',
       },
     });
 
