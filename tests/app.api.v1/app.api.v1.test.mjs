@@ -15,7 +15,7 @@ describe('/api/v1/photo', () => {
         .expect('Content-Type', /json/)
         .expect(200)
         .then((res) => {
-          expect(res.body).toEqual({
+          expect(res.body).toStrictEqual({
             status: 'success',
             data: {
               message: 'All photos successfully retrieved.',

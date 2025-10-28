@@ -30,7 +30,7 @@ describe('/api/v1/admin/photo', () => {
         .get('/api/v1/admin/photo')
         .expect('Content-Type', /json/)
         .then((res) => {
-          expect(res.body).toEqual({
+          expect(res.body).toStrictEqual({
             status: 'success',
             data: {
               message: 'All photos with tags successfully retrieved.',
@@ -177,7 +177,7 @@ describe('/api/v1/admin/photo', () => {
         // To compare binary files, use equals method on buffer.
         // It seems that none of the matchers work with binary files.
         const originalFile = await fs.readFile(testImagePath);
-        expect(originalFile.equals(getPhotoRes.body)).toEqual(true);
+        expect(originalFile.equals(getPhotoRes.body)).toStrictEqual(true);
       });
 
       it('can upload the same file with the same name twice without issues', async () => {
@@ -228,7 +228,7 @@ describe('api/v1/admin/photo/:photoId', () => {
           .get(`/api/v1/admin/photo/${testImageDataAbsoluteUrlWithTags[0].id}`)
           .expect('Content-Type', /json/)
           .then((res) => {
-            expect(res.body).toEqual({
+            expect(res.body).toStrictEqual({
               status: 'success',
               data: {
                 message: 'Photo with tags successfully retrieved.',
