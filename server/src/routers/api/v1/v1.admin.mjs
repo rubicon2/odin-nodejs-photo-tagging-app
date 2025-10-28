@@ -11,4 +11,7 @@ app.put('/photo/:id', upload.none(), controller.putPhoto);
 app.delete('/photo', controller.deleteAllPhotos);
 app.delete('/photo/:id', controller.deletePhoto);
 
+app.get('/photo/:photoId/tag', controller.getAllPhotoTags);
+app.get('/photo/:photoId/tag/:tagId', controller.getPhotoTag);
+
 export default app;

@@ -226,6 +226,86 @@ async function deletePhoto(req, res, next) {
   }
 }
 
+async function getAllPhotoTags(req, res, next) {
+  try {
+    // Check photo exists so we can give a more appropriate error message.
+    const existingPhoto = await client.image.findUnique({
+      where: {
+        id: req.params.photoId,
+      },
+    });
+
+    if (!existingPhoto) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
+    // If photo does exist, get tags and return them.
+    const tags = await client.imageTag.findMany({
+      where: {
+        imageId: req.params.photoId,
+      },
+    });
+
+    return res.json({
+      status: 'success',
+      data: {
+        tags,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getPhotoTag(req, res, next) {
+  try {
+    // Check photo exists so we can give a more appropriate error message.
+    const existingPhoto = await client.image.findUnique({
+      where: {
+        id: req.params.photoId,
+      },
+    });
+
+    if (!existingPhoto) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
+    const tag = await client.imageTag.findUnique({
+      where: {
+        id: req.params.tagId,
+      },
+    });
+
+    if (!tag) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: 'That tag does not exist.',
+        },
+      });
+    }
+
+    return res.json({
+      status: 'success',
+      data: {
+        tag,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export {
   postPhoto,
   getAllPhotosAndTags,
@@ -233,4 +313,6 @@ export {
   putPhoto,
   deleteAllPhotos,
   deletePhoto,
+  getAllPhotoTags,
+  getPhotoTag,
 };

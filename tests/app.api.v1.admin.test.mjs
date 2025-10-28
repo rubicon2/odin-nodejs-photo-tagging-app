@@ -7,6 +7,7 @@ import {
   testImageDataAbsoluteUrl,
   testImageDataAbsoluteUrlWithTags,
   createTailRegExp,
+  testImageTagData,
 } from './helpers/helpers.mjs';
 
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -224,6 +225,135 @@ describe('/api/v1/admin', () => {
         await request(app)
           .delete('/api/v1/admin/photo/my-made-up-id')
           .expect(404);
+      });
+
+      describe('/tag', () => {
+        describe('/:tagId', () => {
+          describe('GET', () => {
+            describe('with a valid photoId and valid tagId', () => {
+              it('responds with a status code 200', async () => {
+                await postTestData();
+                const testImage = testImageDataAbsoluteUrlWithTags[0];
+                const testTag = testImageTagData[0];
+                return request(app)
+                  .get(`/api/v1/admin/photo/${testImage.id}/tag/${testTag.id}`)
+                  .expect(200);
+              });
+
+              it('responds with the tag', async () => {
+                await postTestData();
+                const testImage = testImageDataAbsoluteUrlWithTags[0];
+                const testTag = testImageTagData[0];
+                return request(app)
+                  .get(`/api/v1/admin/photo/${testImage.id}/tag/${testTag.id}`)
+                  .expect({
+                    status: 'success',
+                    data: {
+                      tag: testTag,
+                    },
+                  });
+              });
+            });
+
+            describe('with a valid photoId and invalid tagId', () => {
+              it('responds with a status code 404', async () => {
+                await postTestData();
+                const testImage = testImageDataAbsoluteUrlWithTags[0];
+                return request(app)
+                  .get(
+                    `/api/v1/admin/photo/${testImage.id}/tag/my-made-up-tag-id`,
+                  )
+                  .expect(404);
+              });
+
+              it('responds with a json message', async () => {
+                await postTestData();
+                const testImage = testImageDataAbsoluteUrlWithTags[0];
+                return request(app)
+                  .get(
+                    `/api/v1/admin/photo/${testImage.id}/tag/my-made-up-tag-id`,
+                  )
+                  .expect({
+                    status: 'fail',
+                    data: {
+                      message: 'That tag does not exist.',
+                    },
+                  });
+              });
+            });
+
+            describe('with an invalid photoId and a valid tagId', () => {
+              it('responds with a status code 404', async () => {
+                await postTestData();
+                const testTag = testImageTagData[0];
+                return request(app)
+                  .get(
+                    `/api/v1/admin/photo/my-made-up-photo-id/tag/${testTag.id}`,
+                  )
+                  .expect(404);
+              });
+
+              it('responds with a json message', async () => {
+                await postTestData();
+                const testTag = testImageTagData[0];
+                return request(app)
+                  .get(
+                    `/api/v1/admin/photo/my-made-up-photo-id/tag/${testTag.id}`,
+                  )
+                  .expect({
+                    status: 'fail',
+                    data: {
+                      message: 'That photo does not exist.',
+                    },
+                  });
+              });
+            });
+          });
+        });
+
+        describe('GET', () => {
+          describe('with a valid photoId', () => {
+            it('responds with a status code 200', async () => {
+              await postTestData();
+              const testImage = testImageDataAbsoluteUrlWithTags[0];
+              return request(app)
+                .get(`/api/v1/admin/photo/${testImage.id}/tag`)
+                .expect(200);
+            });
+
+            it('responds with the tags for the photo id', async () => {
+              await postTestData();
+              const testImage = testImageDataAbsoluteUrlWithTags[0];
+              return request(app)
+                .get(`/api/v1/admin/photo/${testImage.id}/tag`)
+                .expect({
+                  status: 'success',
+                  data: {
+                    tags: testImage.tags,
+                  },
+                });
+            });
+          });
+
+          describe('with an invalid photoId', () => {
+            it('responds with a status code 404', async () => {
+              return request(app)
+                .get(`/api/v1/admin/photo/my-made-up-id/tag`)
+                .expect(404);
+            });
+
+            it('responds with a json message', async () => {
+              return request(app)
+                .get(`/api/v1/admin/photo/my-made-up-id/tag`)
+                .expect({
+                  status: 'fail',
+                  data: {
+                    message: 'That photo does not exist.',
+                  },
+                });
+            });
+          });
+        });
       });
 
       describe('GET', () => {
