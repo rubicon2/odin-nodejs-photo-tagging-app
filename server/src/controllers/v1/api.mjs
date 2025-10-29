@@ -3,7 +3,11 @@ import createImgUrl from '../../ext/createImgUrl.mjs';
 
 async function getAllPhotos(req, res, next) {
   try {
-    const photos = await client.image.findMany({});
+    const photos = await client.image.findMany({
+      orderBy: {
+        id: 'asc',
+      },
+    });
     const photosWithUrls = photos.map((photo) => ({
       ...photo,
       url: createImgUrl(photo.url),
