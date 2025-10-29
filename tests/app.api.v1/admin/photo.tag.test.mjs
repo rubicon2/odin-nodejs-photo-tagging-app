@@ -274,6 +274,20 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
       tagId: testImageTagData[0].id,
       message: 'That photo does not exist.',
     },
+    {
+      testType: 'valid photoId and invalid tagId',
+      method: 'delete',
+      photoId: testImageDataAbsoluteUrlWithTags[0].id,
+      tagId: 'my-made-up-tag-id',
+      message: 'That tag does not exist.',
+    },
+    {
+      testType: 'invalid photoId and valid tagId',
+      method: 'delete',
+      photoId: 'my-made-up-photo-id',
+      tagId: testImageTagData[0].id,
+      message: 'That photo does not exist.',
+    },
   ])(
     '$method: with a $testType, respond with status code 404 and json message',
     async ({ method, photoId, tagId, message }) => {
@@ -480,5 +494,25 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
         });
       },
     );
+  });
+
+  describe('DELETE', () => {
+    it('with a valid photoId and tagId, deletes the tag and returns status code 200 and json message', async () => {
+      await postTestData();
+      const tag = testImageTagData[0];
+      const response = await request(app).delete(
+        `/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`,
+      );
+      expect(response.statusCode).toStrictEqual(200);
+
+      // Check against database to make sure this tag is gone.
+      const dbEntry = await db.imageTag.findUnique({
+        where: {
+          id: tag.id,
+        },
+      });
+
+      expect(dbEntry).toBeNull();
+    });
   });
 });

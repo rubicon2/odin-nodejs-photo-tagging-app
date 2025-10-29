@@ -28,5 +28,6 @@ app.put(
   controller.putPhotoTag,
 );
 app.delete('/photo/:photoId/tag', controller.deleteAllPhotoTags);
+app.delete('/photo/:photoId/tag/:tagId', controller.deletePhotoTag);
 
 export default app;

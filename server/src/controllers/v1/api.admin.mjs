@@ -530,6 +530,59 @@ async function deleteAllPhotoTags(req, res, next) {
   }
 }
 
+async function deletePhotoTag(req, res, next) {
+  try {
+    const { photoId, tagId } = req.params;
+    // Check photo exists before looking for tag, so we can give better error messages.
+    const existingPhoto = await client.image.findUnique({
+      where: {
+        id: photoId,
+      },
+    });
+
+    if (!existingPhoto) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
+    // Now check tag exists.
+    const existingTag = await client.imageTag.findUnique({
+      where: {
+        id: tagId,
+        imageId: photoId,
+      },
+    });
+
+    if (!existingTag) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: 'That tag does not exist.',
+        },
+      });
+    }
+
+    await client.imageTag.delete({
+      where: {
+        id: tagId,
+      },
+    });
+
+    return res.json({
+      status: 'success',
+      data: {
+        message: `Photo tag successfully deleted.`,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export {
   postPhoto,
   getAllPhotosAndTags,
@@ -542,4 +595,5 @@ export {
   postPhotoTag,
   putPhotoTag,
   deleteAllPhotoTags,
+  deletePhotoTag,
 };
