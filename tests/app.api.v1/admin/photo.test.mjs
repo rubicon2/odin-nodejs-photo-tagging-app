@@ -223,6 +223,22 @@ describe('api/v1/admin/photo/:photoId', () => {
 
   describe('PUT', () => {
     describe('with a valid id', () => {
+      it('without an altText or photo, respond with status code 400 and a json message', async () => {
+        await postTestData();
+        const image = testImageData[0];
+        const putRes = await request(app).put(
+          `/api/v1/admin/photo/${image.id}`,
+        );
+        expect(putRes.statusCode).toStrictEqual(400);
+        expect(putRes.body).toStrictEqual({
+          status: 'fail',
+          data: {
+            message:
+              'No altText or photo have been provided, so no updates have been made.',
+          },
+        });
+      });
+
       it("updates an existing db entry's altText correctly", async () => {
         await postTestData();
         const image = testImageData[0];

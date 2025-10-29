@@ -162,6 +162,17 @@ async function putPhoto(req, res, next) {
       });
     }
 
+    // If no altText or photo uploaded, return a message.
+    if (newPhoto === undefined && altText === undefined) {
+      return res.status(400).send({
+        status: 'fail',
+        data: {
+          message:
+            'No altText or photo have been provided, so no updates have been made.',
+        },
+      });
+    }
+
     // If field missing from body, do not update to empty field/undefined/null on db.
     const data = {};
     if (newPhoto) {
