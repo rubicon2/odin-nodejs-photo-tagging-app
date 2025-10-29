@@ -219,6 +219,52 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
 });
 
 describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
+  it.each([
+    {
+      testType: 'valid photoId and invalid tagId',
+      method: 'get',
+      photoId: testImageDataAbsoluteUrlWithTags[0].id,
+      tagId: 'my-made-up-tag-id',
+      message: 'That tag does not exist.',
+    },
+    {
+      testType: 'invalid photoId and valid tagId',
+      method: 'get',
+      photoId: 'my-made-up-photo-id',
+      tagId: testImageTagData[0].id,
+      message: 'That photo does not exist.',
+    },
+    {
+      testType: 'valid photoId and invalid tagId',
+      method: 'put',
+      photoId: testImageDataAbsoluteUrlWithTags[0].id,
+      tagId: 'my-made-up-tag-id',
+      message: 'That tag does not exist.',
+    },
+    {
+      testType: 'invalid photoId and valid tagId',
+      method: 'put',
+      photoId: 'my-made-up-photo-id',
+      tagId: testImageTagData[0].id,
+      message: 'That photo does not exist.',
+    },
+  ])(
+    '$method: with a $testType, respond with status code 404 and json message',
+    async ({ method, photoId, tagId, message }) => {
+      await postTestData();
+      const response = await request(app)[method](
+        `/api/v1/admin/photo/${photoId}/tag/${tagId}`,
+      );
+      expect(response.statusCode).toStrictEqual(404);
+      expect(response.body).toStrictEqual({
+        status: 'fail',
+        data: {
+          message,
+        },
+      });
+    },
+  );
+
   describe('GET', () => {
     it('with a valid photoId and valid tagId, responds with status code 200 and tag', async () => {
       await postTestData();
@@ -236,35 +282,5 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
         },
       });
     });
-
-    it.each([
-      {
-        testType: 'valid photoId and invalid tagId',
-        photoId: testImageDataAbsoluteUrlWithTags[0].id,
-        tagId: 'my-made-up-tag-id',
-        message: 'That tag does not exist.',
-      },
-      {
-        testType: 'invalid photoId and valid tagId',
-        photoId: 'my-made-up-photo-id',
-        tagId: testImageTagData[0].id,
-        message: 'That photo does not exist.',
-      },
-    ])(
-      'with a $testType, respond with status code 404 and json message',
-      async ({ photoId, tagId, message }) => {
-        await postTestData();
-        const response = await request(app).get(
-          `/api/v1/admin/photo/${photoId}/tag/${tagId}`,
-        );
-        expect(response.statusCode).toStrictEqual(404);
-        expect(response.body).toStrictEqual({
-          status: 'fail',
-          data: {
-            message,
-          },
-        });
-      },
-    );
   });
 });
