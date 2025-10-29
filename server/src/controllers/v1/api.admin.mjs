@@ -408,6 +408,93 @@ async function postPhotoTag(req, res, next) {
   }
 }
 
+async function putPhotoTag(req, res, next) {
+  try {
+    // Check photo exists before looking for tag, so we can give better error messages.
+    const existingPhoto = await client.image.findUnique({
+      where: {
+        id: req.params.photoId,
+      },
+    });
+
+    if (!existingPhoto) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
+    // Check tag exists before trying to update, otherwise prisma will throw an error.
+    const existingTag = await client.imageTag.findUnique({
+      where: {
+        id: req.params.tagId,
+      },
+    });
+
+    if (!existingTag) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: 'That tag does not exist.',
+        },
+      });
+    }
+
+    const validation = validationResult(req);
+
+    if (!validation.isEmpty()) {
+      return res.status(400).json({
+        status: 'fail',
+        data: {
+          validation,
+        },
+      });
+    }
+
+    // This grabs whatever data that has passed validation.
+    // We have already checked for validation errors, so if we get to this point
+    // and no data is grabbed, that means the user didn't put any data on the request.
+    const validatedData = matchedData(req);
+
+    // If there is no data, return a status 400 and json message.
+    if (
+      validatedData.posX === undefined &&
+      validatedData.posY === undefined &&
+      validatedData.name === undefined
+    ) {
+      return res.status(400).send({
+        status: 'fail',
+        data: {
+          message:
+            'No posX, posY, or name have been provided, so no updates have been made.',
+        },
+      });
+    }
+
+    const updatedTag = await client.imageTag.update({
+      where: {
+        id: req.params.tagId,
+        imageId: req.params.imageId,
+      },
+      data: {
+        ...validatedData,
+      },
+    });
+
+    return res.json({
+      status: 'success',
+      data: {
+        message: 'Tag successfully updated.',
+        tag: updatedTag,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export {
   postPhoto,
   getAllPhotosAndTags,
@@ -418,4 +505,5 @@ export {
   getAllPhotoTags,
   getPhotoTag,
   postPhotoTag,
+  putPhotoTag,
 };

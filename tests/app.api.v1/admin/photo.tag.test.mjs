@@ -283,4 +283,176 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
       });
     });
   });
+
+  describe('PUT', () => {
+    it('without a posX, posY, or name, respond with status code 400 and a json message', async () => {
+      await postTestData();
+      const tag = testImageTagData[0];
+      const putRes = await request(app).put(
+        `/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`,
+      );
+      expect(putRes.statusCode).toStrictEqual(400);
+      expect(putRes.body).toStrictEqual({
+        status: 'fail',
+        data: {
+          message:
+            'No posX, posY, or name have been provided, so no updates have been made.',
+        },
+      });
+    });
+
+    it("updates an existing tag's posX correctly without affecting other fields, and responds with status code 200 and updated tag", async () => {
+      await postTestData();
+      const tag = testImageTagData[0];
+      const putRes = await request(app)
+        .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
+        .send('posX=0.75');
+      expect(putRes.statusCode).toStrictEqual(200);
+
+      // Check against db directly instead of using GET route.
+      const dbEntry = await db.imageTag.findUnique({
+        where: {
+          id: tag.id,
+        },
+      });
+
+      expect(dbEntry).toStrictEqual({
+        ...tag,
+        posX: 0.75,
+      });
+
+      // Make sure response body matches updated dbEntry.
+      expect(putRes.body).toStrictEqual({
+        status: 'success',
+        data: {
+          message: 'Tag successfully updated.',
+          tag: dbEntry,
+        },
+      });
+    });
+
+    it("updates an existing tag's posY correctly withput affecting other fields,  and responds with status code 200 and updated tag", async () => {
+      await postTestData();
+      const tag = testImageTagData[0];
+      const putRes = await request(app)
+        .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
+        .send('posY=0.75');
+      expect(putRes.statusCode).toStrictEqual(200);
+
+      // Check against db directly instead of using GET route.
+      const dbEntry = await db.imageTag.findUnique({
+        where: {
+          id: tag.id,
+        },
+      });
+
+      expect(dbEntry).toStrictEqual({
+        ...tag,
+        posY: 0.75,
+      });
+
+      // Make sure response body matches updated dbEntry.
+      expect(putRes.body).toStrictEqual({
+        status: 'success',
+        data: {
+          message: 'Tag successfully updated.',
+          tag: dbEntry,
+        },
+      });
+    });
+
+    it("updates an existing tag's name correctly withput affecting other fields,  and responds with status code 200 and updated tag", async () => {
+      await postTestData();
+      const tag = testImageTagData[0];
+      const putRes = await request(app)
+        .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
+        .send('name=Jennifer');
+      expect(putRes.statusCode).toStrictEqual(200);
+
+      // Check against db directly instead of using GET route.
+      const dbEntry = await db.imageTag.findUnique({
+        where: {
+          id: tag.id,
+        },
+      });
+
+      expect(dbEntry).toStrictEqual({
+        ...tag,
+        name: 'Jennifer',
+      });
+
+      // Make sure response body matches updated dbEntry.
+      expect(putRes.body).toStrictEqual({
+        status: 'success',
+        data: {
+          message: 'Tag successfully updated.',
+          tag: dbEntry,
+        },
+      });
+    });
+
+    it.each([
+      {
+        testType: 'invalid posX',
+        sendString: 'posX=some_string&posY=0.75&name=Jennifer',
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'Position X should be a number',
+              path: 'posX',
+              type: 'field',
+              value: 'some_string',
+            },
+          ],
+        },
+      },
+      {
+        testType: 'invalid posX',
+        sendString: 'posX=0.25&posY=some_string&name=Jennifer',
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'Position Y should be a number',
+              path: 'posY',
+              type: 'field',
+              value: 'some_string',
+            },
+          ],
+        },
+      },
+      {
+        testType: 'invalid name',
+        sendString: 'posX=0.25&posY=0.75&name=j@m',
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'Name should contain alphanumeric characters only',
+              path: 'name',
+              type: 'field',
+              value: 'j@m',
+            },
+          ],
+        },
+      },
+    ])(
+      'when provided with $testType, responds with a status code 400 and validation errors',
+      async ({ sendString, expectedValidationObj }) => {
+        await postTestData();
+        const tag = testImageTagData[0];
+        const response = await request(app)
+          .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
+          .send(sendString);
+        expect(response.statusCode).toStrictEqual(400);
+        expect(response.body).toStrictEqual({
+          status: 'fail',
+          data: {
+            validation: expectedValidationObj,
+          },
+        });
+      },
+    );
+  });
 });
