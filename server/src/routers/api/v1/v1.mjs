@@ -2,6 +2,7 @@ import * as controller from '../../../controllers/v1/api.mjs';
 import authRouter from './v1.auth.mjs';
 import adminRouter from './v1.admin.mjs';
 import isAdmin from '../../../middleware/isAdmin.mjs';
+import { createPostCheckTagValidationChain } from '../../../validators/checkTagValidators.mjs';
 import { Router } from 'express';
 
 const v1 = Router();
@@ -16,7 +17,10 @@ v1.use('/auth', authRouter);
 // Standard non-admin routes.
 v1.get('/photo', controller.getAllPhotos);
 v1.get('/photo/:id', controller.getPhoto);
-// And a method for posting a click location to check if tag has been found.
-// v1.post('/photo/:id/, controller.handlePhotoClick)
+v1.post(
+  '/check-tag',
+  createPostCheckTagValidationChain(),
+  controller.postCheckTag,
+);
 
 export default v1;

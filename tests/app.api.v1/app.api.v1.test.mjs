@@ -54,3 +54,124 @@ describe('/api/v1/photo/:id', () => {
     });
   });
 });
+
+describe('/api/v1/check', () => {
+  // Test validation is working correctly.
+  it.each([
+    {
+      testType: 'missing photoId',
+      photoId: '',
+      posX: '0.25',
+      posY: '0.75',
+      expectedValidationObj: {
+        errors: [
+          {
+            location: 'body',
+            msg: 'PhotoId is a required field',
+            path: 'photoId',
+            type: 'field',
+            value: '',
+          },
+        ],
+      },
+    },
+    {
+      testType: 'missing posX',
+      photoId: '1',
+      posX: '',
+      posY: '0.75',
+      expectedValidationObj: {
+        errors: [
+          {
+            location: 'body',
+            msg: 'Position X is a required field',
+            path: 'posX',
+            type: 'field',
+            value: '',
+          },
+          {
+            location: 'body',
+            msg: 'Position X should be a number',
+            path: 'posX',
+            type: 'field',
+            value: '',
+          },
+        ],
+      },
+    },
+    {
+      testType: 'missing posY',
+      photoId: '1',
+      posX: '0.25',
+      posY: '',
+      expectedValidationObj: {
+        errors: [
+          {
+            location: 'body',
+            msg: 'Position Y is a required field',
+            path: 'posY',
+            type: 'field',
+            value: '',
+          },
+          {
+            location: 'body',
+            msg: 'Position Y should be a number',
+            path: 'posY',
+            type: 'field',
+            value: '',
+          },
+        ],
+      },
+    },
+    {
+      testType: 'non-number posX',
+      photoId: '1',
+      posX: 'my_bad_pos',
+      posY: '0.75',
+      expectedValidationObj: {
+        errors: [
+          {
+            location: 'body',
+            msg: 'Position X should be a number',
+            path: 'posX',
+            type: 'field',
+            value: 'my_bad_pos',
+          },
+        ],
+      },
+    },
+    {
+      testType: 'non-number posY',
+      photoId: '1',
+      posX: '0.25',
+      posY: 'my_bad_pos',
+      expectedValidationObj: {
+        errors: [
+          {
+            location: 'body',
+            msg: 'Position Y should be a number',
+            path: 'posY',
+            type: 'field',
+            value: 'my_bad_pos',
+          },
+        ],
+      },
+    },
+  ])(
+    'with a $testType, responds with status code 400 and a json message',
+    async ({ photoId, posX, posY, expectedValidationObj }) => {
+      await postTestData();
+      const response = await request(app)
+        .post(`/api/v1/check-tag`)
+        .send(`photoId=${photoId}&posX=${posX}&posY=${posY}`);
+
+      expect(response.statusCode).toStrictEqual(400);
+      expect(response.body).toStrictEqual({
+        status: 'fail',
+        data: {
+          validation: expectedValidationObj,
+        },
+      });
+    },
+  );
+});

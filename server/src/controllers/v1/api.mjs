@@ -1,5 +1,6 @@
 import client from '../../db/client.mjs';
 import createImgUrl from '../../ext/createImgUrl.mjs';
+import { validationResult } from 'express-validator';
 
 async function getAllPhotos(req, res, next) {
   try {
@@ -58,4 +59,23 @@ async function getPhoto(req, res, next) {
   }
 }
 
-export { getAllPhotos, getPhoto };
+async function postCheckTag(req, res, next) {
+  try {
+    const validation = validationResult(req);
+
+    if (!validation.isEmpty()) {
+      return res.status(400).json({
+        status: 'fail',
+        data: {
+          validation,
+        },
+      });
+    }
+
+    return res.status(200).json({});
+  } catch (error) {
+    next(error);
+  }
+}
+
+export { getAllPhotos, getPhoto, postCheckTag };
