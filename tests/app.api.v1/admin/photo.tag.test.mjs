@@ -216,6 +216,32 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
       });
     });
   });
+
+  describe('DELETE', () => {
+    it('deletes all tags for the photoId and returns status code 200 and json message', async () => {
+      await postTestData();
+      const photo = testImageDataAbsoluteUrlWithTags[0];
+      const response = await request(app).delete(
+        `/api/v1/admin/photo/${photo.id}/tag`,
+      );
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body).toStrictEqual({
+        status: 'success',
+        data: {
+          message: `Tags for photo ${photo.id} successfully deleted.`,
+        },
+      });
+
+      // Check that there are no tags left on the db for this photo id.
+      const dbEntries = await db.imageTag.findMany({
+        where: {
+          imageId: photo.id,
+        },
+      });
+
+      expect(dbEntries).toStrictEqual([]);
+    });
+  });
 });
 
 describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {

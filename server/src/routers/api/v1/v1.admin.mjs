@@ -27,5 +27,6 @@ app.put(
   createPutTagValidationChain(),
   controller.putPhotoTag,
 );
+app.delete('/photo/:photoId/tag', controller.deleteAllPhotoTags);
 
 export default app;
