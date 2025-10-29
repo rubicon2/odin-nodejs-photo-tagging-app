@@ -2,6 +2,7 @@ import app from '../../../server/src/app.mjs';
 import db from '../../../server/src/db/client.mjs';
 import {
   testImagePath,
+  testImage2Path,
   testImageData,
   postTestData,
   testImageDataAbsoluteUrl,
@@ -241,23 +242,36 @@ describe('api/v1/admin/photo/:photoId', () => {
         expect(testImageDataAbsoluteUrl[0].url).toMatch(dbEntry.url);
       });
 
-      it("updates an existing db entry's url correctly", async () => {
+      it("updates an existing db entry's image correctly, deletes the original file and uploads the new file", async () => {
         await postTestData();
         const image = testImageData[0];
+
+        // Need to get image url from API since test data doesn't include volume name.
+        let getRes = await request(app).get(`/api/v1/admin/photo/${image.id}`);
+
+        // Check original image upload exists.
+        const originalUploadUrl = getRes.body.data.photo.url;
+        getRes = await request(app).get(originalUploadUrl);
+        const originalFile = await fs.readFile(testImagePath);
+        expect(originalFile.equals(getRes.body)).toStrictEqual(true);
+
         const putRes = await request(app)
           .put(`/api/v1/admin/photo/${image.id}`)
-          .field('url', 'my-updated-url.png');
+          .attach('photo', testImage2Path);
         expect(putRes.statusCode).toStrictEqual(200);
 
-        // Check the db has been updated with the details on the put request.
-        const dbEntry = await db.image.findUnique({
-          where: {
-            id: image.id,
-          },
-        });
+        // Check original image upload has been deleted and is no longer accessible.
+        getRes = await request(app).get(originalUploadUrl);
+        expect(getRes.statusCode).toStrictEqual(404);
 
-        expect(dbEntry.altText).toStrictEqual(testImageData[0].altText);
-        expect('my-updated-url.png').toMatch(dbEntry.url);
+        // Check that the file exists at the location returned by the put request.
+        const newUploadUrl = putRes.body.data.photo.url;
+        getRes = await request(app).get(newUploadUrl);
+        expect(getRes.statusCode).toStrictEqual(200);
+
+        // Check that the file has been updated to the new test image (which is different from the original).
+        const newUploadFile = await fs.readFile(testImage2Path);
+        expect(newUploadFile.equals(getRes.body)).toStrictEqual(true);
       });
     });
 

@@ -143,7 +143,7 @@ async function getPhotoAndTags(req, res, next) {
 async function putPhoto(req, res, next) {
   try {
     const { id } = req.params;
-    const url = req.body?.url;
+    const newPhoto = req.file;
     const altText = req.body?.altText;
 
     // Check id exists on db table before doing anything else.
@@ -164,12 +164,13 @@ async function putPhoto(req, res, next) {
 
     // If field missing from body, do not update to empty field/undefined/null on db.
     const data = {};
-    if (url) {
-      // If new url, delete image stored at old url.
+    if (newPhoto) {
+      // If new photo, delete image stored at old url.
       // Otherwise we will lose path to this file and be unable to access or delete it!
       const previousUrl = existingPhoto.url;
       deleteFile(previousUrl);
-      data.url = url;
+      // Now get url of new file, which has already been uploaded by multer middleware.
+      data.url = newPhoto.filename;
     }
     if (altText) data.altText = altText;
 
@@ -186,7 +187,10 @@ async function putPhoto(req, res, next) {
       status: 'success',
       data: {
         message: 'Photo successfully updated.',
-        photo,
+        photo: {
+          ...photo,
+          url: createImgUrl(photo.url),
+        },
       },
     });
   } catch (error) {
