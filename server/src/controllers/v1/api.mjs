@@ -74,7 +74,8 @@ async function postCheckTag(req, res, next) {
     }
 
     // Transform matched data into the query we want.
-    const createQuery = createPostCheckTagQueryTransformer(0.1);
+    const maxPosDiff = 0.1;
+    const createQuery = createPostCheckTagQueryTransformer(maxPosDiff);
     const query = createQuery(matchedData(req));
 
     const tags = await client.imageTag.findMany(query);
