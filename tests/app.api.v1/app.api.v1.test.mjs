@@ -1,4 +1,5 @@
 import app from '../../server/src/app.mjs';
+import db from '../../server/src/db/client.mjs';
 import { postTestData, testImageDataAbsoluteUrl } from '../helpers/helpers.mjs';
 
 import { describe, it, expect } from 'vitest';
@@ -172,6 +173,102 @@ describe('/api/v1/check', () => {
           validation: expectedValidationObj,
         },
       });
+    },
+  );
+
+  // Check with an invalid photoId, should just return no tags, and maybe a message saying yo that is not a real photo id ??
+  // TO DO!
+
+  it.each([
+    {
+      testType: 'too far below posX and posY',
+      posX: 0.39,
+      posY: 0.39,
+      expectedNames: [],
+    },
+    {
+      testType: 'too far above posX and posY',
+      posX: 0.61,
+      posY: 0.61,
+      expectedNames: [],
+    },
+    {
+      testType: 'too far below posX, dead on posY',
+      posX: 0.39,
+      posY: 0.5,
+      expectedNames: [],
+    },
+    {
+      testType: 'too far above posX, dead on posY',
+      posX: 0.61,
+      posY: 0.5,
+      expectedNames: [],
+    },
+    {
+      testType: 'dead on posX, too far below posY',
+      posX: 0.5,
+      posY: 0.39,
+      expectedNames: [],
+    },
+    {
+      testType: 'dead on posX, too far above posY',
+      posX: 0.5,
+      posY: 0.61,
+      expectedNames: [],
+    },
+    {
+      testType: 'dead on posX and posY',
+      posX: 0.5,
+      posY: 0.5,
+      expectedNames: ['Jasmine'],
+    },
+    {
+      testType: 'at min posX, dead on posY',
+      posX: 0.4,
+      posY: 0.5,
+      expectedNames: ['Jasmine'],
+    },
+    {
+      testType: 'at max posX, dead on posY',
+      posX: 0.6,
+      posY: 0.5,
+      expectedNames: ['Jasmine'],
+    },
+    {
+      testType: 'dead on posX, at min posY',
+      posX: 0.5,
+      posY: 0.4,
+      expectedNames: ['Jasmine'],
+    },
+    {
+      testType: 'dead on posX, at max posY',
+      posX: 0.5,
+      posY: 0.6,
+      expectedNames: ['Jasmine'],
+    },
+  ])(
+    'with $testType, return tag within 0.1 of that position (the specific tolerance may need to be adjusted)',
+    async ({ posX, posY, expectedNames }) => {
+      // Post our own photo and tags, so we can compare to those within the test and easily see what we are comparing to.
+      const photo = await db.image.create({
+        data: {
+          altText: 'my alt text',
+          url: 'my-url.jpg',
+        },
+      });
+
+      await db.imageTag.createMany({
+        data: [{ imageId: photo.id, name: 'Jasmine', posX: 0.5, posY: 0.5 }],
+      });
+
+      const response = await request(app)
+        .post('/api/v1/check-tag')
+        .send(`photoId=${photo.id}&posX=${posX}&posY=${posY}`);
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body.status).toStrictEqual('success');
+      expect(response.body.data.tags.map((tag) => tag.name)).toStrictEqual(
+        expectedNames,
+      );
     },
   );
 });

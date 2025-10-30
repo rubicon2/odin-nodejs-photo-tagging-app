@@ -1,6 +1,6 @@
 import client from '../../db/client.mjs';
 import createImgUrl from '../../ext/createImgUrl.mjs';
-import { validationResult } from 'express-validator';
+import { validationResult, matchedData } from 'express-validator';
 
 async function getAllPhotos(req, res, next) {
   try {
@@ -72,7 +72,29 @@ async function postCheckTag(req, res, next) {
       });
     }
 
-    return res.status(200).json({});
+    const { photoId, posX, posY } = matchedData(req);
+    const tolerance = 0.1;
+
+    const tags = await client.imageTag.findMany({
+      where: {
+        imageId: photoId,
+        posX: {
+          lte: posX + tolerance,
+          gte: posX - tolerance,
+        },
+        posY: {
+          lte: posY + tolerance,
+          gte: posY - tolerance,
+        },
+      },
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        tags,
+      },
+    });
   } catch (error) {
     next(error);
   }
