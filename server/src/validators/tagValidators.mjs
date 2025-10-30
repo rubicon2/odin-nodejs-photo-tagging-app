@@ -38,4 +38,10 @@ const createPutTagValidationChain = () => [
   createNameChain().optional(),
 ];
 
-export { createPostTagValidationChain, createPutTagValidationChain };
+export {
+  createPosXChain,
+  createPosYChain,
+  createNameChain,
+  createPostTagValidationChain,
+  createPutTagValidationChain,
+};
