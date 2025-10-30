@@ -35,7 +35,7 @@ async function postPhoto(req, res) {
       });
     }
 
-    return res.status(400).send({
+    return res.status(400).json({
       status: 'fail',
       data: {
         validation,
@@ -57,7 +57,7 @@ async function postPhoto(req, res) {
   console.log('New db image entry:', dbEntry);
 
   // Form can also include data like tagged people. E.g. 'tag' and you click on the image and it logs it.
-  return res.send({
+  return res.json({
     status: 'success',
     data: {
       message: 'Post photo mode successfully accessed!',
@@ -87,7 +87,7 @@ async function getAllPhotosAndTags(req, res, next) {
       ...photo,
       url: createImgUrl(photo.url),
     }));
-    return res.send({
+    return res.json({
       status: 'success',
       data: {
         message: 'All photos with tags successfully retrieved.',
@@ -116,7 +116,7 @@ async function getPhotoAndTags(req, res, next) {
     });
 
     if (!photo) {
-      return res.status(404).send({
+      return res.status(404).json({
         status: 'fail',
         data: {
           message: 'That photo does not exist.',
@@ -125,7 +125,7 @@ async function getPhotoAndTags(req, res, next) {
     }
 
     // If an image with that id was found.
-    return res.send({
+    return res.json({
       status: 'success',
       data: {
         message: 'Photo with tags successfully retrieved.',
@@ -164,7 +164,7 @@ async function putPhoto(req, res, next) {
 
     // If no altText or photo uploaded, return a message.
     if (newPhoto === undefined && altText === undefined) {
-      return res.status(400).send({
+      return res.status(400).json({
         status: 'fail',
         data: {
           message:
@@ -243,7 +243,7 @@ async function deletePhoto(req, res, next) {
     });
 
     if (!photo) {
-      return res.status(404).send({
+      return res.status(404).json({
         status: 'fail',
         data: {
           message: 'That photo does not exist.',
@@ -260,7 +260,7 @@ async function deletePhoto(req, res, next) {
     // Delete from filesystem. Probably don't have to wait for this, but just in case.
     await deleteFile(photo.url);
 
-    return res.send({
+    return res.json({
       status: 'success',
       data: {
         message: 'Photo successfully deleted.',
@@ -464,7 +464,7 @@ async function putPhotoTag(req, res, next) {
       validatedData.posY === undefined &&
       validatedData.name === undefined
     ) {
-      return res.status(400).send({
+      return res.status(400).json({
         status: 'fail',
         data: {
           message:
