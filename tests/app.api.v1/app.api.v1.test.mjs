@@ -182,68 +182,70 @@ describe('/api/v1/check', () => {
   it.each([
     {
       testType: 'too far below posX and posY',
-      posX: 0.39,
-      posY: 0.39,
+      // For these tests, these pos vars contain the deviation from the center, not the absolute position.
+      // Makes it easier to read and compare to the tolerance value of 0.1.
+      posX: -0.11,
+      posY: -0.11,
       expectedNames: [],
     },
     {
       testType: 'too far above posX and posY',
-      posX: 0.61,
-      posY: 0.61,
+      posX: 0.11,
+      posY: 0.11,
       expectedNames: [],
     },
     {
       testType: 'too far below posX, dead on posY',
-      posX: 0.39,
-      posY: 0.5,
+      posX: -0.11,
+      posY: 0,
       expectedNames: [],
     },
     {
       testType: 'too far above posX, dead on posY',
-      posX: 0.61,
-      posY: 0.5,
+      posX: 0.11,
+      posY: 0,
       expectedNames: [],
     },
     {
       testType: 'dead on posX, too far below posY',
-      posX: 0.5,
-      posY: 0.39,
+      posX: 0,
+      posY: -0.11,
       expectedNames: [],
     },
     {
       testType: 'dead on posX, too far above posY',
       posX: 0.5,
-      posY: 0.61,
+      posY: 0.11,
       expectedNames: [],
     },
     {
       testType: 'dead on posX and posY',
-      posX: 0.5,
-      posY: 0.5,
+      posX: 0,
+      posY: 0,
       expectedNames: ['Jasmine'],
     },
     {
       testType: 'at min posX, dead on posY',
-      posX: 0.4,
-      posY: 0.5,
+      posX: -0.1,
+      posY: 0,
       expectedNames: ['Jasmine'],
     },
     {
       testType: 'at max posX, dead on posY',
-      posX: 0.6,
-      posY: 0.5,
+      posX: 0.1,
+      posY: 0,
       expectedNames: ['Jasmine'],
     },
     {
       testType: 'dead on posX, at min posY',
-      posX: 0.5,
-      posY: 0.4,
+      posX: 0,
+      posY: -0.1,
       expectedNames: ['Jasmine'],
     },
     {
       testType: 'dead on posX, at max posY',
-      posX: 0.5,
-      posY: 0.6,
+      posX: 0,
+      posY: 0.1,
       expectedNames: ['Jasmine'],
     },
   ])(
@@ -257,8 +259,26 @@ describe('/api/v1/check', () => {
         },
       });
 
+      const center = 0.5;
+
       await db.imageTag.createMany({
-        data: [{ imageId: photo.id, name: 'Jasmine', posX: 0.5, posY: 0.5 }],
+        data: [
+          { imageId: photo.id, name: 'Jasmine', posX: center, posY: center },
+        ],
+      });
+
+      const response = await request(app)
+        .post('/api/v1/check-tag')
+        .send(
+          `photoId=${photo.id}&posX=${center + posX}&posY=${center + posY}`,
+        );
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body.status).toStrictEqual('success');
+      expect(response.body.data.tags.map((tag) => tag.name)).toStrictEqual(
+        expectedNames,
+      );
+    },
+  );
       });
 
       const response = await request(app)
