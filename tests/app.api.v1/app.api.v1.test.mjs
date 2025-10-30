@@ -279,6 +279,79 @@ describe('/api/v1/check', () => {
       );
     },
   );
+
+  it.each([
+    {
+      testType: 'center',
+      posX: 0.5,
+      posY: 0.5,
+      expectedNames: ['Jasmine'],
+    },
+    {
+      testType: 'center left',
+      posX: 0.4,
+      posY: 0.5,
+      expectedNames: ['Jasmine', 'Emma'],
+    },
+    {
+      testType: 'far left',
+      posX: 0.3,
+      posY: 0.5,
+      expectedNames: ['Emma'],
+    },
+    {
+      testType: 'too far left',
+      posX: 0.2,
+      posY: 0.5,
+      expectedNames: [],
+    },
+    {
+      testType: 'center right',
+      posX: 0.6,
+      posY: 0.5,
+      expectedNames: ['Jasmine', 'Meg'],
+    },
+    {
+      testType: 'far right',
+      posX: 0.7,
+      posY: 0.5,
+      expectedNames: ['Meg'],
+    },
+    {
+      testType: 'too far right',
+      posX: 0.8,
+      posY: 0.5,
+      expectedNames: [],
+    },
+  ])(
+    'with $testType, return multiple tags within 0.1 of that position',
+    async ({ posX, posY, expectedNames }) => {
+      const photo = await db.image.create({
+        data: {
+          altText: 'my alt text',
+          url: 'my-url.jpg',
+        },
+      });
+
+      const center = 0.5;
+      const spacing = 0.15;
+
+      await db.imageTag.createMany({
+        data: [
+          { imageId: photo.id, name: 'Jasmine', posX: center, posY: center },
+          {
+            imageId: photo.id,
+            name: 'Emma',
+            posX: center - spacing,
+            posY: center,
+          },
+          {
+            imageId: photo.id,
+            name: 'Meg',
+            posX: center + spacing,
+            posY: center,
+          },
+        ],
       });
 
       const response = await request(app)
