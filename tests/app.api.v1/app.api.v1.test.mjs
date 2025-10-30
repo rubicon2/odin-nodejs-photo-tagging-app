@@ -73,6 +73,30 @@ describe('/api/v1/check', () => {
             type: 'field',
             value: '',
           },
+          {
+            location: 'body',
+            msg: 'That photo does not exist',
+            path: 'photoId',
+            type: 'field',
+            value: '',
+          },
+        ],
+      },
+    },
+    {
+      testType: 'invalid photoId',
+      photoId: 'my-made-up-photo-id',
+      posX: '0.25',
+      posY: '0.75',
+      expectedValidationObj: {
+        errors: [
+          {
+            location: 'body',
+            msg: 'That photo does not exist',
+            path: 'photoId',
+            type: 'field',
+            value: 'my-made-up-photo-id',
+          },
         ],
       },
     },
@@ -175,9 +199,6 @@ describe('/api/v1/check', () => {
       });
     },
   );
-
-  // Check with an invalid photoId, should just return no tags, and maybe a message saying yo that is not a real photo id ??
-  // TO DO!
 
   it.each([
     {
