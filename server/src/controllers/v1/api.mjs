@@ -1,6 +1,6 @@
 import client from '../../db/client.mjs';
 import createImgUrl from '../../ext/createImgUrl.mjs';
-import createPostCheckTagQueryTransformer from '../../../transformers/createPostCheckTagQueryTransformer.mjs';
+import createPostCheckTagQueryTransformer from '../../transformers/createPostCheckTagQueryTransformer.mjs';
 import { validationResult, matchedData } from 'express-validator';
 
 async function getAllPhotos(req, res, next) {
