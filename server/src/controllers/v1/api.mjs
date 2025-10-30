@@ -1,5 +1,6 @@
 import client from '../../db/client.mjs';
 import createImgUrl from '../../ext/createImgUrl.mjs';
+import createPostCheckTagQueryTransformer from '../../../transformers/createPostCheckTagQueryTransformer.mjs';
 import { validationResult, matchedData } from 'express-validator';
 
 async function getAllPhotos(req, res, next) {
@@ -72,22 +73,11 @@ async function postCheckTag(req, res, next) {
       });
     }
 
-    const { photoId, posX, posY } = matchedData(req);
-    const tolerance = 0.1;
+    // Transform matched data into the query we want.
+    const createQuery = createPostCheckTagQueryTransformer(0.1);
+    const query = createQuery(matchedData(req));
 
-    const tags = await client.imageTag.findMany({
-      where: {
-        imageId: photoId,
-        posX: {
-          lte: posX + tolerance,
-          gte: posX - tolerance,
-        },
-        posY: {
-          lte: posY + tolerance,
-          gte: posY - tolerance,
-        },
-      },
-    });
+    const tags = await client.imageTag.findMany(query);
 
     return res.status(200).json({
       status: 'success',
