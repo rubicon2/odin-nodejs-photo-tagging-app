@@ -1,7 +1,8 @@
 import PhotoList from './PhotoList';
 import PhotoDetails from './PhotoDetails';
-import React, { useState, useEffect } from 'react';
 import AddPhotoForm from './AddPhotoForm';
+import * as api from '../ext/api.admin.mjs';
+import React, { useState, useEffect } from 'react';
 
 export default function EditModePage() {
   const [photos, setPhotos] = useState(null);
@@ -9,9 +10,7 @@ export default function EditModePage() {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   async function fetchPhotos() {
-    const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/api/v1/admin/photo`,
-    );
+    const response = await api.fetchPhotosWithTags();
     if (response.ok) {
       const json = await response?.json();
       if (json.data?.photos) {
