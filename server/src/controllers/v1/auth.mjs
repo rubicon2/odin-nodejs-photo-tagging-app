@@ -1,6 +1,18 @@
+import { validationResult, matchedData } from 'express-validator';
+
 function postEnableAdminMode(req, res) {
-  // Put in some validation on the router to make sure this isn't blank.
-  const password = req.body.password;
+  const validation = validationResult(req);
+
+  if (!validation.isEmpty()) {
+    return res.status(401).json({
+      status: 'fail',
+      data: {
+        validation,
+      },
+    });
+  }
+
+  const { password } = matchedData(req);
 
   if (
     // If admin_mode is already enabled, just skip the rest of the function.
