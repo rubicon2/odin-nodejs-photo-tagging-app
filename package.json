@@ -12,6 +12,7 @@
     "./client"
   ],
   "scripts": {
+    "test:client": "vitest -c ./vitest.client.config.js",
     "test:unit": "vitest -c ./vitest.unit.config.js",
     "test:unit:coverage": "vitest -c ./vitest.unit.config.js run --coverage",
     "test:int": "./scripts/run-integration-tests.sh",
