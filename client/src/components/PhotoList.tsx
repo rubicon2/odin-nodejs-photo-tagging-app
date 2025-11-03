@@ -2,7 +2,7 @@ import PhotoListItem from './PhotoListItem';
 import React from 'react';
 
 interface Props {
-  photos: Array<{ id: string; altText: string; url: string }>;
+  photos: Array<Photo>;
   onUploadPhoto?: React.MouseEventHandler;
   onSelectPhoto?: Function;
 }
