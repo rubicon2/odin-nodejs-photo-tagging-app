@@ -12,12 +12,14 @@ function App() {
 
   return (
     <>
+      {/* Instead of conditionally rendering Modal, keep mounted at all times and use
+        isActive to toggle visibility, so it can later be faded in and out nicely. */}
       <AdminModal
         isActive={isModalActive}
         isAdmin={isAdmin}
         onAdminEnabled={() => setIsModalActive(false)}
         onAdminDisabled={() => setIsModalActive(false)}
-        onMessage={(v: any) => console.log('message:', v)}
+        onClose={() => setIsModalActive(false)}
       />
       <TitleBar
         isAdminEnabled={isAdmin}
