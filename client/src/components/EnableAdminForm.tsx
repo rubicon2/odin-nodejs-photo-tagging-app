@@ -1,4 +1,4 @@
-import { postEnableAdmin } from '../ext/api.mjs';
+import { postEnableAdmin } from '../ext/api.js';
 import React from 'react';
 
 interface Props {
@@ -14,7 +14,8 @@ export default function EnableAdminForm({
     try {
       event.preventDefault();
       const password = new FormData(event.currentTarget).get('password');
-      const response = await postEnableAdmin(password);
+      if (!password) throw new Error('Please enter a password');
+      const response = await postEnableAdmin(password.toString());
       const json = await response?.json();
       onMessage(json.data.message);
       if (response.ok) onEnable();

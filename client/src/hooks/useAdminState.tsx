@@ -1,4 +1,4 @@
-import * as api from '../ext/api.admin.mjs';
+import * as api from '../ext/api.admin';
 import { useEffect, useState } from 'react';
 
 export default function useAdminState() {

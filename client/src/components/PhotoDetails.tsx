@@ -1,13 +1,20 @@
-import * as api from '../ext/api.admin.mjs';
+import * as api from '../ext/api.admin.js';
 import React, { useState } from 'react';
 
+interface Props {
+  photo?: Photo;
+  onDelete?: Function;
+}
+
 // Be able to edit tags and altText, and delete.
-export default function PhotoDetails({ photo, onDelete }) {
+export default function PhotoDetails({ photo, onDelete = () => {} }: Props) {
   const [msg, setMsg] = useState(null);
 
-  async function deletePhoto(event) {
+  async function deletePhoto(event: React.MouseEvent) {
     try {
-      const response = await api.deletePhoto(photo.id);
+      if (!photo) return;
+      event.preventDefault();
+      const response = await api.deletePhoto(photo.id.toString());
       if (response.ok) {
         const json = await response?.json();
         if (json.data?.message) {
@@ -15,7 +22,7 @@ export default function PhotoDetails({ photo, onDelete }) {
         }
         onDelete();
       }
-    } catch (error) {
+    } catch (error: any) {
       setMsg(error.message);
     }
   }

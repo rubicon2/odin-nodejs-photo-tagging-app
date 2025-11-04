@@ -1,4 +1,4 @@
-import { postDisableAdmin } from '../ext/api.mjs';
+import { postDisableAdmin } from '../ext/api.js';
 import React from 'react';
 
 interface Props {

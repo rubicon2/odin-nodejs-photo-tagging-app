@@ -1,6 +1,6 @@
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
-async function postEnableAdmin(password) {
+async function postEnableAdmin(password: string) {
   const response = await fetch(`${SERVER_URL}/api/v1/auth/enable-admin`, {
     method: 'POST',
     body: new URLSearchParams({ password }),
@@ -20,15 +20,19 @@ async function fetchPhotos() {
   return response;
 }
 
-async function fetchPhoto(photoId) {
+async function fetchPhoto(photoId: string) {
   const response = await fetch(`${SERVER_URL}/api/v1/photo/${photoId}`);
   return response;
 }
 
-async function postTagCheck(photoId, posX, posY) {
+async function postTagCheck(photoId: string, posX: Number, posY: Number) {
   const response = await fetch(`${SERVER_URL}/api/v1/check-tag`, {
     method: 'POST',
-    body: new URLSearchParams({ photoId, posX, posY }),
+    body: new URLSearchParams({
+      photoId,
+      posX: posX.toString(),
+      posY: posY.toString(),
+    }),
   });
   return response;
 }

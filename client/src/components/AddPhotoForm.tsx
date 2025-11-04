@@ -1,10 +1,14 @@
-import * as api from '../ext/api.admin.mjs';
+import * as api from '../ext/api.admin.js';
 import React, { useState } from 'react';
 
-export default function AddPhotoForm({ onPostPhoto }) {
+interface Props {
+  onPostPhoto?: Function;
+}
+
+export default function AddPhotoForm({ onPostPhoto = () => {} }: Props) {
   const [msg, setMsg] = useState(null);
 
-  async function postPhoto(event) {
+  async function postPhoto(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
       const response = await api.postPhoto(event);
@@ -15,7 +19,7 @@ export default function AddPhotoForm({ onPostPhoto }) {
         }
       }
       onPostPhoto();
-    } catch (error) {
+    } catch (error: any) {
       setMsg(error.message);
     }
   }

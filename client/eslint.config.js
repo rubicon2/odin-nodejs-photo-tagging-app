@@ -1,19 +1,30 @@
 import js from '@eslint/js';
 import globals from 'globals';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import tseslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
-import { defineConfig } from 'eslint/config';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import eslintPluginJest from 'eslint-plugin-jest';
 
 export default defineConfig([
+  globalIgnores(['dist']),
   {
-    files: ['**/*.{js,mjs,cjs,jsx}'],
-    plugins: { js },
-    extends: ['js/recommended'],
-    languageOptions: { globals: globals.browser },
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.recommended,
+      pluginReact.configs.recommended,
+      reactHooks.configs['recommended-latest'],
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
   },
   {
-    files: ['**/*.spec.js', '**/*.test.js'],
+    files: ['**/*.spec.{js,mjs,jsx,ts,tsx}', '**/*.test.{js,mjs,jsx,ts,tsx}'],
     plugins: { jest: eslintPluginJest },
     languageOptions: {
       globals: eslintPluginJest.environments.globals.globals,
@@ -26,6 +37,5 @@ export default defineConfig([
       'jest/valid-expect': 'error',
     },
   },
-  pluginReact.configs.flat.recommended,
   eslintConfigPrettier,
 ]);

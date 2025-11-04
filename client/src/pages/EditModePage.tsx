@@ -1,13 +1,15 @@
-import PhotoList from './PhotoList';
-import PhotoDetails from './PhotoDetails';
-import AddPhotoForm from './AddPhotoForm';
-import * as api from '../ext/api.admin.mjs';
-import React, { useState, useEffect } from 'react';
+import PhotoList from '../components/PhotoList';
+import PhotoDetails from '../components/PhotoDetails';
+import AddPhotoForm from '../components/AddPhotoForm';
+import * as api from '../ext/api.admin.js';
+import { useState, useEffect } from 'react';
 
 export default function EditModePage() {
-  const [photos, setPhotos] = useState(null);
-  const [selectedPhotoId, setSelectedPhotoId] = useState(null);
-  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [photos, setPhotos] = useState<Array<Photo>>([]);
+  const [selectedPhotoId, setSelectedPhotoId] = useState<null | React.Key>(
+    null,
+  );
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState<Boolean>(false);
 
   async function fetchPhotos() {
     const response = await api.fetchPhotosWithTags();
@@ -26,11 +28,10 @@ export default function EditModePage() {
 
   return (
     <>
-      <h1>Photo Tagging App - Edit Mode</h1>
       <PhotoList
         photos={photos}
         onUploadPhoto={() => setIsUploadingPhoto(true)}
-        onSelectPhoto={(photo) => {
+        onSelectPhoto={(photo: Photo) => {
           setIsUploadingPhoto(false);
           setSelectedPhotoId(photo.id);
         }}
