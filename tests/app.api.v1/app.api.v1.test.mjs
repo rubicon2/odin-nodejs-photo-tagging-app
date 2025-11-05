@@ -1,6 +1,10 @@
 import app from '../../server/src/app.mjs';
 import db from '../../server/src/db/client.mjs';
-import { postTestData, testImageDataAbsoluteUrl } from '../helpers/helpers.mjs';
+import {
+  postTestData,
+  testImageDataAbsoluteUrl,
+  testImageTagData,
+} from '../helpers/helpers.mjs';
 
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
@@ -18,7 +22,12 @@ describe('/api/v1/photo', () => {
         status: 'success',
         data: {
           message: 'All photos successfully retrieved.',
-          photos: testImageDataAbsoluteUrl,
+          photos: testImageDataAbsoluteUrl.map((testImage) => ({
+            ...testImage,
+            tagCount: testImageTagData.filter(
+              (tag) => tag.imageId === testImage.id,
+            ).length,
+          })),
         },
       });
     });
@@ -38,7 +47,12 @@ describe('/api/v1/photo/:id', () => {
         status: 'success',
         data: {
           message: 'Photo successfully retrieved.',
-          photo: testImageDataAbsoluteUrl[0],
+          photo: {
+            ...testImageDataAbsoluteUrl[0],
+            tagCount: testImageTagData.filter(
+              (tag) => tag.imageId === testImageDataAbsoluteUrl[0].id,
+            ).length,
+          },
         },
       });
     });

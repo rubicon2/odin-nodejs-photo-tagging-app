@@ -1,5 +1,5 @@
 import client from '../../db/client.mjs';
-import createImgUrl from '../../ext/createImgUrl.mjs';
+import prismaToPhotoTransformer from '../../transformers/prismaToPhotoTransformer.mjs';
 import createPostCheckTagQueryTransformer from '../../transformers/createPostCheckTagQueryTransformer.mjs';
 import { validationResult, matchedData } from 'express-validator';
 
@@ -9,16 +9,17 @@ async function getAllPhotos(req, res, next) {
       orderBy: {
         id: 'asc',
       },
+      include: {
+        _count: {
+          select: { tags: true },
+        },
+      },
     });
-    const photosWithUrls = photos.map((photo) => ({
-      ...photo,
-      url: createImgUrl(photo.url),
-    }));
     return res.json({
       status: 'success',
       data: {
         message: 'All photos successfully retrieved.',
-        photos: photosWithUrls,
+        photos: photos.map((photo) => prismaToPhotoTransformer(photo)),
       },
     });
   } catch (error) {
@@ -32,6 +33,11 @@ async function getPhoto(req, res, next) {
     const photo = await client.image.findUnique({
       where: {
         id,
+      },
+      include: {
+        _count: {
+          select: { tags: true },
+        },
       },
     });
 
@@ -49,10 +55,7 @@ async function getPhoto(req, res, next) {
       status: 'success',
       data: {
         message: 'Photo successfully retrieved.',
-        photo: {
-          ...photo,
-          url: createImgUrl(photo.url),
-        },
+        photo: prismaToPhotoTransformer(photo),
       },
     });
   } catch (error) {
