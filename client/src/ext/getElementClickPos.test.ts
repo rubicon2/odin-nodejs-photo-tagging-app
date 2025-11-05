@@ -1,4 +1,4 @@
-import getElementClickPos from './getElementClickPos.mjs';
+import getElementClickPos from './getElementClickPos';
 import { describe, it, expect } from 'vitest';
 
 describe('getElementClickPos', () => {
@@ -65,7 +65,7 @@ describe('getElementClickPos', () => {
     },
   ])(
     "takes a click event: $testType and returns an object with x and y properties containing the click position as a percentage of element's size",
-    ({ clickPos, targetSize, expectedPos }) => {
+    async ({ clickPos, targetSize, expectedPos }) => {
       // Tried to do this the "proper" way with testing library, screen.getByRole('img') and then using click/pointer events.
       // However, rendered elements seem to have no dimensions, therefore it will be impossible to test where the click happens.
       // All the values used by the function (which I know exist on the events triggered by react) just don't seem to exist
@@ -83,7 +83,7 @@ describe('getElementClickPos', () => {
           offsetX: clickPos.x,
           offsetY: clickPos.y,
         },
-        target: {
+        currentTarget: {
           clientWidth: targetSize.x,
           clientHeight: targetSize.y,
         },
