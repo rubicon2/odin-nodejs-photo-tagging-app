@@ -30,14 +30,12 @@ export default function Modal({
 
   return (
     <>
-      {isActive && (
-        <dialog ref={dialog}>
-          <form method="dialog">
-            <button type="submit">Close</button>
-          </form>
-          {children}
-        </dialog>
-      )}
+      <dialog ref={dialog}>
+        <form method="dialog">
+          <button type="submit">Close</button>
+        </form>
+        {children}
+      </dialog>
     </>
   );
 }
