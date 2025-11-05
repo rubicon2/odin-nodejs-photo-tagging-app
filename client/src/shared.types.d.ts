@@ -19,3 +19,8 @@ type Tag = {
   readonly posY: Number;
   readonly imageId: string;
 };
+
+type Pos = {
+  x: Number;
+  y: Number;
+};
