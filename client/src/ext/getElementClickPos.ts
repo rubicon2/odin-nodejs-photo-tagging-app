@@ -1,6 +1,6 @@
 export default function getElementClickPos(
   event: React.MouseEvent<HTMLElement>,
-) {
+): Pos {
   if (!event.nativeEvent) {
     throw new Error(
       'No nativeEvent! Sure you called this with a react click event?',
