@@ -2,8 +2,15 @@ type Photo = {
   readonly id: React.Key;
   readonly altText: string;
   readonly url: string;
-  readonly tags?: Array<Tag>;
 };
+
+interface UserPhoto extends Photo {
+  readonly tagCount: Number;
+}
+
+interface AdminPhoto extends Photo {
+  readonly tags: Array<Tag>;
+}
 
 type Tag = {
   readonly id: React.Key;
