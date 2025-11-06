@@ -5,7 +5,7 @@ type Photo = {
 };
 
 interface UserPhoto extends Photo {
-  readonly tagCount: Number;
+  readonly tagCount: number;
 }
 
 interface AdminPhoto extends Photo {
@@ -15,12 +15,12 @@ interface AdminPhoto extends Photo {
 type Tag = {
   readonly id: React.Key;
   readonly name: string;
-  readonly posX: Number;
-  readonly posY: Number;
+  readonly posX: number;
+  readonly posY: number;
   readonly imageId: string;
 };
 
 type Pos = {
-  x: Number;
-  y: Number;
+  x: number;
+  y: number;
 };
