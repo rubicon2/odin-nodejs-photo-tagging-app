@@ -70,19 +70,15 @@ describe('getElementClickPos', () => {
       // However, rendered elements seem to have no dimensions, therefore it will be impossible to test where the click happens.
       // All the values used by the function (which I know exist on the events triggered by react) just don't seem to exist
       // on the fake event object that's passed to it.
-      // E.g. what I was trying previously, and had no luck with.
-      // // Set img display: block, width and height, render, do below, doesn't work.
-      // await user.pointer({
-      //   keys: '[MouseLeft]',
-      //   target: screen.getByRole('img'),
-      //   coords: { x: 200, y: 100 },
-      // });
 
       const pos = getElementClickPos({
+        // @ts-ignore - faking a real mouse event.
+        // Don't need all those other properties as not used in function we are testing.
         nativeEvent: {
           offsetX: clickPos.x,
           offsetY: clickPos.y,
         },
+        // @ts-ignore
         currentTarget: {
           clientWidth: targetSize.x,
           clientHeight: targetSize.y,
