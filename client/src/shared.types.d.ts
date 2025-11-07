@@ -20,6 +20,13 @@ type Tag = {
   readonly imageId: string;
 };
 
+type EditableTag = {
+  id?: React.Key;
+  posX: number;
+  posY: number;
+  name: string;
+};
+
 type Pos = {
   x: number;
   y: number;
