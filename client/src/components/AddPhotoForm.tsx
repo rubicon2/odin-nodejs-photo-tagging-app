@@ -11,7 +11,7 @@ export default function AddPhotoForm({ onPostPhoto = () => {} }: Props) {
   async function postPhoto(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      const response = await api.postPhoto(event);
+      const response = await api.postPhoto(new FormData(event.currentTarget));
       if (response.ok) {
         const json = await response.json();
         if (json.data?.message) {

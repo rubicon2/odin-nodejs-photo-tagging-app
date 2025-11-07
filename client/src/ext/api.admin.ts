@@ -1,5 +1,3 @@
-import React from 'react';
-
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
 async function fetchPhotosWithTags() {
@@ -12,20 +10,18 @@ async function fetchPhotoWithTags() {
   return response;
 }
 
-async function postPhoto(event: React.FormEvent<HTMLFormElement>) {
-  const formData = new FormData(event.currentTarget);
+async function postPhoto(body: BodyInit) {
   const response = await fetch(`${SERVER_URL}/api/v1/admin/photo`, {
     method: 'POST',
-    body: formData,
+    body,
   });
   return response;
 }
 
-async function putPhoto(event: React.FormEvent<HTMLFormElement>) {
-  const formData = new FormData(event.currentTarget);
+async function putPhoto(body: BodyInit) {
   const response = await fetch(`${SERVER_URL}/api/v1/admin/photo`, {
     method: 'PUT',
-    body: formData,
+    body,
   });
   return response;
 }
@@ -58,32 +54,23 @@ async function getPhotoTag(photoId: string, tagId: string) {
   return response;
 }
 
-async function postPhotoTag(
-  photoId: string,
-  event: React.FormEvent<HTMLFormElement>,
-) {
-  const formData = new FormData(event.currentTarget);
+async function postPhotoTag(photoId: string, body: BodyInit) {
   const response = await fetch(
     `${SERVER_URL}/api/v1/admin/photo/${photoId}/tag`,
     {
       method: 'POST',
-      body: formData,
+      body,
     },
   );
   return response;
 }
 
-async function putPhotoTag(
-  photoId: string,
-  tagId: string,
-  event: React.FormEvent<HTMLFormElement>,
-) {
-  const formData = new FormData(event.currentTarget);
+async function putPhotoTag(photoId: string, tagId: string, body: BodyInit) {
   const response = await fetch(
     `${SERVER_URL}/api/v1/admin/photo/${photoId}/tag/${tagId}`,
     {
       method: 'PUT',
-      body: formData,
+      body,
     },
   );
   return response;
