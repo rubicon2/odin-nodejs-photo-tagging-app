@@ -23,6 +23,8 @@ export default function EditModePhotoTagOverlay({
       x: bounds.width,
       y: bounds.height,
     });
+    // Since font scales with imgSize, re-run this calculation when imgSize changes.
+  }, [tag, imgSize]);
 
   function startDrag(event: React.MouseEvent<HTMLElement>) {
     startDragPosRef.current = {
