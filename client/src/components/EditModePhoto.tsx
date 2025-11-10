@@ -6,12 +6,14 @@ interface Props {
   photo: Photo;
   tags: Array<EditableTag>;
   onClick?: (pos: Pos) => any;
+  onTagDrag?: (index: number, updatedTag: EditableTag) => any;
 }
 
 export default function EditModePhoto({
   photo,
   tags,
   onClick = () => {},
+  onTagDrag = () => {},
 }: Props) {
   // Once image is rendered, we can get the width and height off it to render the overlaid tags.
   const img = useRef<HTMLImageElement>(null);
@@ -51,7 +53,12 @@ export default function EditModePhoto({
         onClick={handleClick}
       />
       {tags.map((tag: EditableTag, index) => (
-        <EditModePhotoTagOverlay key={index} tag={tag} imgSize={imgSize} />
+        <EditModePhotoTagOverlay
+          key={index}
+          tag={tag}
+          imgSize={imgSize}
+          onDrag={({ x, y }) => onTagDrag(index, { ...tag, posX: x, posY: y })}
+        />
       ))}
     </div>
   );
