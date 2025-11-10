@@ -44,7 +44,7 @@ export default function EditModePhoto({
   }, []);
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', overflow: 'hidden' }}>
       <img
         ref={img}
         onLoad={(e) => handleImgChange(e.currentTarget)}
