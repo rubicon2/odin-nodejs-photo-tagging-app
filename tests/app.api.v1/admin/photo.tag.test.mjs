@@ -217,6 +217,375 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
     });
   });
 
+  describe('PUT', () => {
+    describe('with a valid photoId', () => {
+      describe('validation', () => {
+        // Split test data into arrays as there are a lot of tests for the validation on this.
+        // Check the create, update and delete fields on the body are arrays.
+        const fieldsAreArraysTests = [
+          {
+            testType: 'create field not an array',
+            sendObj: {
+              create: {},
+            },
+            expectedValidationObj: {
+              errors: [
+                {
+                  location: 'body',
+                  msg: 'create field is not an array',
+                  path: 'create',
+                  type: 'field',
+                  value: {},
+                },
+              ],
+            },
+          },
+          {
+            testType: 'update field not an array',
+            sendObj: {
+              update: {},
+            },
+            expectedValidationObj: {
+              errors: [
+                {
+                  location: 'body',
+                  msg: 'update field is not an array',
+                  path: 'update',
+                  type: 'field',
+                  value: {},
+                },
+              ],
+            },
+          },
+          {
+            testType: 'delete field not an array',
+            sendObj: {
+              delete: {},
+            },
+            expectedValidationObj: {
+              errors: [
+                {
+                  location: 'body',
+                  msg: 'delete field is not an array',
+                  path: 'delete',
+                  type: 'field',
+                  value: {},
+                },
+              ],
+            },
+          },
+        ];
+
+        const createArrayValidationTests = [
+          {
+            testType:
+              'create[*][name], create[*][posX] or create[*][posY] missing',
+            sendObj: {
+              create: [
+                {
+                  name: '',
+                  posX: 1,
+                  posY: 1,
+                },
+                {
+                  name: 'Jimmy',
+                  posX: '',
+                  posY: 1,
+                },
+                {
+                  name: 'Jimmy',
+                  posX: 1,
+                  posY: '',
+                },
+              ],
+            },
+            expectedValidationObj: {
+              errors: [
+                {
+                  location: 'body',
+                  msg: 'create.*.name is a required field',
+                  path: 'create[0].name',
+                  type: 'field',
+                  value: '',
+                },
+                {
+                  location: 'body',
+                  msg: 'create.*.name should contain alphanumeric characters only',
+                  path: 'create[0].name',
+                  type: 'field',
+                  value: '',
+                },
+                {
+                  location: 'body',
+                  msg: 'create.*.posX is a required field',
+                  path: 'create[1].posX',
+                  type: 'field',
+                  value: '',
+                },
+                {
+                  location: 'body',
+                  msg: 'create.*.posX should be a number',
+                  path: 'create[1].posX',
+                  type: 'field',
+                  value: '',
+                },
+                {
+                  location: 'body',
+                  msg: 'create.*.posY is a required field',
+                  path: 'create[2].posY',
+                  type: 'field',
+                  value: '',
+                },
+                {
+                  location: 'body',
+                  msg: 'create.*.posY should be a number',
+                  path: 'create[2].posY',
+                  type: 'field',
+                  value: '',
+                },
+              ],
+            },
+          },
+          {
+            testType: 'create[*][posX] or create[*][posY] not numbers',
+            sendObj: {
+              create: [
+                {
+                  name: 'Jimmy',
+                  posX: 'Jimbo',
+                  posY: '0',
+                },
+                {
+                  name: 'Jimmy',
+                  posX: '0',
+                  posY: 'Jimbo',
+                },
+              ],
+              update: [],
+              delete: [],
+            },
+            expectedValidationObj: {
+              errors: [
+                {
+                  location: 'body',
+                  msg: 'create.*.posX should be a number',
+                  path: 'create[0].posX',
+                  type: 'field',
+                  value: 'Jimbo',
+                },
+                {
+                  location: 'body',
+                  msg: 'create.*.posY should be a number',
+                  path: 'create[1].posY',
+                  type: 'field',
+                  value: 'Jimbo',
+                },
+              ],
+            },
+          },
+        ];
+
+        const updateArrayValidationTests = [
+          {
+            testType: 'update[*][id] missing',
+            sendObj: {
+              update: [
+                {
+                  id: '',
+                  name: 'Jimmy',
+                  posX: 1,
+                  posY: 1,
+                },
+              ],
+            },
+            expectedValidationObj: {
+              errors: [
+                {
+                  location: 'body',
+                  msg: 'update.*.id is a required field',
+                  path: 'update[0].id',
+                  type: 'field',
+                  value: '',
+                },
+                {
+                  location: 'body',
+                  msg: 'Tag with id:  does not exist',
+                  path: 'update[0].id',
+                  type: 'field',
+                  value: '',
+                },
+              ],
+            },
+          },
+          {
+            testType: 'update[*][id] does not exist on database',
+            sendObj: {
+              update: [
+                {
+                  id: 'my-incorrect-id',
+                  name: 'Jimmy',
+                  posX: 1,
+                  posY: 1,
+                },
+              ],
+            },
+            expectedValidationObj: {
+              errors: [
+                {
+                  location: 'body',
+                  msg: 'Tag with id: my-incorrect-id does not exist',
+                  path: 'update[0].id',
+                  type: 'field',
+                  value: 'my-incorrect-id',
+                },
+              ],
+            },
+          },
+          {
+            testType: 'optional update[*][name] should not be empty',
+            sendObj: {
+              update: [
+                {
+                  id: 'some-long-string',
+                  name: '',
+                  posX: 1,
+                  posY: 1,
+                },
+              ],
+            },
+            expectedValidationObj: {
+              errors: [
+                {
+                  location: 'body',
+                  msg: 'update.*.name is a required field',
+                  path: 'update[0].name',
+                  type: 'field',
+                  value: '',
+                },
+                {
+                  location: 'body',
+                  msg: 'update.*.name should contain alphanumeric characters only',
+                  path: 'update[0].name',
+                  type: 'field',
+                  value: '',
+                },
+              ],
+            },
+          },
+          {
+            testType: 'optional update[*][posX] not a number',
+            sendObj: {
+              update: [
+                {
+                  id: 'some-long-string',
+                  name: 'Jimmy',
+                  posX: 'not-a-number',
+                  posY: 1,
+                },
+              ],
+            },
+            expectedValidationObj: {
+              errors: [
+                {
+                  location: 'body',
+                  msg: 'update.*.posX should be a number',
+                  path: 'update[0].posX',
+                  type: 'field',
+                  value: 'not-a-number',
+                },
+              ],
+            },
+          },
+          {
+            testType: 'optional update[*][posY] not a number',
+            sendObj: {
+              update: [
+                {
+                  id: 'some-long-string',
+                  name: 'Jimmy',
+                  posX: 1,
+                  posY: 'not-a-number',
+                },
+              ],
+            },
+            expectedValidationObj: {
+              errors: [
+                {
+                  location: 'body',
+                  msg: 'update.*.posY should be a number',
+                  path: 'update[0].posY',
+                  type: 'field',
+                  value: 'not-a-number',
+                },
+              ],
+            },
+          },
+        ];
+
+        const deleteArrayValidationTests = [
+          {
+            testType: 'update[*] does not exist on database',
+            sendObj: {
+              update: [
+                {
+                  id: 'my-incorrect-id',
+                  name: 'Jimmy',
+                  posX: 1,
+                  posY: 1,
+                },
+              ],
+            },
+            expectedValidationObj: {
+              errors: [
+                {
+                  location: 'body',
+                  msg: 'Tag with id: my-incorrect-id does not exist',
+                  path: 'update[0].id',
+                  type: 'field',
+                  value: 'my-incorrect-id',
+                },
+              ],
+            },
+          },
+        ];
+
+        it.each([
+          ...fieldsAreArraysTests,
+          ...createArrayValidationTests,
+          ...updateArrayValidationTests,
+          ...deleteArrayValidationTests,
+        ])(
+          'when provided with $testType, responds with status code 400 and validation errors',
+          async ({ sendObj, expectedValidationObj }) => {
+            await postTestData();
+            const photo = testImageDataAbsoluteUrlWithTags[0];
+            // Add a tag that we can update it with the id.
+            await db.imageTag.create({
+              data: {
+                id: 'some-long-string',
+                imageId: photo.id,
+                name: 'Kim',
+                posX: 0.5,
+                posY: 0.5,
+              },
+            });
+            const response = await request(app)
+              .put(`/api/v1/admin/photo/${photo.id}/tag`)
+              .send(sendObj);
+
+            expect(response.statusCode).toStrictEqual(400);
+            expect(response.body).toStrictEqual({
+              status: 'fail',
+              data: {
+                validation: expectedValidationObj,
+              },
+            });
+          },
+        );
+      });
+    });
+  });
+
   describe('DELETE', () => {
     it('deletes all tags for the photoId and returns status code 200 and json message', async () => {
       await postTestData();

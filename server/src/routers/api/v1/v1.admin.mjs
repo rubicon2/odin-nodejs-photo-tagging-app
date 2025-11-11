@@ -2,6 +2,7 @@ import * as controller from '../../../controllers/v1/api.admin.mjs';
 import {
   createPostTagValidationChain,
   createPutTagValidationChain,
+  createPutTagsRouteValidationChain,
 } from '../../../validators/tagValidators.mjs';
 import upload from '../../../middleware/multer.mjs';
 import { Router } from 'express';
@@ -21,6 +22,11 @@ app.post(
   '/photo/:photoId/tag',
   createPostTagValidationChain(),
   controller.postPhotoTag,
+);
+app.put(
+  '/photo/:photoId/tag',
+  createPutTagsRouteValidationChain(),
+  controller.updatePhotoTags,
 );
 app.delete('/photo/:photoId/tag', controller.deleteAllPhotoTags);
 

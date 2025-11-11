@@ -317,6 +317,34 @@ async function getAllPhotoTags(req, res, next) {
   }
 }
 
+async function updatePhotoTags(req, res, next) {
+  // Takes a req.body with 3 arrays:
+  // create (tags with no ids), update (tags with ids), and delete (ids).
+  // Each is validated separately due to the different validation requirements.
+  // Trying to lump them all together is where I screwed up last time. Got way too complicated.
+  try {
+    const validation = validationResult(req);
+
+    if (!validation.isEmpty()) {
+      return res.status(400).json({
+        status: 'fail',
+        data: {
+          validation,
+        },
+      });
+    }
+
+    return res.json({
+      status: 'success',
+      data: {
+        message: 'Tags successfully updated.',
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function deleteAllPhotoTags(req, res, next) {
   try {
     // Check photo exists before looking for tag, so we can give better error messages.
@@ -598,6 +626,7 @@ export {
   deletePhoto,
   // /photo/:photoId/tag
   getAllPhotoTags,
+  updatePhotoTags,
   deleteAllPhotoTags,
   // /photo/:photoId/tag/:tagId
   getPhotoTag,
