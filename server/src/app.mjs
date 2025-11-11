@@ -9,6 +9,7 @@ loadEnv();
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 app.use(express.static(path.join(import.meta.dirname, '../public')));
 app.use('/data', express.static(process.env.VOLUME_MOUNT_PATH));
 
