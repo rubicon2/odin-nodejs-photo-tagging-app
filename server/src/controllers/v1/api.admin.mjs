@@ -323,6 +323,22 @@ async function updatePhotoTags(req, res, next) {
   // Each is validated separately due to the different validation requirements.
   // Trying to lump them all together is where I screwed up last time. Got way too complicated.
   try {
+    // Check photo exists so we can give a more appropriate error message.
+    const existingPhoto = await client.image.findUnique({
+      where: {
+        id: req.params.photoId,
+      },
+    });
+
+    if (!existingPhoto) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
     const validation = validationResult(req);
 
     if (!validation.isEmpty()) {

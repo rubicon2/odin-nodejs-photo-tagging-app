@@ -31,6 +31,10 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
       .post(`/api/v1/admin/photo/my-made-up-id/tag`)
       .expect(404)
       .expect(expectedJson);
+    await request(app)
+      .put(`/api/v1/admin/photo/my-made-up-id/tag`)
+      .expect(404)
+      .expect(expectedJson);
   });
 
   describe('GET', () => {
