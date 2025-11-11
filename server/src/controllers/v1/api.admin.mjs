@@ -3,6 +3,37 @@ import createImgUrl from '../../ext/createImgUrl.mjs';
 import { deleteFile } from '../../ext/volume.mjs';
 import { validationResult, matchedData } from 'express-validator';
 
+// /photo
+async function getAllPhotosAndTags(req, res, next) {
+  try {
+    const photos = await client.image.findMany({
+      orderBy: {
+        id: 'asc',
+      },
+      include: {
+        tags: {
+          orderBy: {
+            id: 'asc',
+          },
+        },
+      },
+    });
+    const photosWithUrls = photos.map((photo) => ({
+      ...photo,
+      url: createImgUrl(photo.url),
+    }));
+    return res.json({
+      status: 'success',
+      data: {
+        message: 'All photos with tags successfully retrieved.',
+        photos: photosWithUrls,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function postPhoto(req, res) {
   // Multer gets file data.
   const photo = req.file;
@@ -69,29 +100,21 @@ async function postPhoto(req, res) {
   });
 }
 
-async function getAllPhotosAndTags(req, res, next) {
+async function deleteAllPhotos(req, res, next) {
   try {
-    const photos = await client.image.findMany({
-      orderBy: {
-        id: 'asc',
-      },
-      include: {
-        tags: {
-          orderBy: {
-            id: 'asc',
-          },
-        },
-      },
-    });
-    const photosWithUrls = photos.map((photo) => ({
-      ...photo,
-      url: createImgUrl(photo.url),
-    }));
+    const photos = await client.image.findMany();
+    for (const photo of photos) {
+      // For each entry removed from db, delete corresponding file.
+      await deleteFile(photo.url);
+      await client.image.delete({ where: { id: photo.id } });
+      console.log('Photo deleted:', photo.id);
+    }
+    // Clear any photos that may exist on filesystem but not on db?
     return res.json({
       status: 'success',
       data: {
-        message: 'All photos with tags successfully retrieved.',
-        photos: photosWithUrls,
+        message: 'All photos successfully deleted from the filesystem and db',
+        photos,
       },
     });
   } catch (error) {
@@ -99,6 +122,7 @@ async function getAllPhotosAndTags(req, res, next) {
   }
 }
 
+// /photo/:id
 async function getPhotoAndTags(req, res, next) {
   try {
     const { id } = req.params;
@@ -209,28 +233,6 @@ async function putPhoto(req, res, next) {
   }
 }
 
-async function deleteAllPhotos(req, res, next) {
-  try {
-    const photos = await client.image.findMany();
-    for (const photo of photos) {
-      // For each entry removed from db, delete corresponding file.
-      await deleteFile(photo.url);
-      await client.image.delete({ where: { id: photo.id } });
-      console.log('Photo deleted:', photo.id);
-    }
-    // Clear any photos that may exist on filesystem but not on db?
-    return res.json({
-      status: 'success',
-      data: {
-        message: 'All photos successfully deleted from the filesystem and db',
-        photos,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
 async function deletePhoto(req, res, next) {
   try {
     const { id } = req.params;
@@ -275,6 +277,7 @@ async function deletePhoto(req, res, next) {
   }
 }
 
+// /photo/:photoId/tag
 async function getAllPhotoTags(req, res, next) {
   try {
     // Check photo exists so we can give a more appropriate error message.
@@ -314,6 +317,42 @@ async function getAllPhotoTags(req, res, next) {
   }
 }
 
+async function deleteAllPhotoTags(req, res, next) {
+  try {
+    // Check photo exists before looking for tag, so we can give better error messages.
+    const existingPhoto = await client.image.findUnique({
+      where: {
+        id: req.params.photoId,
+      },
+    });
+
+    if (!existingPhoto) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: 'That photo does not exist.',
+        },
+      });
+    }
+
+    await client.imageTag.deleteMany({
+      where: {
+        imageId: req.params.photoId,
+      },
+    });
+
+    return res.json({
+      status: 'success',
+      data: {
+        message: `Tags for photo ${req.params.photoId} successfully deleted.`,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// /photo/:photoId/tag/:tagId
 async function getPhotoTag(req, res, next) {
   try {
     // Check photo exists so we can give a more appropriate error message.
@@ -495,41 +534,6 @@ async function putPhotoTag(req, res, next) {
   }
 }
 
-async function deleteAllPhotoTags(req, res, next) {
-  try {
-    // Check photo exists before looking for tag, so we can give better error messages.
-    const existingPhoto = await client.image.findUnique({
-      where: {
-        id: req.params.photoId,
-      },
-    });
-
-    if (!existingPhoto) {
-      return res.status(404).json({
-        status: 'fail',
-        data: {
-          message: 'That photo does not exist.',
-        },
-      });
-    }
-
-    await client.imageTag.deleteMany({
-      where: {
-        imageId: req.params.photoId,
-      },
-    });
-
-    return res.json({
-      status: 'success',
-      data: {
-        message: `Tags for photo ${req.params.photoId} successfully deleted.`,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
 async function deletePhotoTag(req, res, next) {
   try {
     const { photoId, tagId } = req.params;
@@ -584,16 +588,20 @@ async function deletePhotoTag(req, res, next) {
 }
 
 export {
-  postPhoto,
+  // /photo
   getAllPhotosAndTags,
+  postPhoto,
+  deleteAllPhotos,
+  // /photo/:id
   getPhotoAndTags,
   putPhoto,
-  deleteAllPhotos,
   deletePhoto,
+  // /photo/:photoId/tag
   getAllPhotoTags,
+  deleteAllPhotoTags,
+  // /photo/:photoId/tag/:tagId
   getPhotoTag,
   postPhotoTag,
   putPhotoTag,
-  deleteAllPhotoTags,
   deletePhotoTag,
 };
