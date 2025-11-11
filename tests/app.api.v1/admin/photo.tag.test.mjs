@@ -61,14 +61,14 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
             errors: [
               {
                 location: 'body',
-                msg: 'Position X is a required field',
+                msg: 'posX is a required field',
                 path: 'posX',
                 type: 'field',
                 value: '',
               },
               {
                 location: 'body',
-                msg: 'Position X should be a number',
+                msg: 'posX should be a number',
                 path: 'posX',
                 type: 'field',
                 value: '',
@@ -83,7 +83,7 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
             errors: [
               {
                 location: 'body',
-                msg: 'Position X should be a number',
+                msg: 'posX should be a number',
                 path: 'posX',
                 type: 'field',
                 value: 'some_string',
@@ -98,14 +98,14 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
             errors: [
               {
                 location: 'body',
-                msg: 'Position Y is a required field',
+                msg: 'posY is a required field',
                 path: 'posY',
                 type: 'field',
                 value: '',
               },
               {
                 location: 'body',
-                msg: 'Position Y should be a number',
+                msg: 'posY should be a number',
                 path: 'posY',
                 type: 'field',
                 value: '',
@@ -120,7 +120,7 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
             errors: [
               {
                 location: 'body',
-                msg: 'Position Y should be a number',
+                msg: 'posY should be a number',
                 path: 'posY',
                 type: 'field',
                 value: 'some_string',
@@ -135,14 +135,14 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
             errors: [
               {
                 location: 'body',
-                msg: 'Name is a required field',
+                msg: 'name is a required field',
                 path: 'name',
                 type: 'field',
                 value: '',
               },
               {
                 location: 'body',
-                msg: 'Name should contain alphanumeric characters only',
+                msg: 'name should contain alphanumeric characters only',
                 path: 'name',
                 type: 'field',
                 value: '',
@@ -157,7 +157,7 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
             errors: [
               {
                 location: 'body',
-                msg: 'Name should contain alphanumeric characters only',
+                msg: 'name should contain alphanumeric characters only',
                 path: 'name',
                 type: 'field',
                 value: 'j@m',
@@ -439,7 +439,7 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
           errors: [
             {
               location: 'body',
-              msg: 'Position X should be a number',
+              msg: 'posX should be a number',
               path: 'posX',
               type: 'field',
               value: 'some_string',
@@ -454,7 +454,7 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
           errors: [
             {
               location: 'body',
-              msg: 'Position Y should be a number',
+              msg: 'posY should be a number',
               path: 'posY',
               type: 'field',
               value: 'some_string',
@@ -469,7 +469,7 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
           errors: [
             {
               location: 'body',
-              msg: 'Name should contain alphanumeric characters only',
+              msg: 'name should contain alphanumeric characters only',
               path: 'name',
               type: 'field',
               value: 'j@m',

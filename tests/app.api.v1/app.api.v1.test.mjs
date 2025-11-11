@@ -123,14 +123,14 @@ describe('/api/v1/check', () => {
         errors: [
           {
             location: 'body',
-            msg: 'Position X is a required field',
+            msg: 'posX is a required field',
             path: 'posX',
             type: 'field',
             value: '',
           },
           {
             location: 'body',
-            msg: 'Position X should be a number',
+            msg: 'posX should be a number',
             path: 'posX',
             type: 'field',
             value: '',
@@ -147,14 +147,14 @@ describe('/api/v1/check', () => {
         errors: [
           {
             location: 'body',
-            msg: 'Position Y is a required field',
+            msg: 'posY is a required field',
             path: 'posY',
             type: 'field',
             value: '',
           },
           {
             location: 'body',
-            msg: 'Position Y should be a number',
+            msg: 'posY should be a number',
             path: 'posY',
             type: 'field',
             value: '',
@@ -171,7 +171,7 @@ describe('/api/v1/check', () => {
         errors: [
           {
             location: 'body',
-            msg: 'Position X should be a number',
+            msg: 'posX should be a number',
             path: 'posX',
             type: 'field',
             value: 'my_bad_pos',
@@ -188,7 +188,7 @@ describe('/api/v1/check', () => {
         errors: [
           {
             location: 'body',
-            msg: 'Position Y should be a number',
+            msg: 'posY should be a number',
             path: 'posY',
             type: 'field',
             value: 'my_bad_pos',

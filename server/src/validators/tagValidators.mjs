@@ -1,30 +1,30 @@
 import { body } from 'express-validator';
 
-const createPosXChain = () =>
-  body('posX')
+const createPosXChain = (field = 'posX') =>
+  body(field)
     .trim()
     .notEmpty()
-    .withMessage('Position X is a required field')
+    .withMessage(`${field} is a required field`)
     .isFloat()
-    .withMessage('Position X should be a number')
+    .withMessage(`${field} should be a number`)
     .toFloat();
 
-const createPosYChain = () =>
-  body('posY')
+const createPosYChain = (field = 'posY') =>
+  body(field)
     .trim()
     .notEmpty()
-    .withMessage('Position Y is a required field')
+    .withMessage(`${field} is a required field`)
     .isFloat()
-    .withMessage('Position Y should be a number')
+    .withMessage(`${field} should be a number`)
     .toFloat();
 
-const createNameChain = () =>
-  body('name')
+const createNameChain = (field = 'name') =>
+  body(field)
     .trim()
     .notEmpty()
-    .withMessage('Name is a required field')
+    .withMessage(`${field} is a required field`)
     .isAlphanumeric()
-    .withMessage('Name should contain alphanumeric characters only');
+    .withMessage(`${field} should contain alphanumeric characters only`);
 
 const createPostTagValidationChain = () => [
   createPosXChain(),
