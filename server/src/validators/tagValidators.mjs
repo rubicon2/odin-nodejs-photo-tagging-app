@@ -1,4 +1,5 @@
 import db from '../db/client.mjs';
+import { getImageIdFromRouteSanitizer } from './sanitizers.mjs';
 import { body } from 'express-validator';
 
 // This is for use when the tag id is part of the req.body, not part of the route params.
@@ -57,6 +58,7 @@ const createPutTagValidationChain = () => [
 ];
 
 const createCreateTagsArrayValidationChain = () => [
+  body('create.*.imageId').customSanitizer(getImageIdFromRouteSanitizer),
   createNameChain('create.*.name'),
   createPosXChain('create.*.posX'),
   createPosYChain('create.*.posY'),
