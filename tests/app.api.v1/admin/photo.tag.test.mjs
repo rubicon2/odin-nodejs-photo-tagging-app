@@ -591,6 +591,48 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
           },
         );
       });
+
+      it('with a valid create field, create the relevant tags on the database, respond with status code 200 and return the tags', async () => {
+        await postTestData();
+        // Clear out the regular test data tags to keep the test consistent.
+        await db.imageTag.deleteMany();
+
+        const photo = testImageDataAbsoluteUrlWithTags[0];
+        const response = await request(app)
+          .put(`/api/v1/admin/photo/${photo.id}/tag`)
+          .send({
+            create: [
+              {
+                name: 'Jimmy',
+                posX: 0.25,
+                posY: 0.75,
+              },
+              {
+                name: 'Kim',
+                posX: 0.75,
+                posY: 0.25,
+              },
+            ],
+          });
+        expect(response.statusCode).toStrictEqual(200);
+
+        // Check directly against the database.
+        const dbEntries = await db.imageTag.findMany({
+          where: {
+            imageId: photo.id,
+          },
+        });
+
+        expect(dbEntries.length).toStrictEqual(2);
+
+        expect(response.body).toStrictEqual({
+          status: 'success',
+          data: {
+            message: 'Tags successfully updated.',
+            created: dbEntries,
+          },
+        });
+      });
     });
   });
 

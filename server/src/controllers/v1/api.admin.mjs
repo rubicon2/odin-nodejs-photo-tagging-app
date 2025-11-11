@@ -350,10 +350,19 @@ async function updatePhotoTags(req, res, next) {
       });
     }
 
+    const validatedData = matchedData(req);
+
+    const [created] = await client.$transaction([
+      client.imageTag.createManyAndReturn({
+        data: validatedData.create || [],
+      }),
+    ]);
+
     return res.json({
       status: 'success',
       data: {
         message: 'Tags successfully updated.',
+        created,
       },
     });
   } catch (error) {
