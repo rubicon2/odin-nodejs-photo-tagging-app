@@ -65,6 +65,30 @@ async function postPhotoTag(photoId: string, body: BodyInit) {
   return response;
 }
 
+async function putPhotoTags(
+  photoId: string,
+  createTags: Array<EditableTag> = [],
+  updateTags: Array<Tag> = [],
+  deleteTags: Array<string> = [],
+) {
+  const response = await fetch(
+    `${SERVER_URL}/api/v1/admin/photo/${photoId}/tag`,
+    {
+      method: 'PUT',
+      headers: {
+        // This needs to be set otherwise server json middleware will not do anything.
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        create: createTags,
+        update: updateTags,
+        delete: deleteTags,
+      }),
+    },
+  );
+  return response;
+}
+
 async function putPhotoTag(photoId: string, tagId: string, body: BodyInit) {
   const response = await fetch(
     `${SERVER_URL}/api/v1/admin/photo/${photoId}/tag/${tagId}`,
@@ -106,6 +130,7 @@ export {
   getPhotoTags,
   getPhotoTag,
   postPhotoTag,
+  putPhotoTags,
   putPhotoTag,
   deletePhotoTags,
   deletePhotoTag,
