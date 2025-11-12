@@ -352,17 +352,36 @@ async function updatePhotoTags(req, res, next) {
 
     const validatedData = matchedData(req);
 
-    const [created] = await client.$transaction([
-      client.imageTag.createManyAndReturn({
+    // Need to use an interactive transaction like this, in order to
+    // iterate over the update and delete operations. There is no way
+    // to update or delete a bunch of stuff at once, with different
+    // where clauses (e.g. updateManyAndReturn can only use one where).
+    const [created, updated] = await client.$transaction(async (prisma) => {
+      const created = await prisma.imageTag.createManyAndReturn({
         data: validatedData.create || [],
-      }),
-    ]);
+      });
+
+      const updated = [];
+      for (const update of validatedData.update || []) {
+        const { id, ...data } = update;
+        const updatedTag = await prisma.imageTag.update({
+          where: {
+            id,
+          },
+          data,
+        });
+        updated.push(updatedTag);
+      }
+
+      return [created, updated];
+    });
 
     return res.json({
       status: 'success',
       data: {
         message: 'Tags successfully updated.',
         created,
+        updated,
       },
     });
   } catch (error) {

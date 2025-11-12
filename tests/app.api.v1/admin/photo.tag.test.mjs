@@ -630,9 +630,137 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
           data: {
             message: 'Tags successfully updated.',
             created: dbEntries,
+            updated: [],
           },
         });
       });
+
+      it.each([
+        {
+          testType: 'name properties',
+          updateObj: [
+            {
+              name: 'Jimmy',
+            },
+            {
+              name: 'Kimmy',
+            },
+          ],
+        },
+        {
+          testType: 'posX properties',
+          updateObj: [
+            {
+              posX: 0.5,
+            },
+            {
+              posX: 0.5,
+            },
+          ],
+        },
+        {
+          testType: 'posY properties',
+          updateObj: [
+            {
+              posY: 0.5,
+            },
+            {
+              posY: 0.5,
+            },
+          ],
+        },
+        {
+          testType: 'all properties',
+          updateObj: [
+            {
+              name: 'Jimmy',
+              posX: 1,
+              posY: 2,
+            },
+            {
+              name: 'Kimmy',
+              posX: 3,
+              posY: 4,
+            },
+          ],
+        },
+      ])(
+        'with a valid update field and $testType, update the relevant tags on the database, respond with status code 200 and return the updated tags',
+        async ({ updateObj }) => {
+          // Will need to map update array to individual client.update() calls.
+          // Can't just do client.updateManyAndReturn(), as update entry needs to be split into where and data.
+          await postTestData();
+          // Clear out the regular test data tags to keep the test consistent.
+          await db.imageTag.deleteMany();
+
+          // Initial tags that will be updated by the route.
+          const initialTags = await db.imageTag.createManyAndReturn({
+            data: [
+              {
+                name: 'Jim',
+                imageId: testImageDataAbsoluteUrlWithTags[0].id,
+                posX: 0.25,
+                posY: 0.75,
+              },
+              {
+                name: 'Kim',
+                imageId: testImageDataAbsoluteUrlWithTags[0].id,
+                posX: 0.75,
+                posY: 0.25,
+              },
+            ],
+          });
+
+          // Order by id to the tests won't fail if db returns different order now and after updates.
+          initialTags.sort((a, b) => a.id.localeCompare(b.id));
+
+          const photo = testImageDataAbsoluteUrlWithTags[0];
+          const response = await request(app)
+            .put(`/api/v1/admin/photo/${photo.id}/tag`)
+            .send({
+              update: [
+                {
+                  id: initialTags[0].id,
+                  ...updateObj[0],
+                },
+                {
+                  id: initialTags[1].id,
+                  ...updateObj[1],
+                },
+              ],
+            });
+          expect(response.statusCode).toStrictEqual(200);
+
+          // Check directly against the database for updates.
+          const updatedDbEntries = await db.imageTag.findMany({
+            where: {
+              imageId: photo.id,
+            },
+            orderBy: {
+              id: 'asc',
+            },
+          });
+
+          // Check what's on the db reflects the updates we sent.
+          expect(updatedDbEntries).toStrictEqual(
+            // Merge initial tags (with their random ids) with the updates and compare against that.
+            initialTags.map((initialTag, index) => ({
+              ...initialTag,
+              ...updateObj[index],
+            })),
+          );
+
+          // Check response body contained the updated entries.
+          expect(response.body).toStrictEqual({
+            status: 'success',
+            data: {
+              message: 'Tags successfully updated.',
+              created: [],
+              updated: updatedDbEntries,
+            },
+          });
+        },
+      );
     });
   });
 
