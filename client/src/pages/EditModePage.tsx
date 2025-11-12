@@ -5,7 +5,7 @@ import * as api from '../ext/api.admin.js';
 import { useState, useEffect } from 'react';
 
 export default function EditModePage() {
-  const [photos, setPhotos] = useState<Array<Photo>>([]);
+  const [photos, setPhotos] = useState<Array<AdminPhoto>>([]);
   const [selectedPhotoId, setSelectedPhotoId] = useState<null | React.Key>(
     null,
   );
@@ -26,6 +26,8 @@ export default function EditModePage() {
     fetchPhotos();
   }, []);
 
+  const selectedPhoto = photos?.find(({ id }) => id === selectedPhotoId);
+
   return (
     <>
       <PhotoList
@@ -39,10 +41,15 @@ export default function EditModePage() {
       {isUploadingPhoto ? (
         <AddPhotoForm onPostPhoto={fetchPhotos} />
       ) : (
-        <PhotoDetails
-          photo={photos?.find(({ id }) => id === selectedPhotoId)}
-          onDelete={fetchPhotos}
-        />
+        <>
+          {selectedPhoto && (
+            <PhotoDetails
+              photo={selectedPhoto}
+              onSave={fetchPhotos}
+              onDelete={fetchPhotos}
+            />
+          )}
+        </>
       )}
     </>
   );
