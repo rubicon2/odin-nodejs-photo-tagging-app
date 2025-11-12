@@ -592,6 +592,7 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
         );
       });
 
+      // Create new tags.
       it('with a valid create field, create the relevant tags on the database, respond with status code 200 and return the tags', async () => {
         await postTestData();
         // Clear out the regular test data tags to keep the test consistent.
@@ -631,10 +632,12 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
             message: 'Tags successfully updated.',
             created: dbEntries,
             updated: [],
+            deleted: [],
           },
         });
       });
 
+      // Update tags with different properties.
       it.each([
         {
           testType: 'name properties',
@@ -757,10 +760,52 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
               message: 'Tags successfully updated.',
               created: [],
               updated: updatedDbEntries,
+              deleted: [],
             },
           });
         },
       );
+
+      // Delete tags.
+      it('with a valid delete field, an array of tagIds, delete the relevant tags on the database, respond with status code 200 and return the deleted tags', async () => {
+        await postTestData();
+        const photo = testImageDataAbsoluteUrlWithTags[0];
+
+        // Check now many tags are on the db - make sure test data actually has some before deleting them.
+        const existingTags = await db.imageTag.findMany({
+          where: {
+            imageId: photo.id,
+          },
+        });
+
+        expect(existingTags.length).not.toStrictEqual(0);
+
+        const response = await request(app)
+          .put(`/api/v1/admin/photo/${photo.id}/tag`)
+          .send({
+            delete: [...photo.tags.map((tag) => tag.id)],
+          });
+
+        expect(response.statusCode).toStrictEqual(200);
+
+        // Check directly against db. Use same query as existingTags before route used.
+        const afterDeletion = await db.imageTag.findMany({
+          where: {
+            imageId: photo.id,
+          },
+        });
+
+        expect(afterDeletion.length).toStrictEqual(0);
+        expect(response.body).toStrictEqual({
+          status: 'success',
+          data: {
+            message: 'Tags successfully updated.',
+            created: [],
+            updated: [],
+            deleted: existingTags,
+          },
+        });
+      });
     });
   });
 

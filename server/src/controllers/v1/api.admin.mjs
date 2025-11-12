@@ -356,25 +356,37 @@ async function updatePhotoTags(req, res, next) {
     // iterate over the update and delete operations. There is no way
     // to update or delete a bunch of stuff at once, with different
     // where clauses (e.g. updateManyAndReturn can only use one where).
-    const [created, updated] = await client.$transaction(async (prisma) => {
-      const created = await prisma.imageTag.createManyAndReturn({
-        data: validatedData.create || [],
-      });
-
-      const updated = [];
-      for (const update of validatedData.update || []) {
-        const { id, ...data } = update;
-        const updatedTag = await prisma.imageTag.update({
-          where: {
-            id,
-          },
-          data,
+    const [created, updated, deleted] = await client.$transaction(
+      async (prisma) => {
+        const created = await prisma.imageTag.createManyAndReturn({
+          data: validatedData.create || [],
         });
-        updated.push(updatedTag);
-      }
 
-      return [created, updated];
-    });
+        const updated = [];
+        for (const update of validatedData.update || []) {
+          const { id, ...data } = update;
+          const updatedTag = await prisma.imageTag.update({
+            where: {
+              id,
+            },
+            data,
+          });
+          updated.push(updatedTag);
+        }
+
+        const deleted = [];
+        for (const id of validatedData.delete || []) {
+          const deletedTag = await prisma.imageTag.delete({
+            where: {
+              id,
+            },
+          });
+          deleted.push(deletedTag);
+        }
+
+        return [created, updated, deleted];
+      },
+    );
 
     return res.json({
       status: 'success',
@@ -382,6 +394,7 @@ async function updatePhotoTags(req, res, next) {
         message: 'Tags successfully updated.',
         created,
         updated,
+        deleted,
       },
     });
   } catch (error) {
