@@ -98,6 +98,7 @@ export default function EditModePhotoTagOverlay({
           // reaches min size, text will continue getting smaller.
           fontSize: `${0.002 * imgSize.x}rem`,
           textShadow: '1px 1px 0.2em black',
+          padding: '10px',
           border: '2px solid red',
           cursor: 'pointer',
           userSelect: 'none',
