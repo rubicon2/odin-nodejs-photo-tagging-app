@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 interface Props {
   isActive: Boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onClose?: (this: HTMLDialogElement, ev: Event) => void;
 }
 
