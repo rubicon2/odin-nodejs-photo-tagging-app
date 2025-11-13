@@ -31,10 +31,10 @@ export default function Modal({
   return (
     <>
       <dialog ref={dialog}>
+        {children}
         <form method="dialog">
           <button type="submit">Close</button>
         </form>
-        {children}
       </dialog>
     </>
   );
