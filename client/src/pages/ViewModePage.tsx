@@ -1,41 +1,45 @@
-import Overlay from '../components/Overlay';
 import ViewModePhoto from '../components/ViewMode/ViewModePhoto';
+import ViewWinModal from '../components/ViewMode/ViewWinModal';
 import * as api from '../ext/api';
 import { useEffect, useState } from 'react';
 
-interface Props {
-  onMessage?: (s: string) => void;
-}
-
-export default function ViewModePage({ onMessage = () => {} }: Props) {
+export default function ViewModePage() {
   const [photos, setPhotos] = useState<Array<UserPhoto>>([]);
   const [selectedPhotoId, setSelectedPhotoId] = useState<React.Key | null>(
     null,
   );
-  // Use an object to store tags, not a set. Set uses object equality so won't work for storing found tags.
-  const [foundTags, setFoundTags] = useState<{ [key: string]: Tag }>({});
+
+  const [foundTags, setFoundTags] = useState<Array<Tag>>([]);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [showWinModal, setShowWinModal] = useState<boolean>(false);
 
   const photo = photos.find(({ id }) => id === selectedPhotoId);
-  const foundTagsCount = Object.keys(foundTags).length;
 
   function checkIfAllTagsFound() {
-    if (photo && foundTagsCount === photo.tagCount) {
-      // Congratulate the player.
-      // Once player dismisses modal (or whatever it is), load a new image and clear foundTags.
+    if (photo && foundTags.length === photo.tagCount) {
+      setTimeout(() => {
+        setShowWinModal(true);
+      }, 1000);
     }
   }
 
-  function onTagsFound(tags: Array<Tag>) {
-    for (const tag of tags) {
-      foundTags[tag.id.toString()] = tag;
-    }
-    setFoundTags(foundTags);
-    checkIfAllTagsFound();
+  function startNewGame() {
+    startNewRound();
   }
 
-  function getRandomPhoto(photos: Array<UserPhoto>) {
-    const random = Math.floor(Math.random() * photos.length);
-    return photos[random];
+  function startNewRound() {
+    setFoundTags([]);
+    // If there are any uncompleted photos, start a new round with that.
+    const nextPhoto = getRandomUncompletedPhoto();
+    if (nextPhoto) setSelectedPhotoId(nextPhoto.id);
+    // Otherwise, clear out completed photos and start again.
+    else startNewGame();
+  }
+
+  function getRandomUncompletedPhoto() {
+    const uncompletedPhotos = photos;
+    const random = Math.floor(Math.random() * uncompletedPhotos.length);
+    return uncompletedPhotos[random];
   }
 
   async function fetchPhotos() {
@@ -49,12 +53,12 @@ export default function ViewModePage({ onMessage = () => {} }: Props) {
       } else {
         if (json.data?.message) {
           console.log(json.data.message);
-          onMessage(json.data.message);
+          setMsg(json.data.message);
         }
       }
     } catch (error: any) {
       console.error(error.message);
-      onMessage(error.message);
+      setMsg(error.message);
     }
   }
 
@@ -66,24 +70,37 @@ export default function ViewModePage({ onMessage = () => {} }: Props) {
   useEffect(() => {
     // Once photos have been populated, get a random one!
     if (!selectedPhotoId) {
-      const photo = getRandomPhoto(photos);
+      const photo = getRandomUncompletedPhoto();
       if (photo) setSelectedPhotoId(photo.id);
     }
   }, [photos]);
 
+  useEffect(() => {
+    // Has to be here and not in event handler for onTagsFound,
+    // since the handler will be using foundTags from the current render,
+    // it won't include the latest tag that was found (i.e. a stale value).
+    // This effect will be triggered on the next render, so foundTags will be up to date.
+    checkIfAllTagsFound();
+  }, [foundTags]);
+
   return (
     <>
       {photo && (
-        // So overlay is positioned relative to image, not whole page.
-        <div style={{ position: 'absolute' }}>
+        // So modal can be placed absolutely.
+        <div style={{ position: 'relative' }}>
+          <ViewWinModal
+            isActive={showWinModal}
+            onClose={() => {
+              setShowWinModal(false);
+              startNewRound();
+            }}
+          />
           <ViewModePhoto
             photo={photo}
-            onNoTagsFound={() => console.log('No tags!')}
-            onTagsFound={onTagsFound}
+            foundTags={foundTags}
+            onTagsFound={(tags) => setFoundTags([...foundTags, ...tags])}
           />
-          <Overlay>
-            {foundTagsCount}/{photo.tagCount.toString()} found
-          </Overlay>
+          {msg && <div>{msg}</div>}
         </div>
       )}
     </>
