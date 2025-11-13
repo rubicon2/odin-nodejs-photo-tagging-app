@@ -7,7 +7,7 @@ interface Props {
   onDrag?: (pos: Pos) => any;
 }
 
-export default function EditModePhotoTagOverlay({
+export default function PhotoTagOverlay({
   tag,
   imgSize,
   onDrag = () => {},

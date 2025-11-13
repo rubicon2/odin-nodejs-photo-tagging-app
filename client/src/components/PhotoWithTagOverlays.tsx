@@ -1,4 +1,4 @@
-import EditModePhotoTagOverlay from './EditModePhotoTagOverlay';
+import PhotoTagOverlay from './PhotoTagOverlay';
 import getElementClickPos from '../ext/getElementClickPos';
 import { useRef, useState, useLayoutEffect } from 'react';
 
@@ -9,7 +9,7 @@ interface Props {
   onTagDrag?: (index: number, updatedTag: EditableTag) => any;
 }
 
-export default function EditModePhoto({
+export default function PhotoWithTagOverlays({
   photo,
   tags,
   onClick = () => {},
@@ -53,7 +53,7 @@ export default function EditModePhoto({
         onClick={handleClick}
       />
       {tags.map((tag: EditableTag, index) => (
-        <EditModePhotoTagOverlay
+        <PhotoTagOverlay
           key={index}
           tag={tag}
           imgSize={imgSize}

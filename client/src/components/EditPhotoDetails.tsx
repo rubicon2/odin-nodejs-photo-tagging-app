@@ -1,4 +1,4 @@
-import EditModePhoto from './EditModePhoto.js';
+import PhotoWithTagOverlays from './PhotoWithTagOverlays.js';
 import EditModePhotoTags from './EditModePhotoTags.js';
 import * as api from '../ext/api.admin.js';
 import React, { useEffect, useState } from 'react';
@@ -124,7 +124,7 @@ export default function PhotoDetails({
       {photo ? (
         <div>
           <h3>Photo Details Panel - {photo.id}</h3>
-          <EditModePhoto
+          <PhotoWithTagOverlays
             photo={photo}
             tags={tags}
             onClick={createNewTag}
