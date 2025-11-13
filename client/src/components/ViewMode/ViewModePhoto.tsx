@@ -21,11 +21,15 @@ export default function ViewModePhoto({
       const response = await api.postTagCheck(photo.id as string, pos.x, pos.y);
       const json = await response?.json();
       if (response.ok) {
-        let tags: Array<Tag> = json.data?.tags;
+        let tagsNearClickPos: Array<Tag> = json.data?.tags;
         // Filter out any tags that have already been found.
-        // tags = tags.filter((tag) => )
-        // If there are any tags left, these are newly found.
-        if (tags.length > 0) onTagsFound(tags);
+        tagsNearClickPos = tagsNearClickPos.filter(
+          (tagNearClickPos) =>
+            foundTags.find((tag) => tag.id === tagNearClickPos.id) ===
+            undefined,
+        );
+        // If there are any tags left, these are tags that haven't been found yet.
+        if (tagsNearClickPos.length > 0) onTagsFound(tagsNearClickPos);
       } else {
         if (json.data?.message) {
           onMessage(json.data.message);
