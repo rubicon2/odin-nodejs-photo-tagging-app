@@ -1,6 +1,6 @@
-import PhotoWithTagOverlays from './PhotoWithTagOverlays.js';
+import PhotoWithTagOverlays from '../PhotoWithTagOverlays.js';
 import EditModePhotoTags from './EditModePhotoTags.js';
-import * as api from '../ext/api.admin.js';
+import * as api from '../../ext/api.admin.js';
 import React, { useEffect, useState } from 'react';
 
 interface Props {

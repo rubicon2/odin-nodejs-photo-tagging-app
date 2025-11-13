@@ -1,6 +1,6 @@
 import PhotoList from '../components/PhotoList';
-import PhotoDetails from '../components/PhotoDetails';
-import AddPhotoForm from '../components/AddPhotoForm';
+import EditPhotoDetails from '../components/EditMode/EditPhotoDetails.js';
+import AddPhotoForm from '../components/EditMode/AddPhotoForm.js';
 import * as api from '../ext/api.admin.js';
 import { useState, useEffect } from 'react';
 
@@ -46,7 +46,7 @@ export default function EditModePage() {
       ) : (
         <>
           {selectedPhoto && (
-            <PhotoDetails
+            <EditPhotoDetails
               photo={selectedPhoto}
               onSave={fetchPhotos}
               onDelete={fetchPhotos}

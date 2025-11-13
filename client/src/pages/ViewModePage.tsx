@@ -1,5 +1,5 @@
 import Overlay from '../components/Overlay';
-import ViewModePhoto from '../components/ViewModePhoto';
+import ViewModePhoto from '../components/ViewMode/ViewModePhoto';
 import * as api from '../ext/api';
 import { useEffect, useState } from 'react';
 

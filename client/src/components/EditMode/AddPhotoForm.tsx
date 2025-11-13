@@ -1,4 +1,4 @@
-import * as api from '../ext/api.admin.js';
+import * as api from '../../ext/api.admin.js';
 import React, { useState } from 'react';
 
 interface Props {
