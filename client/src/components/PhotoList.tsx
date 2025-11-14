@@ -1,8 +1,18 @@
 import PhotoListItem from './PhotoListItem';
 import React from 'react';
 
+interface Props {
+  photos: Array<Photo>;
+  onUploadPhoto?: React.MouseEventHandler;
+  onSelectPhoto?: Function;
+}
+
 // Show all photos, select individual photos to view, edit, and delete.
-export default function PhotoList({ photos, onUploadPhoto, onSelectPhoto }) {
+export default function PhotoList({
+  photos,
+  onUploadPhoto = () => {},
+  onSelectPhoto = () => {},
+}: Props) {
   return (
     <div>
       {photos && photos?.length !== 0 ? (

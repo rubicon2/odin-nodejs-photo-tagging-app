@@ -1,18 +1,17 @@
+import * as api from '../../ext/api.admin.js';
 import React, { useState } from 'react';
 
-export default function AddPhotoForm({ onPostPhoto }) {
+interface Props {
+  onPostPhoto?: Function;
+}
+
+export default function AddPhotoForm({ onPostPhoto = () => {} }: Props) {
   const [msg, setMsg] = useState(null);
 
-  async function postPhoto(event) {
+  async function postPhoto(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/api/v1/admin/photo`,
-        {
-          method: 'post',
-          body: new FormData(event.target),
-        },
-      );
+      const response = await api.postPhoto(new FormData(event.currentTarget));
       if (response.ok) {
         const json = await response.json();
         if (json.data?.message) {
@@ -20,7 +19,7 @@ export default function AddPhotoForm({ onPostPhoto }) {
         }
       }
       onPostPhoto();
-    } catch (error) {
+    } catch (error: any) {
       setMsg(error.message);
     }
   }
