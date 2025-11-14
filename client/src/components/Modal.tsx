@@ -1,4 +1,31 @@
 import React, { useEffect, useRef } from 'react';
+import styled from 'styled-components';
+
+import closeIcon from '../img/icons/close_48.svg';
+
+const Dialog = styled.dialog`
+  padding: 3rem;
+  border: 0px;
+  border-radius: 10px;
+  box-shadow: 3px 3px 20px rgba(0, 0, 0, 0.25);
+
+  &::backdrop {
+    background-color: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(2px);
+  }
+`;
+
+const Form = styled.form`
+  position: absolute;
+  top: 0px;
+  right: 0px;
+`;
+
+const CloseIcon = styled.img`
+  display: block;
+  width: 25px;
+  height: 25px;
+`;
 
 interface Props {
   isActive: Boolean;
@@ -30,12 +57,16 @@ export default function Modal({
 
   return (
     <>
-      <dialog ref={dialog}>
-        {children}
-        <form method="dialog">
-          <button type="submit">Close</button>
-        </form>
-      </dialog>
+      <Dialog ref={dialog}>
+        <div>
+          {children}
+          <Form method="dialog">
+            <button type="submit">
+              <CloseIcon src={closeIcon} alt="close modal" />
+            </button>
+          </Form>
+        </div>
+      </Dialog>
     </>
   );
 }
