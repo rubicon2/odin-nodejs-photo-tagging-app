@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
-import closeIcon from '../img/icons/close_48.svg';
+import closeIcon from '../img/icons/close_48_light.svg';
 
 const Dialog = styled.dialog`
   padding: 3rem;
