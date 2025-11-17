@@ -13,6 +13,17 @@ const Form = styled.form`
     display: grid;
     grid-template-rows: min-content 1fr;
   }
+
+  @media (min-width: 500px) {
+    label {
+      grid-template-rows: 1fr;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    button {
+      justify-self: end;
+    }
+  }
 `;
 
 export default Form;
