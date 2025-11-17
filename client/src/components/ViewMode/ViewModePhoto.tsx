@@ -1,6 +1,13 @@
 import PhotoWithTagOverlays from '../PhotoWithTagOverlays';
 import Overlay from '../Overlay';
+import Container from '../../styled/Container';
 import * as api from '../../ext/api';
+import styled from 'styled-components';
+
+const PhotoContainer = styled(Container)`
+  // So overlay is positioned relative to image, not whole page.
+  position: relative;
+`;
 
 interface Props {
   photo: UserPhoto;
@@ -42,8 +49,7 @@ export default function ViewModePhoto({
   }
 
   return (
-    // So overlay is positioned relative to image, not whole page.
-    <div style={{ position: 'relative' }}>
+    <PhotoContainer>
       <PhotoWithTagOverlays
         photo={photo}
         tags={foundTags}
@@ -60,6 +66,6 @@ export default function ViewModePhoto({
           {foundTags.length}/{photo.tagCount} found
         </span>
       </Overlay>
-    </div>
+    </PhotoContainer>
   );
 }
