@@ -1,5 +1,31 @@
 import Overlay from './Overlay';
 import { useLayoutEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
+
+const Tag = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const TagBorder = styled.div`
+  width: 100px;
+  height: 100px;
+
+  border: 2px solid white;
+  border-radius: 5px;
+
+  cursor: pointer;
+  user-select: none;
+`;
+
+const TagText = styled.div`
+  color: white;
+  text-shadow:
+    1px 1px orange,
+    2px 2px red,
+    3px 3px 3px black;
+`;
 
 interface Props {
   tag: EditableTag;
@@ -91,21 +117,14 @@ export default function PhotoTagOverlay({
       yPos={`${tag.posY * imgSize.y - tagSize.y / 2}px`}
       onMouseDown={startDrag}
     >
-      <span
-        style={{
-          color: 'white',
-          // Scale text with image - don't use vw since once image
-          // reaches min size, text will continue getting smaller.
-          fontSize: `${0.002 * imgSize.x}rem`,
-          textShadow: '1px 1px 0.2em black',
-          padding: '10px',
-          border: '2px solid red',
-          cursor: 'pointer',
-          userSelect: 'none',
-        }}
-      >
-        {tag.name || 'New Tag'}
-      </span>
+      <Tag>
+        <TagBorder />
+        {/* // Scale text with image - don't use vw since once image
+        // reaches min size, text will continue getting smaller. */}
+        <TagText style={{ fontSize: `${0.002 * imgSize.x}rem` }}>
+          {tag.name || 'New Tag'}
+        </TagText>
+      </Tag>
     </Overlay>
   );
 }
