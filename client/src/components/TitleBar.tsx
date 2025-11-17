@@ -35,10 +35,7 @@ interface Props {
   onSettingsClick?: React.MouseEventHandler;
 }
 
-export default function TitleBar({
-  isAdminEnabled = false,
-  onSettingsClick = () => {},
-}: Props) {
+export default function TitleBar({ onSettingsClick = () => {} }: Props) {
   const isDarkThemeActive = useDarkThemeActive();
   return (
     <header>
