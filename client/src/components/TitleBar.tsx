@@ -41,8 +41,11 @@ export default function TitleBar({ onSettingsClick = () => {} }: Props) {
     <header>
       <Content>
         <h1>Where&apos;s Waldo?</h1>
-        <SettingsButton onClick={onSettingsClick}>
-          <img src={isDarkThemeActive ? settingsIconDark : settingsIconLight} />
+        <SettingsButton onClick={onSettingsClick} title="Open settings">
+          <img
+            src={isDarkThemeActive ? settingsIconDark : settingsIconLight}
+            alt=""
+          />
         </SettingsButton>
       </Content>
     </header>
