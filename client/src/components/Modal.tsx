@@ -52,7 +52,8 @@ export default function Modal({
   isActive = false,
   children,
   onClose = () => {},
-}: Props) {
+  ...props
+}: Props & React.HTMLProps<HTMLDialogElement>) {
   const dialog = useRef<HTMLDialogElement>(null);
   const isDarkThemeActive = useDarkThemeActive();
 
@@ -71,7 +72,7 @@ export default function Modal({
 
   return (
     <>
-      <Dialog ref={dialog}>
+      <Dialog ref={dialog} {...props}>
         <Form method="dialog">
           <CloseButton type="submit" title="Close modal">
             <img
