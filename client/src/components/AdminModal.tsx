@@ -1,7 +1,11 @@
 import Modal from './Modal';
 import EnableAdminForm from './EnableAdminForm';
 import DisableAdminForm from './DisableAdminForm';
-import { useState } from 'react';
+import styled from 'styled-components';
+
+const ModalHeader = styled.h2`
+  margin-top: 0;
+`;
 
 interface Props {
   isActive?: Boolean;
@@ -9,7 +13,6 @@ interface Props {
   onAdminEnabled?: Function;
   onAdminDisabled?: Function;
   onClose?: Function;
-  onMessage?: Function;
 }
 
 export default function AdminModal({
@@ -18,35 +21,21 @@ export default function AdminModal({
   onAdminEnabled = () => {},
   onAdminDisabled = () => {},
   onClose = () => {},
-  onMessage = () => {},
 }: Props) {
-  const [message, setMessage] = useState(null);
   return (
     <Modal
+      title="Admin Settings"
       isActive={isActive}
       onClose={(event) => {
-        setMessage(null);
         onClose(event);
       }}
     >
+      <ModalHeader>Settings</ModalHeader>
       {isAdmin ? (
-        <DisableAdminForm
-          onDisable={onAdminDisabled}
-          onMessage={(v: any) => {
-            setMessage(v);
-            onMessage(v);
-          }}
-        />
+        <DisableAdminForm onDisable={onAdminDisabled} />
       ) : (
-        <EnableAdminForm
-          onEnable={onAdminEnabled}
-          onMessage={(v: any) => {
-            setMessage(v);
-            onMessage(v);
-          }}
-        />
+        <EnableAdminForm onEnable={onAdminEnabled} />
       )}
-      {message && <>{message}</>}
     </Modal>
   );
 }
