@@ -1,4 +1,10 @@
 import Modal from '../Modal';
+import ImportantButton from '../../styled/ImportantButton';
+import styled from 'styled-components';
+
+const ModalHeader = styled.h2`
+  text-align: center;
+`;
 
 interface Props {
   isActive: boolean;
@@ -8,7 +14,10 @@ interface Props {
 export default function ViewWinModal({ isActive, onClose = () => {} }: Props) {
   return (
     <Modal isActive={isActive} onClose={onClose}>
-      You Won!
+      <ModalHeader>You Won!</ModalHeader>
+      <ImportantButton type="submit" onClick={onClose}>
+        Get New Image
+      </ImportantButton>
     </Modal>
   );
 }
