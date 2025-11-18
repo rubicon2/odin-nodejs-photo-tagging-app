@@ -1,6 +1,7 @@
 import { postDisableAdmin } from '../ext/api.js';
 import Form from '../styled/Form.js';
 import FormError from '../styled/FormError.js';
+import ImportantButton from '../styled/ImportantButton.js';
 import React, { useState } from 'react';
 
 interface Props {
@@ -25,7 +26,7 @@ export default function DisableAdminForm({ onDisable = () => {} }: Props) {
 
   return (
     <Form onSubmit={postForm}>
-      <button type="submit">Disable Admin Mode</button>
+      <ImportantButton type="submit">Disable Admin Mode</ImportantButton>
       {msg && <FormError aria-live="polite">{msg}</FormError>}
     </Form>
   );

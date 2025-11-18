@@ -1,3 +1,6 @@
+import ImportantButton from '../../styled/ImportantButton';
+import DangerButton from '../../styled/DangerButton';
+
 interface Props {
   tags: Array<EditableTag>;
   onUpdate?: Function;
@@ -67,12 +70,12 @@ export default function EditPhotoTags({
                 }
               />
             </label>
-            <button type="button" onClick={() => onDelete(index)}>
+            <DangerButton type="button" onClick={() => onDelete(index)}>
               Delete
-            </button>
+            </DangerButton>
           </fieldset>
         ))}
-        <button type="submit">Save Tags</button>
+        <ImportantButton type="submit">Save Tags</ImportantButton>
       </form>
     </div>
   );

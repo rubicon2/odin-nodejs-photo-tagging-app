@@ -1,6 +1,7 @@
 import { postEnableAdmin } from '../ext/api.js';
 import Form from '../styled/Form.js';
 import FormError from '../styled/FormError.js';
+import ImportantButton from '../styled/ImportantButton.js';
 import React, { useState } from 'react';
 
 interface Props {
@@ -35,9 +36,9 @@ export default function EnableAdminForm({ onEnable = () => {} }: Props) {
         </label>
         {msg && <FormError aria-live="polite">{msg}</FormError>}
       </div>
-      <button type="submit" title="Submit form">
+      <ImportantButton type="submit" title="Submit form">
         Enable Admin Mode
-      </button>
+      </ImportantButton>
     </Form>
   );
 }

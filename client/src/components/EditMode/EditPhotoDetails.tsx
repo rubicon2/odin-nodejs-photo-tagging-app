@@ -1,5 +1,6 @@
 import PhotoWithTagOverlays from '../PhotoWithTagOverlays.js';
 import EditModePhotoTags from './EditModePhotoTags.js';
+import DangerButton from '../../styled/DangerButton.js';
 import * as api from '../../ext/api.admin.js';
 import React, { useEffect, useState } from 'react';
 
@@ -136,9 +137,9 @@ export default function PhotoDetails({
             onDelete={deleteTag}
             onSave={saveTagChangesToServer}
           />
-          <button type="button" onClick={deletePhoto}>
+          <DangerButton type="button" onClick={deletePhoto}>
             Delete
-          </button>
+          </DangerButton>
         </div>
       ) : (
         <div>

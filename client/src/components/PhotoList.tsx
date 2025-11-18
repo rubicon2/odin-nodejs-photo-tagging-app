@@ -1,4 +1,5 @@
 import PhotoListItem from './PhotoListItem';
+import ImportantButton from '../styled/ImportantButton';
 import React from 'react';
 
 interface Props {
@@ -26,9 +27,9 @@ export default function PhotoList({
       ) : (
         <p>No photos found.</p>
       )}
-      <button type="button" onClick={onUploadPhoto}>
+      <ImportantButton type="button" onClick={onUploadPhoto}>
         New Photo
-      </button>
+      </ImportantButton>
     </div>
   );
 }
