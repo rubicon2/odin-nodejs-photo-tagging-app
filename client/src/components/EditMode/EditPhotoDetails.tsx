@@ -1,8 +1,27 @@
 import PhotoWithTagOverlays from '../PhotoWithTagOverlays.js';
 import PhotoTagsForm from './PhotoTagsForm.js';
+import Form from '../../styled/Form.js';
 import DangerButton from '../../styled/DangerButton.js';
+import PaddedContainer from '../../styled/PaddedContainer.js';
 import * as api from '../../ext/api.admin.js';
 import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+
+const PhotoContainer = styled(PaddedContainer)`
+  // This is a bit ridiculous, but if we zero the padding like this
+  // instead of adding padding to regular Container everywhere,
+  // we can change the padding of all derived containers just by
+  // changing the PaddedContainer styled component.
+  // So if we later decided we wanted more padding as standard, we
+  // could just change it in one place on PaddedContainer.
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+`;
+
+const NoTopPaddedContainer = styled(PaddedContainer)`
+  padding-top: 0;
+`;
 
 interface Props {
   photo: AdminPhoto;
@@ -124,29 +143,37 @@ export default function PhotoDetails({
     <>
       {photo ? (
         <div>
-          <h3>Photo Details Panel - {photo.id}</h3>
-          <PhotoWithTagOverlays
-            photo={photo}
-            tags={tags}
-            onClick={createNewTag}
-            onTagDrag={updateTag}
-          />
-          <PhotoTagsForm
-            tags={tags}
-            onUpdate={updateTag}
-            onDelete={deleteTag}
-            onSave={saveTagChangesToServer}
-          />
-          <DangerButton type="button" onClick={deletePhoto}>
-            Delete
-          </DangerButton>
+          <PhotoContainer>
+            <PhotoWithTagOverlays
+              photo={photo}
+              tags={tags}
+              onClick={createNewTag}
+              onTagDrag={updateTag}
+            />
+          </PhotoContainer>
+          <NoTopPaddedContainer>
+            <PhotoTagsForm
+              tags={tags}
+              onUpdate={updateTag}
+              onDelete={deleteTag}
+              onSave={saveTagChangesToServer}
+            />
+          </NoTopPaddedContainer>
+          <NoTopPaddedContainer>
+            {/* Form does nothing, but provides nice auto formatting for diff screen sizes. */}
+            <Form>
+              <DangerButton type="button" onClick={deletePhoto}>
+                Delete Photo
+              </DangerButton>
+            </Form>
+            {msg && <p>{msg}</p>}
+          </NoTopPaddedContainer>
         </div>
       ) : (
         <div>
           <p>No photo selected.</p>
         </div>
       )}
-      {msg && <p>{msg}</p>}
     </>
   );
 }
