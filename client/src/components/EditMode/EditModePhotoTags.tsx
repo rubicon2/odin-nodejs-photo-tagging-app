@@ -1,5 +1,6 @@
 import ImportantButton from '../../styled/ImportantButton';
 import DangerButton from '../../styled/DangerButton';
+import Form from '../../styled/Form';
 
 interface Props {
   tags: Array<EditableTag>;
@@ -17,7 +18,7 @@ export default function EditPhotoTags({
   return (
     <div>
       <h4>Edit Tags Panel</h4>
-      <form onSubmit={onSave}>
+      <Form onSubmit={onSave}>
         {tags.map((tag, index) => (
           <fieldset key={index}>
             <legend>{tag.id || 'New Tag'}</legend>
@@ -76,7 +77,7 @@ export default function EditPhotoTags({
           </fieldset>
         ))}
         <ImportantButton type="submit">Save Tags</ImportantButton>
-      </form>
+      </Form>
     </div>
   );
 }
