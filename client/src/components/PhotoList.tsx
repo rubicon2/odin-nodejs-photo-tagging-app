@@ -1,6 +1,18 @@
 import PhotoListItem from './PhotoListItem';
+import PaddedContainer from '../styled/PaddedContainer';
 import ImportantButton from '../styled/ImportantButton';
+import UnstyledList from '../styled/UnstyledList';
 import React from 'react';
+import styled from 'styled-components';
+
+const HPaddedContainer = styled(PaddedContainer)`
+  padding-top: 0;
+  padding-bottom: 0;
+`;
+
+const MaxWidthImportantButton = styled(ImportantButton)`
+  width: 100%;
+`;
 
 interface Props {
   photos: Array<Photo>;
@@ -18,8 +30,11 @@ export default function PhotoList({
 }: Props) {
   return (
     <div>
+      <HPaddedContainer>
+        <h2>Photos</h2>
+      </HPaddedContainer>
       {photos && photos?.length !== 0 ? (
-        <ul>
+        <UnstyledList>
           {photos.map((photo) => (
             <li key={photo.id} onClick={() => onSelectPhoto(photo)}>
               <PhotoListItem
@@ -28,13 +43,15 @@ export default function PhotoList({
               />
             </li>
           ))}
-        </ul>
+        </UnstyledList>
       ) : (
         <p>No photos found.</p>
       )}
-      <ImportantButton type="button" onClick={onUploadPhoto}>
-        New Photo
-      </ImportantButton>
+      <PaddedContainer>
+        <MaxWidthImportantButton type="button" onClick={onUploadPhoto}>
+          New Photo
+        </MaxWidthImportantButton>
+      </PaddedContainer>
     </div>
   );
 }
