@@ -9,6 +9,12 @@ const Form = styled.form`
   grid-auto-rows: min-content;
   gap: 1rem 0;
 
+  fieldset {
+    display: grid;
+    grid-auto-rows: min-content;
+    gap: 1rem;
+  }
+
   label {
     display: grid;
     grid-template-rows: min-content 1fr;
