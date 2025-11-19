@@ -20,6 +20,7 @@ const TagBorder = styled.div`
 `;
 
 const TagText = styled.div`
+  user-select: none;
   color: white;
   text-shadow:
     1px 1px orange,

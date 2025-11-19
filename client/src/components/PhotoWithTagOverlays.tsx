@@ -56,6 +56,7 @@ export default function PhotoWithTagOverlays({
         src={photo.url}
         alt={photo.altText}
         onClick={handleClick}
+        draggable={false}
       />
       {tags.map((tag: EditableTag, index) => (
         <PhotoTagOverlay
