@@ -1,8 +1,14 @@
 import PhotoList from '../components/PhotoList';
 import EditPhotoDetails from '../components/EditMode/EditPhotoDetails.js';
 import AddPhotoForm from '../components/EditMode/AddPhotoForm.js';
+import PaddedContainer from '../styled/PaddedContainer.js';
 import * as api from '../ext/api.admin.js';
 import { useState, useEffect } from 'react';
+import styled from 'styled-components';
+
+const AddPhotoFormContainer = styled(PaddedContainer)`
+  padding-top: 0;
+`;
 
 export default function EditModePage() {
   const [photos, setPhotos] = useState<Array<AdminPhoto>>([]);
@@ -45,7 +51,9 @@ export default function EditModePage() {
         }}
       />
       {isUploadingPhoto ? (
-        <AddPhotoForm onPostPhoto={fetchPhotos} />
+        <AddPhotoFormContainer>
+          <AddPhotoForm onPostPhoto={fetchPhotos} />
+        </AddPhotoFormContainer>
       ) : (
         <>
           {selectedPhoto && (
