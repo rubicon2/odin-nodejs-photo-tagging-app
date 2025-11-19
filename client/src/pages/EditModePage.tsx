@@ -16,7 +16,9 @@ export default function EditModePage() {
     if (response.ok) {
       const json = await response?.json();
       if (json.data?.photos) {
-        setPhotos(json.data.photos);
+        const photos: Array<AdminPhoto> = json.data.photos;
+        photos.sort((a, b) => a.altText.localeCompare(b.altText));
+        setPhotos(photos);
       }
     }
   }
