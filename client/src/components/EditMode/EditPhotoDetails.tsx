@@ -1,5 +1,5 @@
 import PhotoWithTagOverlays from '../PhotoWithTagOverlays.js';
-import EditModePhotoTags from './EditModePhotoTags.js';
+import PhotoTagsForm from './PhotoTagsForm.js';
 import DangerButton from '../../styled/DangerButton.js';
 import * as api from '../../ext/api.admin.js';
 import React, { useEffect, useState } from 'react';
@@ -131,7 +131,7 @@ export default function PhotoDetails({
             onClick={createNewTag}
             onTagDrag={updateTag}
           />
-          <EditModePhotoTags
+          <PhotoTagsForm
             tags={tags}
             onUpdate={updateTag}
             onDelete={deleteTag}
