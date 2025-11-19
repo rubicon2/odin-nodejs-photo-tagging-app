@@ -4,6 +4,7 @@ import React from 'react';
 
 interface Props {
   photos: Array<Photo>;
+  selectedPhotoId: React.Key | null;
   onUploadPhoto?: React.MouseEventHandler;
   onSelectPhoto?: Function;
 }
@@ -11,6 +12,7 @@ interface Props {
 // Show all photos, select individual photos to view, edit, and delete.
 export default function PhotoList({
   photos,
+  selectedPhotoId,
   onUploadPhoto = () => {},
   onSelectPhoto = () => {},
 }: Props) {
@@ -20,7 +22,10 @@ export default function PhotoList({
         <ul>
           {photos.map((photo) => (
             <li key={photo.id} onClick={() => onSelectPhoto(photo)}>
-              <PhotoListItem photo={photo} />
+              <PhotoListItem
+                photo={photo}
+                isSelected={photo.id === selectedPhotoId}
+              />
             </li>
           ))}
         </ul>

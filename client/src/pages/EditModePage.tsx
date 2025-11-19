@@ -32,6 +32,7 @@ export default function EditModePage() {
     <>
       <PhotoList
         photos={photos}
+        selectedPhotoId={selectedPhotoId}
         onUploadPhoto={() => {
           setIsUploadingPhoto(true);
           setSelectedPhotoId(null);
