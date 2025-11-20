@@ -1,6 +1,11 @@
 import PhotoTagOverlay from './PhotoTagOverlay';
 import getElementClickPos from '../ext/getElementClickPos';
 import { useRef, useState, useLayoutEffect } from 'react';
+import styled from 'styled-components';
+
+const Photo = styled.img`
+  width: 100%;
+`;
 
 interface Props {
   photo: Photo;
@@ -45,12 +50,13 @@ export default function PhotoWithTagOverlays({
 
   return (
     <div style={{ position: 'relative', overflow: 'hidden' }}>
-      <img
+      <Photo
         ref={img}
         onLoad={(e) => handleImgChange(e.currentTarget)}
         src={photo.url}
         alt={photo.altText}
         onClick={handleClick}
+        draggable={false}
       />
       {tags.map((tag: EditableTag, index) => (
         <PhotoTagOverlay

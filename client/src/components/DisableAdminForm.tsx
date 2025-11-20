@@ -1,31 +1,33 @@
 import { postDisableAdmin } from '../ext/api.js';
-import React from 'react';
+import Form from '../styled/Form.js';
+import FormError from '../styled/FormError.js';
+import ImportantButton from '../styled/ImportantButton.js';
+import React, { useState } from 'react';
 
 interface Props {
   onDisable?: Function;
-  onMessage?: Function;
 }
 
-export default function DisableAdminForm({
-  onDisable = () => {},
-  onMessage = () => {},
-}: Props) {
+export default function DisableAdminForm({ onDisable = () => {} }: Props) {
+  const [msg, setMsg] = useState<string | null>(null);
+
   async function postForm(event: React.FormEvent) {
     try {
       event.preventDefault();
       const response = await postDisableAdmin();
       const json = await response?.json();
-      onMessage(json.data.message);
+      setMsg(json.data.message);
       if (response.ok) onDisable();
     } catch (error: any) {
       console.error(error);
-      onMessage(error.message);
+      setMsg(error.message);
     }
   }
 
   return (
-    <form onSubmit={postForm}>
-      <button type="submit">Disable Admin Mode</button>
-    </form>
+    <Form onSubmit={postForm}>
+      <ImportantButton type="submit">Disable Admin Mode</ImportantButton>
+      {msg && <FormError aria-live="polite">{msg}</FormError>}
+    </Form>
   );
 }

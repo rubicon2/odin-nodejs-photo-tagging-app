@@ -1,7 +1,44 @@
 import PhotoWithTagOverlays from '../PhotoWithTagOverlays.js';
-import EditModePhotoTags from './EditModePhotoTags.js';
+import PhotoTagsForm from './PhotoTagsForm.js';
+import Form from '../../styled/Form.js';
+import DangerButton from '../../styled/DangerButton.js';
+import PaddedContainer from '../../styled/PaddedContainer.js';
 import * as api from '../../ext/api.admin.js';
 import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+
+const PhotoContainer = styled(PaddedContainer)`
+  // This is a bit ridiculous, but if we zero the padding like this
+  // instead of adding padding to regular Container everywhere,
+  // we can change the padding of all derived containers just by
+  // changing the PaddedContainer styled component.
+  // So if we later decided we wanted more padding as standard, we
+  // could just change it in one place on PaddedContainer.
+  max-width: auto;
+  margin: 0;
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+`;
+
+const InfoContainer = styled(PaddedContainer)`
+  display: grid;
+  grid-auto-rows: min-content;
+  gap: 1rem;
+  text-align: center;
+
+  @media (min-width: 500px) {
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr;
+    padding-left: 0;
+    padding-right: 0;
+    text-align: left;
+  }
+`;
+
+const NoTopPaddedContainer = styled(PaddedContainer)`
+  padding-top: 0;
+`;
 
 interface Props {
   photo: AdminPhoto;
@@ -15,7 +52,7 @@ export default function PhotoDetails({
   onSave = () => {},
   onDelete = () => {},
 }: Props) {
-  const [msg, setMsg] = useState(null);
+  const [msg, setMsg] = useState<string | null>(null);
   // We need to have tags set in state so that changes can be
   // stored, and then sent to the server if the user chooses to save them.
   const [tags, setTags] = useState<Array<EditableTag>>(photo.tags);
@@ -24,7 +61,9 @@ export default function PhotoDetails({
   // Since tags are state, without this they would persist even if the photo changes.
   useEffect(() => {
     setTags(photo.tags);
-  }, [photo]);
+    setTagsToDelete([]);
+    setMsg(null);
+  }, [JSON.stringify(photo)]);
 
   async function deletePhoto(event: React.MouseEvent) {
     try {
@@ -122,30 +161,38 @@ export default function PhotoDetails({
   return (
     <>
       {photo ? (
-        <div>
-          <h3>Photo Details Panel - {photo.id}</h3>
-          <PhotoWithTagOverlays
-            photo={photo}
-            tags={tags}
-            onClick={createNewTag}
-            onTagDrag={updateTag}
-          />
-          <EditModePhotoTags
-            tags={tags}
-            onUpdate={updateTag}
-            onDelete={deleteTag}
-            onSave={saveTagChangesToServer}
-          />
-          <button type="button" onClick={deletePhoto}>
-            Delete
-          </button>
-        </div>
+        <>
+          <PhotoContainer>
+            <PhotoWithTagOverlays
+              photo={photo}
+              tags={tags}
+              onClick={createNewTag}
+              onTagDrag={updateTag}
+            />
+            <InfoContainer>
+              {<span>{msg}</span>}
+              {/* Form does nothing, but provides nice auto formatting for diff screen sizes. */}
+              <Form>
+                <DangerButton type="button" onClick={deletePhoto}>
+                  Delete Photo
+                </DangerButton>
+              </Form>
+            </InfoContainer>
+          </PhotoContainer>
+          <NoTopPaddedContainer>
+            <PhotoTagsForm
+              tags={tags}
+              onUpdate={updateTag}
+              onDelete={deleteTag}
+              onSave={saveTagChangesToServer}
+            />
+          </NoTopPaddedContainer>
+        </>
       ) : (
         <div>
           <p>No photo selected.</p>
         </div>
       )}
-      {msg && <p>{msg}</p>}
     </>
   );
 }

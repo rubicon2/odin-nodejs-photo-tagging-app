@@ -21,10 +21,7 @@ function App() {
         onAdminDisabled={() => setIsModalActive(false)}
         onClose={() => setIsModalActive(false)}
       />
-      <TitleBar
-        isAdminEnabled={isAdmin}
-        onSettingsClick={() => setIsModalActive(!isModalActive)}
-      />
+      <TitleBar onSettingsClick={() => setIsModalActive(!isModalActive)} />
       {isAdmin ? <EditModePage /> : <ViewModePage />}
     </>
   );

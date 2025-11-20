@@ -1,8 +1,21 @@
 import PhotoList from '../components/PhotoList';
 import EditPhotoDetails from '../components/EditMode/EditPhotoDetails.js';
 import AddPhotoForm from '../components/EditMode/AddPhotoForm.js';
+import PaddedContainer from '../styled/PaddedContainer.js';
 import * as api from '../ext/api.admin.js';
 import { useState, useEffect } from 'react';
+import styled from 'styled-components';
+
+const Container = styled.div`
+  @media (min-width: 920px) {
+    display: grid;
+    grid-template-columns: 1.5fr 4fr 2fr;
+  }
+`;
+
+const AddPhotoFormContainer = styled(PaddedContainer)`
+  padding-top: 0;
+`;
 
 export default function EditModePage() {
   const [photos, setPhotos] = useState<Array<AdminPhoto>>([]);
@@ -16,7 +29,9 @@ export default function EditModePage() {
     if (response.ok) {
       const json = await response?.json();
       if (json.data?.photos) {
-        setPhotos(json.data.photos);
+        const photos: Array<AdminPhoto> = json.data.photos;
+        photos.sort((a, b) => a.altText.localeCompare(b.altText));
+        setPhotos(photos);
       }
     }
   }
@@ -29,9 +44,10 @@ export default function EditModePage() {
   const selectedPhoto = photos?.find(({ id }) => id === selectedPhotoId);
 
   return (
-    <>
+    <Container>
       <PhotoList
         photos={photos}
+        selectedPhotoId={selectedPhotoId}
         onUploadPhoto={() => {
           setIsUploadingPhoto(true);
           setSelectedPhotoId(null);
@@ -42,7 +58,9 @@ export default function EditModePage() {
         }}
       />
       {isUploadingPhoto ? (
-        <AddPhotoForm onPostPhoto={fetchPhotos} />
+        <AddPhotoFormContainer>
+          <AddPhotoForm onPostPhoto={fetchPhotos} />
+        </AddPhotoFormContainer>
       ) : (
         <>
           {selectedPhoto && (
@@ -54,6 +72,6 @@ export default function EditModePage() {
           )}
         </>
       )}
-    </>
+    </Container>
   );
 }

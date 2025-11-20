@@ -1,3 +1,6 @@
+import Form from '../../styled/Form.js';
+import FormError from '../../styled/FormError.js';
+import ImportantButton from '../../styled/ImportantButton.js';
 import * as api from '../../ext/api.admin.js';
 import React, { useState } from 'react';
 
@@ -6,14 +9,14 @@ interface Props {
 }
 
 export default function AddPhotoForm({ onPostPhoto = () => {} }: Props) {
-  const [msg, setMsg] = useState(null);
+  const [msg, setMsg] = useState<string | null>(null);
 
   async function postPhoto(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
       const response = await api.postPhoto(new FormData(event.currentTarget));
-      if (response.ok) {
-        const json = await response.json();
+      const json = await response.json();
+      if (!response.ok) {
         if (json.data?.message) {
           setMsg(json.data.message);
         }
@@ -25,12 +28,17 @@ export default function AddPhotoForm({ onPostPhoto = () => {} }: Props) {
   }
 
   return (
-    <form onSubmit={postPhoto}>
-      <input type="file" name="photo" required />
-      <input type="text" name="altText" required />
-      {/* How to do multiple tags - positions and names? */}
-      <button type="submit">Submit</button>
-      {msg && <p>{msg}</p>}
-    </form>
+    <Form onSubmit={postPhoto}>
+      <label htmlFor="photo">
+        Photo:
+        <input type="file" name="photo" required />
+      </label>
+      <label htmlFor="altText">
+        Title:
+        <input type="text" name="altText" required />
+      </label>
+      {msg && <FormError>{msg}</FormError>}
+      <ImportantButton type="submit">Submit</ImportantButton>
+    </Form>
   );
 }
