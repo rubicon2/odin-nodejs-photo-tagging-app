@@ -1,12 +1,7 @@
-import Container from '../styled/Container';
+import PaddedContainer from '../styled/PaddedContainer';
 import styled from 'styled-components';
 
-const ContentContainer = styled(Container)`
-  padding: 0;
-`;
-
 const Item = styled.div`
-  padding: 1rem;
   cursor: pointer;
 `;
 
@@ -22,7 +17,7 @@ interface Props {
 }
 
 export default function PhotoListItem({ photo, isSelected }: Props) {
-  const content = <ContentContainer>{photo.altText}</ContentContainer>;
+  const content = <PaddedContainer>{photo.altText}</PaddedContainer>;
   return (
     // Wrap in link for keyboard navigation.
     <a href="#">
