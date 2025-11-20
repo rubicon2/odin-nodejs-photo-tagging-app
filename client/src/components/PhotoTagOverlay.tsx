@@ -9,9 +9,6 @@ const Tag = styled.div`
 `;
 
 const TagBorder = styled.div`
-  width: 100px;
-  height: 100px;
-
   border: 2px solid white;
   border-radius: 5px;
 
@@ -122,7 +119,14 @@ export default function PhotoTagOverlay({
       yPos={`${tag.posY * imgSize.y - tagSize.y / 2}px`}
     >
       <Tag>
-        <TagBorder ref={ref} onMouseDown={startDrag} />
+        <TagBorder
+          ref={ref}
+          onMouseDown={startDrag}
+          style={{
+            width: `${imgSize.x / 10}px`,
+            height: `${imgSize.x / 10}px`,
+          }}
+        />
         {/* // Scale text with image - don't use vw since once image
         // reaches min size, text will continue getting smaller. */}
         <TagText style={{ fontSize: `${0.002 * imgSize.x}rem` }}>
