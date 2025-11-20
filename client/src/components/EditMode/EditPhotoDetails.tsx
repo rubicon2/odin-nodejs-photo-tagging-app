@@ -44,6 +44,7 @@ export default function PhotoDetails({
   // Since tags are state, without this they would persist even if the photo changes.
   useEffect(() => {
     setTags(photo.tags);
+    setTagsToDelete([]);
   }, [photo]);
 
   async function deletePhoto(event: React.MouseEvent) {
