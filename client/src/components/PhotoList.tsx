@@ -10,6 +10,10 @@ const HPaddedContainer = styled(PaddedContainer)`
   padding-bottom: 0;
 `;
 
+const PhotoListHeading = styled.h2`
+  margin-top: 0;
+`;
+
 const MaxWidthImportantButton = styled(ImportantButton)`
   width: 100%;
 `;
@@ -31,7 +35,7 @@ export default function PhotoList({
   return (
     <div>
       <HPaddedContainer>
-        <h2>Photos</h2>
+        <PhotoListHeading>Photos</PhotoListHeading>
       </HPaddedContainer>
       {photos && photos?.length !== 0 ? (
         <UnstyledList>

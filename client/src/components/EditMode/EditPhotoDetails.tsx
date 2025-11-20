@@ -14,9 +14,26 @@ const PhotoContainer = styled(PaddedContainer)`
   // changing the PaddedContainer styled component.
   // So if we later decided we wanted more padding as standard, we
   // could just change it in one place on PaddedContainer.
+  max-width: auto;
+  margin: 0;
   padding-top: 0;
   padding-left: 0;
   padding-right: 0;
+`;
+
+const InfoContainer = styled(PaddedContainer)`
+  display: grid;
+  grid-auto-rows: min-content;
+  gap: 1rem;
+  text-align: center;
+
+  @media (min-width: 500px) {
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr;
+    padding-left: 0;
+    padding-right: 0;
+    text-align: left;
+  }
 `;
 
 const NoTopPaddedContainer = styled(PaddedContainer)`
@@ -35,7 +52,7 @@ export default function PhotoDetails({
   onSave = () => {},
   onDelete = () => {},
 }: Props) {
-  const [msg, setMsg] = useState(null);
+  const [msg, setMsg] = useState<string | null>(null);
   // We need to have tags set in state so that changes can be
   // stored, and then sent to the server if the user chooses to save them.
   const [tags, setTags] = useState<Array<EditableTag>>(photo.tags);
@@ -45,7 +62,8 @@ export default function PhotoDetails({
   useEffect(() => {
     setTags(photo.tags);
     setTagsToDelete([]);
-  }, [photo]);
+    setMsg(null);
+  }, [JSON.stringify(photo)]);
 
   async function deletePhoto(event: React.MouseEvent) {
     try {
@@ -143,7 +161,7 @@ export default function PhotoDetails({
   return (
     <>
       {photo ? (
-        <div>
+        <>
           <PhotoContainer>
             <PhotoWithTagOverlays
               photo={photo}
@@ -151,6 +169,15 @@ export default function PhotoDetails({
               onClick={createNewTag}
               onTagDrag={updateTag}
             />
+            <InfoContainer>
+              {<span>{msg}</span>}
+              {/* Form does nothing, but provides nice auto formatting for diff screen sizes. */}
+              <Form>
+                <DangerButton type="button" onClick={deletePhoto}>
+                  Delete Photo
+                </DangerButton>
+              </Form>
+            </InfoContainer>
           </PhotoContainer>
           <NoTopPaddedContainer>
             <PhotoTagsForm
@@ -160,16 +187,7 @@ export default function PhotoDetails({
               onSave={saveTagChangesToServer}
             />
           </NoTopPaddedContainer>
-          <NoTopPaddedContainer>
-            {/* Form does nothing, but provides nice auto formatting for diff screen sizes. */}
-            <Form>
-              <DangerButton type="button" onClick={deletePhoto}>
-                Delete Photo
-              </DangerButton>
-            </Form>
-            {msg && <p>{msg}</p>}
-          </NoTopPaddedContainer>
-        </div>
+        </>
       ) : (
         <div>
           <p>No photo selected.</p>

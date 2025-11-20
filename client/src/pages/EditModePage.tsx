@@ -6,6 +6,13 @@ import * as api from '../ext/api.admin.js';
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
+const Container = styled.div`
+  @media (min-width: 920px) {
+    display: grid;
+    grid-template-columns: 1.5fr 4fr 2fr;
+  }
+`;
+
 const AddPhotoFormContainer = styled(PaddedContainer)`
   padding-top: 0;
 `;
@@ -37,7 +44,7 @@ export default function EditModePage() {
   const selectedPhoto = photos?.find(({ id }) => id === selectedPhotoId);
 
   return (
-    <>
+    <Container>
       <PhotoList
         photos={photos}
         selectedPhotoId={selectedPhotoId}
@@ -65,6 +72,6 @@ export default function EditModePage() {
           )}
         </>
       )}
-    </>
+    </Container>
   );
 }
