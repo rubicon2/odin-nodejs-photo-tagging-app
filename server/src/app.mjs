@@ -2,6 +2,7 @@ import loadEnv from './env.mjs';
 import api from './routers/api.mjs';
 
 import express from 'express';
+import session, { MemoryStore } from 'express-session';
 import cors from 'cors';
 import path from 'path';
 
@@ -25,6 +26,24 @@ app.use(
         callback(new Error(`Not allowed by CORS - request from ${origin}`));
       }
     },
+    // credentials: true,
+  }),
+);
+
+// Client sessions.
+app.use(
+  session({
+    name: 'sid',
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.MODE === 'production' ? true : '',
+      sameSite: 'strict',
+      maxAge: 60000,
+    },
+    store: new MemoryStore(),
   }),
 );
 
