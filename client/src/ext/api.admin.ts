@@ -1,17 +1,26 @@
+import { defaultOptions } from './fetchOptions';
+
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
 async function fetchPhotosWithTags() {
-  const response = await fetch(`${SERVER_URL}/api/v1/admin/photo`);
+  const response = await fetch(
+    `${SERVER_URL}/api/v1/admin/photo`,
+    defaultOptions,
+  );
   return response;
 }
 
 async function fetchPhotoWithTags() {
-  const response = await fetch(`${SERVER_URL}/api/v1/admin/photo`);
+  const response = await fetch(
+    `${SERVER_URL}/api/v1/admin/photo`,
+    defaultOptions,
+  );
   return response;
 }
 
 async function postPhoto(body: BodyInit) {
   const response = await fetch(`${SERVER_URL}/api/v1/admin/photo`, {
+    ...defaultOptions,
     method: 'POST',
     body,
   });
@@ -20,6 +29,7 @@ async function postPhoto(body: BodyInit) {
 
 async function putPhoto(body: BodyInit) {
   const response = await fetch(`${SERVER_URL}/api/v1/admin/photo`, {
+    ...defaultOptions,
     method: 'PUT',
     body,
   });
@@ -28,6 +38,7 @@ async function putPhoto(body: BodyInit) {
 
 async function deletePhotos() {
   const response = await fetch(`${SERVER_URL}/api/v1/admin/photo`, {
+    ...defaultOptions,
     method: 'DELETE',
   });
   return response;
@@ -35,6 +46,7 @@ async function deletePhotos() {
 
 async function deletePhoto(photoId: string) {
   const response = await fetch(`${SERVER_URL}/api/v1/admin/photo/${photoId}`, {
+    ...defaultOptions,
     method: 'DELETE',
   });
   return response;
@@ -43,6 +55,7 @@ async function deletePhoto(photoId: string) {
 async function getPhotoTags(photoId: string) {
   const response = await fetch(
     `${SERVER_URL}/api/v1/admin/photo/${photoId}/tag`,
+    defaultOptions,
   );
   return response;
 }
@@ -50,6 +63,7 @@ async function getPhotoTags(photoId: string) {
 async function getPhotoTag(photoId: string, tagId: string) {
   const response = await fetch(
     `${SERVER_URL}/api/v1/admin/photo/${photoId}/tag/${tagId}`,
+    defaultOptions,
   );
   return response;
 }
@@ -58,6 +72,7 @@ async function postPhotoTag(photoId: string, body: BodyInit) {
   const response = await fetch(
     `${SERVER_URL}/api/v1/admin/photo/${photoId}/tag`,
     {
+      ...defaultOptions,
       method: 'POST',
       body,
     },
@@ -74,6 +89,7 @@ async function putPhotoTags(
   const response = await fetch(
     `${SERVER_URL}/api/v1/admin/photo/${photoId}/tag`,
     {
+      ...defaultOptions,
       method: 'PUT',
       headers: {
         // This needs to be set otherwise server json middleware will not do anything.
@@ -93,6 +109,7 @@ async function putPhotoTag(photoId: string, tagId: string, body: BodyInit) {
   const response = await fetch(
     `${SERVER_URL}/api/v1/admin/photo/${photoId}/tag/${tagId}`,
     {
+      ...defaultOptions,
       method: 'PUT',
       body,
     },
@@ -104,6 +121,7 @@ async function deletePhotoTags(photoId: string) {
   const response = await fetch(
     `${SERVER_URL}/api/v1/admin/photo/${photoId}/tag`,
     {
+      ...defaultOptions,
       method: 'POST',
     },
   );
@@ -114,6 +132,7 @@ async function deletePhotoTag(photoId: string, tagId: string) {
   const response = await fetch(
     `${SERVER_URL}/api/v1/admin/photo/${photoId}/tag/${tagId}`,
     {
+      ...defaultOptions,
       method: 'DELETE',
     },
   );
