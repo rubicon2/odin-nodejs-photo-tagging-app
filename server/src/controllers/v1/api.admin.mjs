@@ -34,70 +34,74 @@ async function getAllPhotosAndTags(req, res, next) {
   }
 }
 
-async function postPhoto(req, res) {
-  // Multer gets file data.
-  const photo = req.file;
-  // Get altText from body if it is there.
-  const altText = req.body?.altText;
+async function postPhoto(req, res, next) {
+  try {
+    // Multer gets file data.
+    const photo = req.file;
+    // Get altText from body if it is there.
+    const altText = req.body?.altText;
 
-  // Mimic the format of express-validator errors, so the client can use one method to display both.
-  if (!photo || !altText) {
-    let validation = {
-      errors: [],
-    };
+    // Mimic the format of express-validator errors, so the client can use one method to display both.
+    if (!photo || !altText) {
+      let validation = {
+        errors: [],
+      };
 
-    if (!photo) {
-      validation.errors.push({
-        location: 'body',
-        msg: 'Photo is a required field',
-        path: 'photo',
-        type: 'field',
-        value: '',
+      if (!photo) {
+        validation.errors.push({
+          location: 'body',
+          msg: 'Photo is a required field',
+          path: 'photo',
+          type: 'field',
+          value: '',
+        });
+      }
+
+      if (!altText) {
+        validation.errors.push({
+          location: 'body',
+          msg: 'AltText is a required field',
+          path: 'altText',
+          type: 'field',
+          value: '',
+        });
+      }
+
+      return res.status(400).json({
+        status: 'fail',
+        data: {
+          validation,
+        },
       });
     }
 
-    if (!altText) {
-      validation.errors.push({
-        location: 'body',
-        msg: 'AltText is a required field',
-        path: 'altText',
-        type: 'field',
-        value: '',
-      });
-    }
+    console.log('Image uploaded:', photo);
 
-    return res.status(400).json({
-      status: 'fail',
+    // Putting server domain as part of url is a bad idea, since it could change!
+    // Save filename as url and put it together with domain and static dir before sending later.
+    const dbEntry = await client.image.create({
       data: {
-        validation,
+        url: photo.filename,
+        altText,
       },
     });
-  }
 
-  console.log('Image uploaded:', photo);
+    console.log('New db image entry:', dbEntry);
 
-  // Putting server domain as part of url is a bad idea, since it could change!
-  // Save filename as url and put it together with domain and static dir before sending later.
-  const dbEntry = await client.image.create({
-    data: {
-      url: photo.filename,
-      altText,
-    },
-  });
-
-  console.log('New db image entry:', dbEntry);
-
-  // Form can also include data like tagged people. E.g. 'tag' and you click on the image and it logs it.
-  return res.json({
-    status: 'success',
-    data: {
-      message: 'Post photo mode successfully accessed!',
-      photo: {
-        ...dbEntry,
-        url: createImgUrl(dbEntry.url),
+    // Form can also include data like tagged people. E.g. 'tag' and you click on the image and it logs it.
+    return res.json({
+      status: 'success',
+      data: {
+        message: 'Post photo mode successfully accessed!',
+        photo: {
+          ...dbEntry,
+          url: createImgUrl(dbEntry.url),
+        },
       },
-    },
-  });
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 
 async function deleteAllPhotos(req, res, next) {
