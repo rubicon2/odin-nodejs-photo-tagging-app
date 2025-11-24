@@ -9,11 +9,12 @@ import path from 'path';
 loadEnv();
 
 const app = express();
+
+// Populate request body.
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(express.static(path.join(import.meta.dirname, '../public')));
-app.use('/data', express.static(process.env.VOLUME_MOUNT_PATH));
 
+// CORS.
 const whitelist = JSON.parse(process.env.SERVER_CORS_WHITELIST);
 console.log('CORS whitelist:', whitelist);
 app.use(
@@ -26,7 +27,6 @@ app.use(
         callback(new Error(`Not allowed by CORS - request from ${origin}`));
       }
     },
-    // credentials: true,
   }),
 );
 
@@ -46,6 +46,17 @@ app.use(
     store: new MemoryStore(),
   }),
 );
+
+// Manually send index.html so that cookie will be set in response headers.
+// If index is served automatically from static directory, cookie will not be set
+// until an api route is used.
+app.get('/', (req, res) => {
+  return res.sendFile(path.join(import.meta.dirname, '../public/index.html'));
+});
+
+// These need to be after the get index route but before the api router.
+app.use(express.static(path.join(import.meta.dirname, '../public')));
+app.use('/data', express.static(process.env.VOLUME_MOUNT_PATH));
 
 // Put routers and stuff here.
 app.use('/api', api);
