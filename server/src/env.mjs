@@ -11,6 +11,7 @@ function checkEnvComplete() {
     SERVER_CORS_WHITELIST,
     SERVER_DATABASE_URL,
     VOLUME_MOUNT_PATH,
+    SECRET,
   } = process.env;
 
   let errorMsg = '';
@@ -37,6 +38,9 @@ function checkEnvComplete() {
   }
   if (VOLUME_MOUNT_PATH === undefined) {
     errorMsg += '\nVOLUME_MOUNT_PATH not defined in .env!';
+  }
+  if (SECRET === undefined) {
+    errorMsg += '\nSECRET not defined in .env!';
   }
 
   if (errorMsg.length !== 0) throw new Error(errorMsg);

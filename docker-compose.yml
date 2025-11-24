@@ -40,6 +40,7 @@ services:
       SERVER_CORS_WHITELIST: '["http://localhost:8081"]'
       SERVER_DATABASE_URL: "postgres://postgres:postgres@db:5432/photo_tagging_app"
       VOLUME_MOUNT_PATH: "/var/lib/app/server_data"
+      SECRET: "some long string"
     ports:
       - '8081:8081'
     volumes:
