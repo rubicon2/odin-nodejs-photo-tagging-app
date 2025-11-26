@@ -10,8 +10,16 @@ import {
 import { describe, it, expect, beforeEach } from 'vitest';
 import { request } from 'sagetest';
 
-beforeEach(() => {
-  process.env.ADMIN_ENABLED = 'true';
+let cookie;
+
+beforeEach(async () => {
+  // Enable admin for this session and save cookie
+  // so it can be passed along with each request.
+  process.env.ADMIN_PASSWORD = 'my password';
+  const response = await request(app)
+    .post('/api/v1/auth/enable-admin')
+    .send({ password: 'my password' });
+  cookie = response.headers['set-cookie'];
 });
 
 describe('/api/v1/admin/photo/:photoId/tag', () => {
@@ -25,18 +33,22 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
 
     await request(app)
       .get(`/api/v1/admin/photo/my-made-up-id/tag`)
+      .set('cookie', cookie)
       .expect(404)
       .expect(expectedJson);
     await request(app)
       .post(`/api/v1/admin/photo/my-made-up-id/tag`)
+      .set('cookie', cookie)
       .expect(404)
       .expect(expectedJson);
     await request(app)
       .put(`/api/v1/admin/photo/my-made-up-id/tag`)
+      .set('cookie', cookie)
       .expect(404)
       .expect(expectedJson);
     await request(app)
       .delete(`/api/v1/admin/photo/my-made-up-id/tag`)
+      .set('cookie', cookie)
       .expect(404)
       .expect(expectedJson);
   });
@@ -45,9 +57,9 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
     it('with a valid photoId, responds with a status code 200 and tags', async () => {
       await postTestData();
       const testImage = testImageDataAbsoluteUrlWithTags[0];
-      const response = await request(app).get(
-        `/api/v1/admin/photo/${testImage.id}/tag`,
-      );
+      const response = await request(app)
+        .get(`/api/v1/admin/photo/${testImage.id}/tag`)
+        .set('cookie', cookie);
 
       expect(response.statusCode).toStrictEqual(200);
       expect(response.body).toStrictEqual({
@@ -201,6 +213,7 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
           const testImage = testImageDataAbsoluteUrl[0];
           const response = await request(app)
             .post(`/api/v1/admin/photo/${testImage.id}/tag`)
+            .set('cookie', cookie)
             .send(sendObj);
           expect(response.statusCode).toStrictEqual(400);
           expect(response.body).toStrictEqual({
@@ -217,6 +230,7 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
         const testImage = testImageDataAbsoluteUrl[0];
         const postRes = await request(app)
           .post(`/api/v1/admin/photo/${testImage.id}/tag`)
+          .set('cookie', cookie)
           .send({
             posX: 0.25,
             posY: 0.75,
@@ -604,6 +618,7 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
             });
             const response = await request(app)
               .put(`/api/v1/admin/photo/${photo.id}/tag`)
+              .set('cookie', cookie)
               .send(sendObj);
 
             expect(response.statusCode).toStrictEqual(400);
@@ -626,6 +641,7 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
         const photo = testImageDataAbsoluteUrlWithTags[0];
         const response = await request(app)
           .put(`/api/v1/admin/photo/${photo.id}/tag`)
+          .set('cookie', cookie)
           .send({
             create: [
               {
@@ -745,6 +761,7 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
           const photo = testImageDataAbsoluteUrlWithTags[0];
           const response = await request(app)
             .put(`/api/v1/admin/photo/${photo.id}/tag`)
+            .set('cookie', cookie)
             .send({
               update: [
                 {
@@ -807,6 +824,7 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
 
         const response = await request(app)
           .put(`/api/v1/admin/photo/${photo.id}/tag`)
+          .set('cookie', cookie)
           .send({
             delete: [...photo.tags.map((tag) => tag.id)],
           });
@@ -838,9 +856,9 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
     it('deletes all tags for the photoId and returns status code 200 and json message', async () => {
       await postTestData();
       const photo = testImageDataAbsoluteUrlWithTags[0];
-      const response = await request(app).delete(
-        `/api/v1/admin/photo/${photo.id}/tag`,
-      );
+      const response = await request(app)
+        .delete(`/api/v1/admin/photo/${photo.id}/tag`)
+        .set('cookie', cookie);
       expect(response.statusCode).toStrictEqual(200);
       expect(response.body).toStrictEqual({
         status: 'success',
@@ -909,9 +927,9 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
     '$method: with a $testType, respond with status code 404 and json message',
     async ({ method, photoId, tagId, message }) => {
       await postTestData();
-      const response = await request(app)[method](
-        `/api/v1/admin/photo/${photoId}/tag/${tagId}`,
-      );
+      const response = await request(app)
+        [method](`/api/v1/admin/photo/${photoId}/tag/${tagId}`)
+        .set('cookie', cookie);
       expect(response.statusCode).toStrictEqual(404);
       expect(response.body).toStrictEqual({
         status: 'fail',
@@ -927,9 +945,9 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
       await postTestData();
       const testImage = testImageDataAbsoluteUrlWithTags[0];
       const testTag = testImageTagData[0];
-      const response = await request(app).get(
-        `/api/v1/admin/photo/${testImage.id}/tag/${testTag.id}`,
-      );
+      const response = await request(app)
+        .get(`/api/v1/admin/photo/${testImage.id}/tag/${testTag.id}`)
+        .set('cookie', cookie);
 
       expect(response.statusCode).toStrictEqual(200);
       expect(response.body).toStrictEqual({
@@ -945,9 +963,9 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
     it('without a posX, posY, or name, respond with status code 400 and a json message', async () => {
       await postTestData();
       const tag = testImageTagData[0];
-      const putRes = await request(app).put(
-        `/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`,
-      );
+      const putRes = await request(app)
+        .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
+        .set('cookie', cookie);
       expect(putRes.statusCode).toStrictEqual(400);
       expect(putRes.body).toStrictEqual({
         status: 'fail',
@@ -963,6 +981,7 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
       const tag = testImageTagData[0];
       const putRes = await request(app)
         .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
+        .set('cookie', cookie)
         .send({ posX: 0.75 });
       expect(putRes.statusCode).toStrictEqual(200);
 
@@ -993,6 +1012,7 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
       const tag = testImageTagData[0];
       const putRes = await request(app)
         .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
+        .set('cookie', cookie)
         .send({ posY: 0.75 });
       expect(putRes.statusCode).toStrictEqual(200);
 
@@ -1023,6 +1043,7 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
       const tag = testImageTagData[0];
       const putRes = await request(app)
         .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
+        .set('cookie', cookie)
         .send({
           name: 'Jennifer',
         });
@@ -1115,6 +1136,7 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
         const tag = testImageTagData[0];
         const response = await request(app)
           .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
+          .set('cookie', cookie)
           .send(sendObj);
         expect(response.statusCode).toStrictEqual(400);
         expect(response.body).toStrictEqual({
@@ -1131,9 +1153,9 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
     it('with a valid photoId and tagId, deletes the tag and returns status code 200 and json message', async () => {
       await postTestData();
       const tag = testImageTagData[0];
-      const response = await request(app).delete(
-        `/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`,
-      );
+      const response = await request(app)
+        .delete(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
+        .set('cookie', cookie);
       expect(response.statusCode).toStrictEqual(200);
 
       // Check against database to make sure this tag is gone.

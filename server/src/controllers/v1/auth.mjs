@@ -16,10 +16,10 @@ function postEnableAdminMode(req, res) {
 
   if (
     // If admin_mode is already enabled, just skip the rest of the function.
-    process.env.ADMIN_ENABLED === 'true' ||
+    req.session?.admin === true ||
     password === process.env.ADMIN_PASSWORD
   ) {
-    process.env.ADMIN_ENABLED = 'true';
+    req.session.admin = true;
     return res.json({
       status: 'success',
       data: {
@@ -37,7 +37,7 @@ function postEnableAdminMode(req, res) {
 }
 
 function postDisableAdminMode(req, res) {
-  process.env.ADMIN_ENABLED = false;
+  req.session.admin = false;
   return res.json({
     status: 'success',
     data: {

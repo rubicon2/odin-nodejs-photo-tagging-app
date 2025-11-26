@@ -2,50 +2,57 @@ import app from '../../server/src/app.mjs';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { request } from 'sagetest';
 
+// These tests just concern the responses given by the route in various situations.
+// For checking whether protected routes can be accessed, i.e. if admin mode is active for the session,
+// those tests will be in the flow tests in tests/app.test.mjs. The reason being, we just want to test
+// the specific routes in here, and the flow tests are more like integration tests, where we are accessing
+// various routes one after another - failing to access a route, enabling admin mode, then successfully
+// accessing the route that was originally inaccessible.
 describe('/api/v1/auth/enable-admin', () => {
   describe('POST', () => {
     beforeEach(() => {
-      process.env.ADMIN_ENABLED = 'false';
       process.env.ADMIN_PASSWORD = 'my password';
     });
 
     describe('with the correct password', () => {
-      it('should enable admin mode', async () => {
-        await request(app)
+      it('respond with a 200 status code and a json info message', () => {
+        return request(app)
+          .post('/api/v1/auth/enable-admin')
+          .send({ password: 'my password' })
+          .expect(200)
+          .expect({
+            status: 'success',
+            data: {
+              message: 'Admin mode enabled.',
+            },
+          });
+      });
+
+      it('respond with a 200 status code and a json info message if admin mode is already enabled', async () => {
+        let response = await request(app)
           .post('/api/v1/auth/enable-admin')
           .send({ password: 'my password' });
-        expect(process.env.ADMIN_ENABLED).toStrictEqual('true');
-      });
+        expect(response.statusCode).toStrictEqual(200);
 
-      it('should respond with a 200 status code and a json info message', () => {
-        return request(app)
-          .post('/api/v1/auth/enable-admin')
-          .send({ password: 'my password' })
-          .expect(200)
-          .expect({
-            status: 'success',
-            data: {
-              message: 'Admin mode enabled.',
-            },
-          });
-      });
+        const cookie = response.headers['set-cookie'];
 
-      it('should respond with a 200 status code and a json info message if admin mode is already enabled', () => {
-        process.env.ADMIN_ENABLED = 'true';
-        return request(app)
+        // Now log in again even though we are already logged in.
+        response = await request(app)
           .post('/api/v1/auth/enable-admin')
-          .send({ password: 'my password' })
-          .expect(200)
-          .expect({
-            status: 'success',
-            data: {
-              message: 'Admin mode enabled.',
-            },
-          });
+          .set('cookie', cookie)
+          .send({ password: 'an incorrect password' });
+
+        expect(response.statusCode).toStrictEqual(200);
+        expect(response.body).toStrictEqual({
+          status: 'success',
+          data: {
+            message: 'Admin mode enabled.',
+          },
+        });
       });
     });
 
-    it('with an empty password, should not enable admin mode and respond with 401 status code and validation errors', async () => {
+    it('with an empty password, respond with 401 status code and validation errors', async () => {
       const response = await request(app)
         .post('/api/v1/auth/enable-admin')
         .send({ password: '' });
@@ -67,12 +74,10 @@ describe('/api/v1/auth/enable-admin', () => {
           },
         },
       });
-
-      expect(process.env.ADMIN_ENABLED).toStrictEqual('false');
     });
 
     describe('with an incorrect password', () => {
-      it('should not enable admin mode and respond with 401 status code and json message', async () => {
+      it('respond with 401 status code and json message', async () => {
         const response = await request(app)
           .post('/api/v1/auth/enable-admin')
           .send({ password: 'my incorrect password' });
@@ -84,15 +89,20 @@ describe('/api/v1/auth/enable-admin', () => {
             message: 'Incorrect password.',
           },
         });
-
-        expect(process.env.ADMIN_ENABLED).toStrictEqual('false');
       });
 
-      it('with admin mode already enabled, should respond with a status code 200 and json message', async () => {
-        process.env.ADMIN_ENABLED = 'true';
-        const response = await request(app)
+      it('with admin mode already enabled, respond with a status code 200 and json message', async () => {
+        let response = await request(app)
           .post('/api/v1/auth/enable-admin')
-          .send({ password: 'my incorrect password' });
+          .send({ password: 'my password' });
+        expect(response.statusCode).toStrictEqual(200);
+
+        const cookie = response.headers['set-cookie'];
+
+        response = await request(app)
+          .post('/api/v1/auth/enable-admin')
+          .set('cookie', cookie)
+          .send({ password: 'an incorrect password' });
 
         expect(response.statusCode).toStrictEqual(200);
         expect(response.body).toStrictEqual({
@@ -101,8 +111,6 @@ describe('/api/v1/auth/enable-admin', () => {
             message: 'Admin mode enabled.',
           },
         });
-
-        expect(process.env.ADMIN_ENABLED).toStrictEqual('true');
       });
     });
   });
@@ -110,13 +118,14 @@ describe('/api/v1/auth/enable-admin', () => {
 
 describe('/api/v1/auth/disable-admin', () => {
   describe('POST', () => {
-    beforeEach(() => {
-      process.env.ADMIN_ENABLED = 'true';
-    });
+    let cookie;
 
-    it('should disable admin mode', async () => {
-      await request(app).post('/api/v1/auth/disable-admin');
-      expect(process.env.ADMIN_ENABLED).toStrictEqual('false');
+    beforeEach(async () => {
+      // Make sure we have a session going already.
+      const response = await request(app)
+        .post('/api/v1/auth/enable-admin')
+        .send({ password: 'my password' });
+      cookie = response.headers['set-cookie'];
     });
 
     it('should respond with a 200 status code and a json info message', () => {
@@ -131,17 +140,18 @@ describe('/api/v1/auth/disable-admin', () => {
         });
     });
 
-    it('should respond with a 200 status code and a json info message if admin mode is already disabled', () => {
-      process.env.ADMIN_ENABLED = 'false';
-      return request(app)
-        .post('/api/v1/auth/disable-admin')
-        .expect(200)
-        .expect({
-          status: 'success',
-          data: {
-            message: 'Admin mode disabled.',
-          },
-        });
+    it('should respond with a 200 status code and a json info message if admin mode is already disabled', async () => {
+      let response = await request(app).post('/api/v1/auth/disable-admin');
+      expect(response.statusCode).toStrictEqual(200);
+
+      response = await request(app).post('/api/v1/auth/disable-admin');
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body).toStrictEqual({
+        status: 'success',
+        data: {
+          message: 'Admin mode disabled.',
+        },
+      });
     });
   });
 });

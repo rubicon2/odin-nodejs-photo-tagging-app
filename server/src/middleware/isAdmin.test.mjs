@@ -13,8 +13,12 @@ beforeEach(() => {
 });
 
 describe('isAdmin', () => {
-  describe('if process.env.ADMIN_ENABLED is not equal to "true"', () => {
-    process.env.ADMIN_ENABLED = 'false';
+  describe('if req.session.admin is not equal to "true"', () => {
+    req = httpMocks.createRequest({
+      session: {
+        admin: false,
+      },
+    });
 
     it('does not call next middleware', () => {
       isAdmin(req, res, next);
@@ -27,9 +31,13 @@ describe('isAdmin', () => {
     });
   });
 
-  describe('if process.env.ADMIN_ENABLED is equal to "true"', () => {
+  describe('if req.session.admin is equal to "true"', () => {
     it('calls next middleware', () => {
-      process.env.ADMIN_ENABLED = 'true';
+      req = httpMocks.createRequest({
+        session: {
+          admin: true,
+        },
+      });
       isAdmin(req, res, next);
       expect(next.mock.calls).toHaveLength(1);
     });

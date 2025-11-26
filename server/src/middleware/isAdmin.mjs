@@ -1,5 +1,5 @@
 export default function isAdmin(req, res, next) {
-  if (process.env.ADMIN_ENABLED === 'true') {
+  if (req.session?.admin === true) {
     return next();
   }
   return res.status(403).json({

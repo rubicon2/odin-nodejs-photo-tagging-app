@@ -13,15 +13,25 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { request } from 'sagetest';
 import fs from 'node:fs/promises';
 
-beforeEach(() => {
-  process.env.ADMIN_ENABLED = 'true';
+let cookie;
+
+beforeEach(async () => {
+  // Enable admin for this session and save cookie
+  // so it can be passed along with each request.
+  process.env.ADMIN_PASSWORD = 'my password';
+  const response = await request(app)
+    .post('/api/v1/auth/enable-admin')
+    .send({ password: 'my password' });
+  cookie = response.headers['set-cookie'];
 });
 
 describe('/api/v1/admin/photo', () => {
   describe('GET', () => {
     it('responds with a status code 200 and all db entries, with absolute urls and tags', async () => {
       await postTestData();
-      const response = await request(app).get('/api/v1/admin/photo');
+      const response = await request(app)
+        .get('/api/v1/admin/photo')
+        .set('cookie', cookie);
 
       expect(response.statusCode).toStrictEqual(200);
       expect(response.body).toStrictEqual({
@@ -101,11 +111,13 @@ describe('/api/v1/admin/photo', () => {
         if (photoValue) {
           response = await request(app)
             .post('/api/v1/admin/photo')
+            .set('cookie', cookie)
             .field('altText', altTextValue)
             .attach('photo', photoValue);
         } else {
           response = await request(app)
             .post('/api/v1/admin/photo')
+            .set('cookie', cookie)
             .field('altText', altTextValue);
         }
 
@@ -124,6 +136,7 @@ describe('/api/v1/admin/photo', () => {
         return (
           request(app)
             .post('/api/v1/admin/photo')
+            .set('cookie', cookie)
             .field('altText', 'my new photo')
             // Doesn't seem to actually be attaching the image to the request... ?
             // Because relative file path was not working, and using buffer from fs.readFile was not working.
@@ -149,6 +162,7 @@ describe('/api/v1/admin/photo', () => {
       it('uploads a file to the location pointed to by the returned url', async () => {
         const postRes = await request(app)
           .post('/api/v1/admin/photo')
+          .set('cookie', cookie)
           .field('altText', 'my new photo')
           .attach('photo', testImagePath);
 
@@ -170,10 +184,12 @@ describe('/api/v1/admin/photo', () => {
       it('can upload the same file with the same name twice without issues', async () => {
         const postResA = await request(app)
           .post('/api/v1/admin/photo')
+          .set('cookie', cookie)
           .field('altText', 'my new photo')
           .attach('photo', testImagePath);
         const postResB = await request(app)
           .post('/api/v1/admin/photo')
+          .set('cookie', cookie)
           .field('altText', 'my new photo')
           .attach('photo', testImagePath);
 
@@ -194,18 +210,30 @@ describe('/api/v1/admin/photo', () => {
 
 describe('api/v1/admin/photo/:photoId', () => {
   it('responds with a 404 status code if there is no entry for the id', async () => {
-    await request(app).get('/api/v1/admin/photo/my-made-up-id').expect(404);
-    await request(app).post('/api/v1/admin/photo/my-made-up-id').expect(404);
-    await request(app).put('/api/v1/admin/photo/my-made-up-id').expect(404);
-    await request(app).delete('/api/v1/admin/photo/my-made-up-id').expect(404);
+    await request(app)
+      .get('/api/v1/admin/photo/my-made-up-id')
+      .set('cookie', cookie)
+      .expect(404);
+    await request(app)
+      .post('/api/v1/admin/photo/my-made-up-id')
+      .set('cookie', cookie)
+      .expect(404);
+    await request(app)
+      .put('/api/v1/admin/photo/my-made-up-id')
+      .set('cookie', cookie)
+      .expect(404);
+    await request(app)
+      .delete('/api/v1/admin/photo/my-made-up-id')
+      .set('cookie', cookie)
+      .expect(404);
   });
 
   describe('GET', () => {
     it('with a valid id, responds with status code 200 and the db entry, with absolute url and tags', async () => {
       await postTestData();
-      const response = await request(app).get(
-        `/api/v1/admin/photo/${testImageDataAbsoluteUrlWithTags[0].id}`,
-      );
+      const response = await request(app)
+        .get(`/api/v1/admin/photo/${testImageDataAbsoluteUrlWithTags[0].id}`)
+        .set('cookie', cookie);
 
       expect(response.statusCode).toStrictEqual(200);
       expect(response.body).toStrictEqual({
@@ -218,9 +246,9 @@ describe('api/v1/admin/photo/:photoId', () => {
     });
 
     it('with an invalid id, responds with status code 404 and a json message', async () => {
-      const response = await request(app).get(
-        '/api/v1/admin/photo/my-made-up-id',
-      );
+      const response = await request(app)
+        .get('/api/v1/admin/photo/my-made-up-id')
+        .set('cookie', cookie);
 
       expect(response.statusCode).toStrictEqual(404);
       expect(response.body).toStrictEqual({
@@ -237,9 +265,9 @@ describe('api/v1/admin/photo/:photoId', () => {
       it('without an altText or photo, respond with status code 400 and a json message', async () => {
         await postTestData();
         const image = testImageData[0];
-        const putRes = await request(app).put(
-          `/api/v1/admin/photo/${image.id}`,
-        );
+        const putRes = await request(app)
+          .put(`/api/v1/admin/photo/${image.id}`)
+          .set('cookie', cookie);
         expect(putRes.statusCode).toStrictEqual(400);
         expect(putRes.body).toStrictEqual({
           status: 'fail',
@@ -255,6 +283,7 @@ describe('api/v1/admin/photo/:photoId', () => {
         const image = testImageData[0];
         const putRes = await request(app)
           .put(`/api/v1/admin/photo/${image.id}`)
+          .set('cookie', cookie)
           .field('altText', 'my updated alt text');
         expect(putRes.statusCode).toStrictEqual(200);
 
@@ -274,7 +303,9 @@ describe('api/v1/admin/photo/:photoId', () => {
         const image = testImageData[0];
 
         // Need to get image url from API since test data doesn't include volume name.
-        let getRes = await request(app).get(`/api/v1/admin/photo/${image.id}`);
+        let getRes = await request(app)
+          .get(`/api/v1/admin/photo/${image.id}`)
+          .set('cookie', cookie);
 
         // Check original image upload exists.
         const originalUploadUrl = getRes.body.data.photo.url;
@@ -284,6 +315,7 @@ describe('api/v1/admin/photo/:photoId', () => {
 
         const putRes = await request(app)
           .put(`/api/v1/admin/photo/${image.id}`)
+          .set('cookie', cookie)
           .attach('photo', testImage2Path);
         expect(putRes.statusCode).toStrictEqual(200);
 
@@ -306,6 +338,7 @@ describe('api/v1/admin/photo/:photoId', () => {
       it('responds with a json message', () => {
         return request(app)
           .put('/api/v1/admin/photo/my-made-up-id')
+          .set('cookie', cookie)
           .expect({
             status: 'fail',
             data: {
@@ -322,17 +355,17 @@ describe('api/v1/admin/photo/:photoId', () => {
 
       it('responds with a status code 200', async () => {
         await postTestData();
-        const response = await request(app).delete(
-          `/api/v1/admin/photo/${testImage.id}`,
-        );
+        const response = await request(app)
+          .delete(`/api/v1/admin/photo/${testImage.id}`)
+          .set('cookie', cookie);
         expect(response.statusCode).toStrictEqual(200);
       });
 
       it('responds with a json message', async () => {
         await postTestData();
-        const response = await request(app).delete(
-          `/api/v1/admin/photo/${testImage.id}`,
-        );
+        const response = await request(app)
+          .delete(`/api/v1/admin/photo/${testImage.id}`)
+          .set('cookie', cookie);
         expect(response.body).toStrictEqual({
           status: 'success',
           data: {
@@ -344,7 +377,9 @@ describe('api/v1/admin/photo/:photoId', () => {
 
       it('removes the corresponding db entry', async () => {
         await postTestData();
-        await request(app).delete(`/api/v1/admin/photo/${testImage.id}`);
+        await request(app)
+          .delete(`/api/v1/admin/photo/${testImage.id}`)
+          .set('cookie', cookie);
         const dbEntry = await db.image.findUnique({
           where: {
             id: testImage.id,
@@ -360,7 +395,9 @@ describe('api/v1/admin/photo/:photoId', () => {
 
       it('removes the corresponding file on the server', async () => {
         await postTestData();
-        await request(app).delete(`/api/v1/admin/photo/${testImage.id}`);
+        await request(app)
+          .delete(`/api/v1/admin/photo/${testImage.id}`)
+          .set('cookie', cookie);
         // Don't test if the file exists on the server - that is an implementation detail - just test that we can't get it.
         await request(app).get(`${testImage.url}`).expect(404);
         // Check all other files are unaffected.
@@ -377,6 +414,7 @@ describe('api/v1/admin/photo/:photoId', () => {
         await postTestData();
         return request(app)
           .delete('/api/v1/admin/photo/my-made-up-id')
+          .set('cookie', cookie)
           .expect({
             status: 'fail',
             data: {

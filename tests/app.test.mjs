@@ -10,10 +10,9 @@ describe('app', () => {
   });
 
   test('flow: failing to post an image, enabling admin mode, then succeeding to post an image', async () => {
-    process.env.ADMIN_ENABLED = 'false';
     process.env.ADMIN_PASSWORD = 'my mega password';
 
-    let response;
+    let response, cookie;
 
     // Fail to post an image as admin mode not enabled.
     // With new Session migration to prisma, this request gives strange errors.
@@ -24,16 +23,20 @@ describe('app', () => {
       .attach('photo', testImagePath);
     expect(response.statusCode).toStrictEqual(403);
 
+    // Extract cookie so we can use in future requests.
+    cookie = response.headers['set-cookie'];
+
     // Enable admin mode by supplying the password.
     response = await request(app)
       .post('/api/v1/auth/enable-admin')
+      .set('cookie', cookie)
       .send({ password: process.env.ADMIN_PASSWORD });
     expect(response.statusCode).toStrictEqual(200);
-    expect(process.env.ADMIN_ENABLED).toStrictEqual('true');
 
     // Try to post an image again, succeed now admin mode is enabled.
     response = await request(app)
       .post('/api/v1/admin/photo')
+      .set('cookie', cookie)
       .field('altText', 'my alt text')
       .attach('photo', testImagePath);
     expect(response.statusCode).toStrictEqual(200);
@@ -56,23 +59,37 @@ describe('app', () => {
   });
 
   test('flow: in admin mode, post an image and then disable admin mode, try and fail to post another image', async () => {
-    process.env.ADMIN_ENABLED = 'true';
     process.env.ADMIN_PASSWORD = 'my mega password';
 
-    // In admin mode, post an image.
-    let response = await request(app)
+    let response, cookie;
+
+    // Enable admin mode by supplying the password, so we can log out.
+    response = await request(app)
+      .post('/api/v1/auth/enable-admin')
+      .send({ password: process.env.ADMIN_PASSWORD });
+    expect(response.statusCode).toStrictEqual(200);
+
+    // Extract cookie.
+    cookie = response.headers['set-cookie'];
+
+    // Succesfully post an image.
+    response = await request(app)
       .post('/api/v1/admin/photo')
+      .set('cookie', cookie)
       .field('altText', 'my alt text')
       .attach('photo', testImagePath);
     expect(response.statusCode).toStrictEqual(200);
 
     // Disable admin mode.
-    response = await request(app).post('/api/v1/auth/disable-admin');
+    response = await request(app)
+      .post('/api/v1/auth/disable-admin')
+      .set('cookie', cookie);
     expect(response.statusCode).toStrictEqual(200);
 
     // Now try and fail to post another image.
     response = await request(app)
       .post('/api/v1/admin/photo')
+      .set('cookie', cookie)
       .field('altText', 'my alt text')
       .attach('photo', testImagePath);
     expect(response.statusCode).toStrictEqual(403);
