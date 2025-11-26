@@ -9,12 +9,18 @@ describe('app', () => {
     expect(typeof app.listen).toBe('function');
   });
 
-  test('flow: failing to post an image, enabling admin mode, then succeeding to post an image', async () => {
+  test.only('flow: failing to post an image, enabling admin mode, then succeeding to post an image', async () => {
+    // Getting weird errors about EPIPE write and superagent double callback bug when app is using
+    // prismaSessionStore instead of memoryStore. Is it a bug with prismaSessionStore?
     process.env.ADMIN_ENABLED = 'false';
     process.env.ADMIN_PASSWORD = 'my mega password';
 
+    let response;
+
     // Fail to post an image as admin mode not enabled.
-    let response = await request(app)
+    // With new Session migration to prisma, this request gives strange errors.
+    // supertest double callback bug?
+    response = await request(app)
       .post('/api/v1/admin/photo')
       .field('altText', 'my alt text')
       .attach('photo', testImagePath);

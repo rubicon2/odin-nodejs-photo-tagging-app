@@ -2,7 +2,9 @@ import loadEnv from './env.mjs';
 import api from './routers/api.mjs';
 
 import express from 'express';
-import session, { MemoryStore } from 'express-session';
+import session from 'express-session';
+import { PrismaSessionStore } from '@quixo3/prisma-session-store';
+import client from './db/client.mjs';
 import cors from 'cors';
 import path from 'path';
 
@@ -33,7 +35,6 @@ app.use(
 // Client sessions.
 app.use(
   session({
-    name: 'sid',
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true,
@@ -41,9 +42,16 @@ app.use(
       httpOnly: true,
       secure: process.env.MODE === 'production' ? true : '',
       sameSite: 'strict',
-      maxAge: 60000,
+      // Expires in 1 month.
+      maxAge: 1000 * 60 * 60 * 24 * 28,
     },
-    store: new MemoryStore(),
+    // When PrismaSessionStore is used, breaks int app tests with write EPIPE error?
+    store: new PrismaSessionStore(client, {
+      dbRecordIdIsSessionId: true,
+      dbRecordIdFunction: undefined,
+      // Check every 10 minutes.
+      checkPeriod: 1000 * 60 * 10,
+    }),
   }),
 );
 
