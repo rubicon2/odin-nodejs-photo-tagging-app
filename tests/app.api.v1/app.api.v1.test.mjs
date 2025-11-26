@@ -7,7 +7,7 @@ import {
 } from '../helpers/helpers.mjs';
 
 import { describe, it, expect } from 'vitest';
-import request from 'supertest';
+import { request } from 'sagetest';
 
 describe('/api/v1/photo', () => {
   describe('GET', () => {
@@ -200,9 +200,11 @@ describe('/api/v1/check', () => {
     'with a $testType, responds with status code 400 and a json message',
     async ({ photoId, posX, posY, expectedValidationObj }) => {
       await postTestData();
-      const response = await request(app)
-        .post(`/api/v1/check-tag`)
-        .send(`photoId=${photoId}&posX=${posX}&posY=${posY}`);
+      const response = await request(app).post(`/api/v1/check-tag`).send({
+        photoId,
+        posX,
+        posY,
+      });
 
       expect(response.statusCode).toStrictEqual(400);
       expect(response.body).toStrictEqual({
@@ -304,9 +306,11 @@ describe('/api/v1/check', () => {
 
       const response = await request(app)
         .post('/api/v1/check-tag')
-        .send(
-          `photoId=${photo.id}&posX=${center + posX}&posY=${center + posY}`,
-        );
+        .send({
+          photoId: photo.id,
+          posX: center + posX,
+          posY: center + posY,
+        });
       expect(response.statusCode).toStrictEqual(200);
       expect(response.body.status).toStrictEqual('success');
       expect(response.body.data.tags.map((tag) => tag.name)).toStrictEqual(
@@ -389,9 +393,11 @@ describe('/api/v1/check', () => {
         ],
       });
 
-      const response = await request(app)
-        .post('/api/v1/check-tag')
-        .send(`photoId=${photo.id}&posX=${posX}&posY=${posY}`);
+      const response = await request(app).post('/api/v1/check-tag').send({
+        photoId: photo.id,
+        posX,
+        posY,
+      });
       expect(response.statusCode).toStrictEqual(200);
       expect(response.body.status).toStrictEqual('success');
       expect(response.body.data.tags.map((tag) => tag.name)).toStrictEqual(

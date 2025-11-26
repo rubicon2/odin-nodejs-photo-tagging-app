@@ -1,6 +1,6 @@
 import app from '../../server/src/app.mjs';
 import { describe, it } from 'vitest';
-import request from 'supertest';
+import { request } from 'sagetest';
 
 describe('/api/v1/admin', () => {
   it('responds with a 403 status code if admin mode is not enabled', async () => {

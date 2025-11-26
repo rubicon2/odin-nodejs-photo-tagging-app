@@ -45,7 +45,6 @@ app.use(
       // Expires in 1 month.
       maxAge: 1000 * 60 * 60 * 24 * 28,
     },
-    // When PrismaSessionStore is used, breaks int app tests with write EPIPE error?
     store: new PrismaSessionStore(client, {
       dbRecordIdIsSessionId: true,
       dbRecordIdFunction: undefined,

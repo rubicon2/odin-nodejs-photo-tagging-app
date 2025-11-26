@@ -1,7 +1,7 @@
 import app from '../server/src/app.mjs';
 import { testImagePath } from './helpers/helpers.mjs';
 import { describe, it, test, expect } from 'vitest';
-import request from 'supertest';
+import { request } from 'sagetest';
 import fs from 'node:fs/promises';
 
 describe('app', () => {
@@ -9,9 +9,7 @@ describe('app', () => {
     expect(typeof app.listen).toBe('function');
   });
 
-  test.only('flow: failing to post an image, enabling admin mode, then succeeding to post an image', async () => {
-    // Getting weird errors about EPIPE write and superagent double callback bug when app is using
-    // prismaSessionStore instead of memoryStore. Is it a bug with prismaSessionStore?
+  test('flow: failing to post an image, enabling admin mode, then succeeding to post an image', async () => {
     process.env.ADMIN_ENABLED = 'false';
     process.env.ADMIN_PASSWORD = 'my mega password';
 
@@ -29,7 +27,7 @@ describe('app', () => {
     // Enable admin mode by supplying the password.
     response = await request(app)
       .post('/api/v1/auth/enable-admin')
-      .send(`password=${process.env.ADMIN_PASSWORD}`);
+      .send({ password: process.env.ADMIN_PASSWORD });
     expect(response.statusCode).toStrictEqual(200);
     expect(process.env.ADMIN_ENABLED).toStrictEqual('true');
 

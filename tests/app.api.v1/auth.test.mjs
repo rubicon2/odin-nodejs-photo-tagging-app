@@ -1,6 +1,6 @@
 import app from '../../server/src/app.mjs';
 import { describe, it, expect, beforeEach } from 'vitest';
-import request from 'supertest';
+import { request } from 'sagetest';
 
 describe('/api/v1/auth/enable-admin', () => {
   describe('POST', () => {
@@ -13,14 +13,14 @@ describe('/api/v1/auth/enable-admin', () => {
       it('should enable admin mode', async () => {
         await request(app)
           .post('/api/v1/auth/enable-admin')
-          .send('password=my password');
+          .send({ password: 'my password' });
         expect(process.env.ADMIN_ENABLED).toStrictEqual('true');
       });
 
       it('should respond with a 200 status code and a json info message', () => {
         return request(app)
           .post('/api/v1/auth/enable-admin')
-          .send('password=my password')
+          .send({ password: 'my password' })
           .expect(200)
           .expect({
             status: 'success',
@@ -34,7 +34,7 @@ describe('/api/v1/auth/enable-admin', () => {
         process.env.ADMIN_ENABLED = 'true';
         return request(app)
           .post('/api/v1/auth/enable-admin')
-          .send('password=my password')
+          .send({ password: 'my password' })
           .expect(200)
           .expect({
             status: 'success',
@@ -48,7 +48,7 @@ describe('/api/v1/auth/enable-admin', () => {
     it('with an empty password, should not enable admin mode and respond with 401 status code and validation errors', async () => {
       const response = await request(app)
         .post('/api/v1/auth/enable-admin')
-        .send(`password=`);
+        .send({ password: '' });
 
       expect(response.statusCode).toStrictEqual(401);
       expect(response.body).toStrictEqual({
@@ -75,7 +75,7 @@ describe('/api/v1/auth/enable-admin', () => {
       it('should not enable admin mode and respond with 401 status code and json message', async () => {
         const response = await request(app)
           .post('/api/v1/auth/enable-admin')
-          .send(`password=my incorrect password`);
+          .send({ password: 'my incorrect password' });
 
         expect(response.statusCode).toStrictEqual(401);
         expect(response.body).toStrictEqual({
@@ -92,7 +92,7 @@ describe('/api/v1/auth/enable-admin', () => {
         process.env.ADMIN_ENABLED = 'true';
         const response = await request(app)
           .post('/api/v1/auth/enable-admin')
-          .send(`password=my incorrect password`);
+          .send({ password: 'my incorrect password' });
 
         expect(response.statusCode).toStrictEqual(200);
         expect(response.body).toStrictEqual({

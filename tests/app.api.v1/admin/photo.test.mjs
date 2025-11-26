@@ -10,7 +10,7 @@ import {
 } from '../../helpers/helpers.mjs';
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import request from 'supertest';
+import { request } from 'sagetest';
 import fs from 'node:fs/promises';
 
 beforeEach(() => {
@@ -94,10 +94,21 @@ describe('/api/v1/admin/photo', () => {
     ])(
       'when provided with $testType, responds with a status code 400 and validation errors',
       async ({ altTextValue, photoValue, expectedValidationObj }) => {
-        const response = await request(app)
-          .post('/api/v1/admin/photo')
-          .field('altText', altTextValue)
-          .attach('photo', photoValue);
+        let response;
+
+        // Supertest was ok with attaching a photoValue of '', but sagetest throws
+        // an error because there is no file to access. Have to split it like this.
+        if (photoValue) {
+          response = await request(app)
+            .post('/api/v1/admin/photo')
+            .field('altText', altTextValue)
+            .attach('photo', photoValue);
+        } else {
+          response = await request(app)
+            .post('/api/v1/admin/photo')
+            .field('altText', altTextValue);
+        }
+
         expect(response.statusCode).toStrictEqual(400);
         expect(response.body).toStrictEqual({
           status: 'fail',

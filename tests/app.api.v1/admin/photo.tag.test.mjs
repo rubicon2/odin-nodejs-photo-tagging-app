@@ -8,7 +8,7 @@ import {
 } from '../../helpers/helpers.mjs';
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import request from 'supertest';
+import { request } from 'sagetest';
 
 beforeEach(() => {
   process.env.ADMIN_ENABLED = 'true';
@@ -64,7 +64,10 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
       it.each([
         {
           testType: 'no posX',
-          sendString: 'posY=0.75&name=Jennifer',
+          sendObj: {
+            posY: 0.75,
+            name: 'Jennifer',
+          },
           expectedValidationObj: {
             errors: [
               {
@@ -86,7 +89,11 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
         },
         {
           testType: 'invalid posX',
-          sendString: 'posX=some_string&posY=0.75&name=Jennifer',
+          sendObj: {
+            posX: 'some_string',
+            posY: 0.75,
+            name: 'Jennifer',
+          },
           expectedValidationObj: {
             errors: [
               {
@@ -101,7 +108,10 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
         },
         {
           testType: 'no posY',
-          sendString: 'posX=0.25&name=Jennifer',
+          sendObj: {
+            posX: 0.25,
+            name: 'Jennifer',
+          },
           expectedValidationObj: {
             errors: [
               {
@@ -123,7 +133,11 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
         },
         {
           testType: 'invalid posX',
-          sendString: 'posX=0.25&posY=some_string&name=Jennifer',
+          sendObj: {
+            posX: 0.25,
+            posY: 'some_string',
+            name: 'Jennifer',
+          },
           expectedValidationObj: {
             errors: [
               {
@@ -138,7 +152,10 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
         },
         {
           testType: 'no name',
-          sendString: 'posX=0.25&posY=0.75',
+          sendObj: {
+            posX: 0.25,
+            posY: 0.75,
+          },
           expectedValidationObj: {
             errors: [
               {
@@ -160,7 +177,11 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
         },
         {
           testType: 'invalid name',
-          sendString: 'posX=0.25&posY=0.75&name=j@m',
+          sendObj: {
+            posX: 0.25,
+            posY: 0.75,
+            name: 'j@m',
+          },
           expectedValidationObj: {
             errors: [
               {
@@ -175,12 +196,12 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
         },
       ])(
         'when provided with $testType, responds with a status code 400 and validation errors',
-        async ({ sendString, expectedValidationObj }) => {
+        async ({ sendObj, expectedValidationObj }) => {
           await postTestData();
           const testImage = testImageDataAbsoluteUrl[0];
           const response = await request(app)
             .post(`/api/v1/admin/photo/${testImage.id}/tag`)
-            .send(sendString);
+            .send(sendObj);
           expect(response.statusCode).toStrictEqual(400);
           expect(response.body).toStrictEqual({
             status: 'fail',
@@ -196,7 +217,11 @@ describe('/api/v1/admin/photo/:photoId/tag', () => {
         const testImage = testImageDataAbsoluteUrl[0];
         const postRes = await request(app)
           .post(`/api/v1/admin/photo/${testImage.id}/tag`)
-          .send('posX=0.25&posY=0.75&name=Jennifer');
+          .send({
+            posX: 0.25,
+            posY: 0.75,
+            name: 'Jennifer',
+          });
         expect(postRes.statusCode).toStrictEqual(200);
 
         // Check directly against database.
@@ -938,7 +963,7 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
       const tag = testImageTagData[0];
       const putRes = await request(app)
         .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
-        .send('posX=0.75');
+        .send({ posX: 0.75 });
       expect(putRes.statusCode).toStrictEqual(200);
 
       // Check against db directly instead of using GET route.
@@ -968,7 +993,7 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
       const tag = testImageTagData[0];
       const putRes = await request(app)
         .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
-        .send('posY=0.75');
+        .send({ posY: 0.75 });
       expect(putRes.statusCode).toStrictEqual(200);
 
       // Check against db directly instead of using GET route.
@@ -998,7 +1023,9 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
       const tag = testImageTagData[0];
       const putRes = await request(app)
         .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
-        .send('name=Jennifer');
+        .send({
+          name: 'Jennifer',
+        });
       expect(putRes.statusCode).toStrictEqual(200);
 
       // Check against db directly instead of using GET route.
@@ -1026,7 +1053,11 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
     it.each([
       {
         testType: 'invalid posX',
-        sendString: 'posX=some_string&posY=0.75&name=Jennifer',
+        sendObj: {
+          posX: 'some_string',
+          posY: '0.75',
+          name: 'Jennifer',
+        },
         expectedValidationObj: {
           errors: [
             {
@@ -1041,7 +1072,11 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
       },
       {
         testType: 'invalid posX',
-        sendString: 'posX=0.25&posY=some_string&name=Jennifer',
+        sendObj: {
+          posX: '0.25',
+          posY: 'some_string',
+          name: 'Jennifer',
+        },
         expectedValidationObj: {
           errors: [
             {
@@ -1056,7 +1091,11 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
       },
       {
         testType: 'invalid name',
-        sendString: 'posX=0.25&posY=0.75&name=j@m',
+        sendObj: {
+          posX: 0.25,
+          posY: 0.75,
+          name: 'j@m',
+        },
         expectedValidationObj: {
           errors: [
             {
@@ -1071,12 +1110,12 @@ describe('/api/v1/admin/photo/:photoId/tag/:tagId', () => {
       },
     ])(
       'when provided with $testType, responds with a status code 400 and validation errors',
-      async ({ sendString, expectedValidationObj }) => {
+      async ({ sendObj, expectedValidationObj }) => {
         await postTestData();
         const tag = testImageTagData[0];
         const response = await request(app)
           .put(`/api/v1/admin/photo/${tag.imageId}/tag/${tag.id}`)
-          .send(sendString);
+          .send(sendObj);
         expect(response.statusCode).toStrictEqual(400);
         expect(response.body).toStrictEqual({
           status: 'fail',
