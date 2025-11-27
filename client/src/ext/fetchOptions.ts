@@ -1,5 +1,5 @@
 const defaultOptions: RequestInit = {
-  credentials: 'same-origin',
+  credentials: 'include',
 };
 
 export { defaultOptions };
