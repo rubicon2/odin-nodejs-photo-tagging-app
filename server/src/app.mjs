@@ -41,7 +41,11 @@ app.use(
     saveUninitialized: true,
     cookie: {
       httpOnly: true,
-      secure: process.env.MODE === 'production' ? true : '',
+      // secure: true leads to the cookie not being set on production,
+      // even though it is all running on the same domain, and on https??
+      // secure: process.env.MODE === 'production' ? true : '',
+      // Set to false now and try to fix later.
+      secure: false,
       sameSite: 'strict',
       // Expires in 1 month.
       maxAge: 1000 * 60 * 60 * 24 * 28,
