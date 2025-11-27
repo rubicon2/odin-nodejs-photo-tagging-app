@@ -18,7 +18,7 @@
     "test:int": "./scripts/run-integration-tests.sh",
     "dev": "node --watch index.mjs & cd client && npm run dev",
     "migrate": "npx prisma migrate deploy",
-    "build": "rm -rf server/public/* && cd client && npm run build && cp -r dist/* ../server/public",
+    "build": "rm -rf server/public/* && cd client && npm run build && cp -r dist/ ../server/public",
     "start": "node index.mjs"
   },
   "keywords": [],
