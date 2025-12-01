@@ -37,45 +37,6 @@ describe('/api/v1/photo', () => {
   });
 });
 
-describe('/api/v1/photo/:id', () => {
-  describe('GET', () => {
-    it('with a valid id, responds with a status code 200 and db entry, with absolute url and only the id and name of tags', async () => {
-      await postTestData();
-      const response = await request(app).get(
-        `/api/v1/photo/${testImageDataAbsoluteUrl[0].id}`,
-      );
-      expect(response.statusCode).toStrictEqual(200);
-
-      const tags = testImageTagData.filter(
-        (tag) => tag.imageId === testImageDataAbsoluteUrl[0].id,
-      );
-
-      expect(response.body).toStrictEqual({
-        status: 'success',
-        data: {
-          message: 'Photo successfully retrieved.',
-          photo: {
-            ...testImageDataAbsoluteUrl[0],
-            tagCount: tags.length,
-            tags: tags.map(({ id, name }) => ({ id, name })),
-          },
-        },
-      });
-    });
-
-    it('with an invalid id, responds with a status code 404 and a json message', async () => {
-      const response = await request(app).get('/api/v1/photo/my-made-up-id');
-      expect(response.statusCode).toStrictEqual(404);
-      expect(response.body).toStrictEqual({
-        status: 'fail',
-        data: {
-          message: 'That photo does not exist.',
-        },
-      });
-    });
-  });
-});
-
 describe('/api/v1/check', () => {
   // Test validation is working correctly.
   it.each([

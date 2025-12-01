@@ -33,48 +33,6 @@ async function getAllPhotos(req, res, next) {
   }
 }
 
-async function getPhoto(req, res, next) {
-  try {
-    const { id } = req.params;
-    const photo = await client.image.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        tags: {
-          select: { id: true, name: true },
-          orderBy: {
-            id: 'asc',
-          },
-        },
-        _count: {
-          select: { tags: true },
-        },
-      },
-    });
-
-    if (!photo) {
-      return res.status(404).json({
-        status: 'fail',
-        data: {
-          message: 'That photo does not exist.',
-        },
-      });
-    }
-
-    // If an image with that id was found.
-    return res.json({
-      status: 'success',
-      data: {
-        message: 'Photo successfully retrieved.',
-        photo: prismaToPhotoTransformer(photo),
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
 async function postCheckTag(req, res, next) {
   try {
     const validation = validationResult(req);
@@ -106,4 +64,4 @@ async function postCheckTag(req, res, next) {
   }
 }
 
-export { getAllPhotos, getPhoto, postCheckTag };
+export { getAllPhotos, postCheckTag };
