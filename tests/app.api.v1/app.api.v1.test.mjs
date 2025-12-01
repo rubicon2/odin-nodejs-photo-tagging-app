@@ -59,6 +59,19 @@ describe('/api/v1/photo', () => {
         );
       }
     });
+
+    it('responds with a 404 and json message if there are no photos to retrieve', async () => {
+      // Deciding to go with 404 status code due to the following from MDN:
+      // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status
+      // "In an API, [a 404 status code] can also mean that the endpoint is valid but the resource itself does not exist."
+      const response = await request(app).get('/api/v1/photo');
+      expect(response.body).toStrictEqual({
+        status: 'fail',
+        data: {
+          message: 'No photos were found.',
+        },
+      });
+    });
   });
 });
 

@@ -31,6 +31,15 @@ async function getRandomPhoto(req, res, next) {
       },
     });
 
+    if (photos.length === 0) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: 'No photos were found.',
+        },
+      });
+    }
+
     const randomPhotoIndex = Math.floor(Math.random() * photos.length);
     const randomPhoto = photos[randomPhotoIndex];
 
