@@ -39,22 +39,25 @@ describe('/api/v1/photo', () => {
 
 describe('/api/v1/photo/:id', () => {
   describe('GET', () => {
-    it('with a valid id, responds with a status code 200 and db entry, with absolute url and no tags', async () => {
+    it('with a valid id, responds with a status code 200 and db entry, with absolute url and only the id and name of tags', async () => {
       await postTestData();
       const response = await request(app).get(
         `/api/v1/photo/${testImageDataAbsoluteUrl[0].id}`,
       );
-
       expect(response.statusCode).toStrictEqual(200);
+
+      const tags = testImageTagData.filter(
+        (tag) => tag.imageId === testImageDataAbsoluteUrl[0].id,
+      );
+
       expect(response.body).toStrictEqual({
         status: 'success',
         data: {
           message: 'Photo successfully retrieved.',
           photo: {
             ...testImageDataAbsoluteUrl[0],
-            tagCount: testImageTagData.filter(
-              (tag) => tag.imageId === testImageDataAbsoluteUrl[0].id,
-            ).length,
+            tagCount: tags.length,
+            tags: tags.map(({ id, name }) => ({ id, name })),
           },
         },
       });

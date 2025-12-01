@@ -41,6 +41,12 @@ async function getPhoto(req, res, next) {
         id,
       },
       include: {
+        tags: {
+          select: { id: true, name: true },
+          orderBy: {
+            id: 'asc',
+          },
+        },
         _count: {
           select: { tags: true },
         },
