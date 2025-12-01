@@ -5,7 +5,10 @@ import { validationResult, matchedData } from 'express-validator';
 
 async function getRandomPhoto(req, res, next) {
   try {
-    const idsToIgnore = req.body?.idsToIgnore || [];
+    const idsToIgnore = req.session?.completedPhotoIds || [];
+    if (req.session?.currentPhotoId)
+      idsToIgnore.push(req.session.currentPhotoId);
+
     const photos = await client.image.findMany({
       where: {
         id: {
@@ -29,12 +32,17 @@ async function getRandomPhoto(req, res, next) {
     });
 
     const randomPhotoIndex = Math.floor(Math.random() * photos.length);
+    const randomPhoto = photos[randomPhotoIndex];
+
+    // Save so we know what photo the user is on and
+    // can avoid giving the same photo twice in a row.
+    req.session.currentPhotoId = randomPhoto.id;
 
     return res.json({
       status: 'success',
       data: {
         message: 'Photo successfully retrieved.',
-        photo: prismaToPhotoTransformer(photos[randomPhotoIndex]),
+        photo: prismaToPhotoTransformer(randomPhoto),
       },
     });
   } catch (error) {
