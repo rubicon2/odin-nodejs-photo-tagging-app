@@ -21,11 +21,14 @@ async function getRandomPhoto(req, res, next) {
         },
       },
     });
+
+    const randomPhotoIndex = Math.floor(Math.random() * photos.length);
+
     return res.json({
       status: 'success',
       data: {
-        message: 'All photos successfully retrieved.',
-        photos: photos.map((photo) => prismaToPhotoTransformer(photo)),
+        message: 'Photo successfully retrieved.',
+        photo: prismaToPhotoTransformer(photos[randomPhotoIndex]),
       },
     });
   } catch (error) {

@@ -11,26 +11,36 @@ import { request } from 'sagetest';
 
 describe('/api/v1/photo', () => {
   describe('GET', () => {
-    it('responds with a status code 200 and all db entries, with absolute urls, and only the id and name of tags', async () => {
+    it('responds with a status code 200 and a random db entry, with absolute img url, and only the id and name of tags', async () => {
       // Setup environment, add data, etc.
       await postTestData();
+      const testImage = testImageDataAbsoluteUrl[0];
+      // Remove all except the test db entry so we know what to expect.
+      await db.image.deleteMany({
+        where: {
+          id: {
+            not: testImage.id,
+          },
+        },
+      });
       // Must return async request otherwise tests won't run properly! Will get incorrectly passing tests.
       const response = await request(app).get('/api/v1/photo');
 
       expect(response.statusCode).toStrictEqual(200);
+
+      const tags = testImageTagData
+        .filter((tag) => tag.imageId === testImage.id)
+        .map(({ id, name }) => ({ id, name }));
+
       expect(response.body).toStrictEqual({
         status: 'success',
         data: {
-          message: 'All photos successfully retrieved.',
-          photos: testImageDataAbsoluteUrl.map((testImage) => ({
+          message: 'Photo successfully retrieved.',
+          photo: {
             ...testImage,
-            tagCount: testImageTagData.filter(
-              (tag) => tag.imageId === testImage.id,
-            ).length,
-            tags: testImageTagData
-              .filter((tag) => tag.imageId === testImage.id)
-              .map(({ id, name }) => ({ id, name })),
-          })),
+            tagCount: tags.length,
+            tags,
+          },
         },
       });
     });

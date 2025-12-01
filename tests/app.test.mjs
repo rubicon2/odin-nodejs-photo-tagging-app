@@ -44,9 +44,8 @@ describe('app', () => {
     // Check image has been uploaded, etc.
     response = await request(app).get('/api/v1/photo');
     expect(response.statusCode).toStrictEqual(200);
-    expect(response.body.data.photos).toBeDefined();
-    expect(response.body.data.photos.length).toStrictEqual(1);
-    const photo = response.body.data.photos[0];
+    expect(response.body.data.photo).toBeDefined();
+    const photo = response.body.data.photo;
     expect(photo.altText).toStrictEqual('my alt text');
     expect(photo.url).toMatch(/^.*.[a-zA-Z]?/i);
 
