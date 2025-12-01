@@ -3,7 +3,7 @@ import prismaToPhotoTransformer from '../../transformers/prismaToPhotoTransforme
 import createPostCheckTagQueryTransformer from '../../transformers/createPostCheckTagQueryTransformer.mjs';
 import { validationResult, matchedData } from 'express-validator';
 
-async function getAllPhotos(req, res, next) {
+async function getRandomPhoto(req, res, next) {
   try {
     const photos = await client.image.findMany({
       orderBy: {
@@ -64,4 +64,4 @@ async function postCheckTag(req, res, next) {
   }
 }
 
-export { getAllPhotos, postCheckTag };
+export { getRandomPhoto, postCheckTag };
