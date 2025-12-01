@@ -44,6 +44,26 @@ describe('/api/v1/photo', () => {
         },
       });
     });
+
+    it('when provided a idsToIgnore array, removes those from the results', async () => {
+      await postTestData();
+      // Test a number of times, otherwise might just be lucky if we test only once and test passes.
+      for (var i = 0; i < 100; i++) {
+        const idsToIgnore = [];
+
+        const responseA = await request(app)
+          .get('/api/v1/photo')
+          .send({ idsToIgnore });
+
+        idsToIgnore.push(responseA.body.data.photo.id);
+
+        const responseB = await request(app)
+          .get('/api/v1/photo')
+          .send({ idsToIgnore });
+
+        expect(responseA.body).not.toStrictEqual(responseB.body);
+      }
+    });
   });
 });
 

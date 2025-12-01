@@ -5,7 +5,13 @@ import { validationResult, matchedData } from 'express-validator';
 
 async function getRandomPhoto(req, res, next) {
   try {
+    const idsToIgnore = req.body?.idsToIgnore || [];
     const photos = await client.image.findMany({
+      where: {
+        id: {
+          notIn: idsToIgnore,
+        },
+      },
       orderBy: {
         id: 'asc',
       },
