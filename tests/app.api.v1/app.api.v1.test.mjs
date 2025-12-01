@@ -11,7 +11,7 @@ import { request } from 'sagetest';
 
 describe('/api/v1/photo', () => {
   describe('GET', () => {
-    it('responds with a status code 200 and all db entries, with absolute urls and no tags', async () => {
+    it('responds with a status code 200 and all db entries, with absolute urls, and only the id and name of tags', async () => {
       // Setup environment, add data, etc.
       await postTestData();
       // Must return async request otherwise tests won't run properly! Will get incorrectly passing tests.
@@ -27,6 +27,9 @@ describe('/api/v1/photo', () => {
             tagCount: testImageTagData.filter(
               (tag) => tag.imageId === testImage.id,
             ).length,
+            tags: testImageTagData
+              .filter((tag) => tag.imageId === testImage.id)
+              .map(({ id, name }) => ({ id, name })),
           })),
         },
       });

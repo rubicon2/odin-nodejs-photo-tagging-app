@@ -10,6 +10,12 @@ async function getAllPhotos(req, res, next) {
         id: 'asc',
       },
       include: {
+        tags: {
+          select: { id: true, name: true },
+          orderBy: {
+            id: 'asc',
+          },
+        },
         _count: {
           select: { tags: true },
         },
