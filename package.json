@@ -7,10 +7,6 @@
   "engines": {
     "node": ">=22.14.0"
   },
-  "workspaces": [
-    "./server",
-    "./client"
-  ],
   "scripts": {
     "test:client": "vitest -c ./vitest.client.config.js",
     "test:unit": "vitest -c ./vitest.unit.config.js",
@@ -34,6 +30,8 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@app/client": "workspace:*",
+    "@app/server": "workspace:*",
     "@prisma/client": "^6.14.0",
     "@rubicon2/object-transformer": "^1.1.0",
     "dotenv": "^17.2.1",
