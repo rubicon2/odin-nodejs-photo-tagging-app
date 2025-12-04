@@ -75,7 +75,7 @@ describe('/api/v1/photo', () => {
   });
 });
 
-describe('/api/v1/check', () => {
+describe('/api/v1/check-tag', () => {
   // Test validation is working correctly.
   it.each([
     {
