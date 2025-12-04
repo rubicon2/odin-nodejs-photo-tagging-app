@@ -46,6 +46,8 @@ async function getRandomPhoto(req, res, next) {
     // Save so we know what photo the user is on and
     // can avoid giving the same photo twice in a row.
     req.session.currentPhotoId = randomPhoto.id;
+    // Save start time so we can figure out how long it took for the user to find all the tags.
+    req.session.startTime = Date.now();
 
     return res.json({
       status: 'success',
@@ -102,10 +104,17 @@ async function postCheckTag(req, res, next) {
     const totalTags = image.tags.length;
     const foundAllTags = req.session.foundTags.length >= totalTags;
 
+    // Make undefined, so if foundAllTags is false, will just be left out of json.
+    let msToFinish = undefined;
+    if (foundAllTags && req.session.startTime) {
+      msToFinish = Date.now() - req.session.startTime;
+    }
+
     return res.status(200).json({
       status: 'success',
       data: {
         foundAllTags,
+        msToFinish,
         tags,
       },
     });

@@ -6,7 +6,7 @@ import {
   testImageTagData,
 } from '../helpers/helpers.mjs';
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { request } from 'sagetest';
 
 describe('/api/v1/photo', () => {
@@ -411,12 +411,23 @@ describe('/api/v1/check', () => {
     },
   );
 
-  it('return bool foundAllTags which is self-explanatory, and when true, the time it took to find all tags', async () => {
+  it('return foundAllTags bool which is self-explanatory, and when true, the time it took to find all tags', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+
     await postTestData();
+    const testImage = testImageDataAbsoluteUrl[0];
+
+    // Clear out all images except the first, so when we use random image route we always get the same one.
+    await db.image.deleteMany({
+      where: {
+        id: {
+          not: testImage.id,
+        },
+      },
+    });
+
     // Clear out all tags and replace with specific tags for this test.
     await db.imageTag.deleteMany();
-    // Get the image we want to make tags for.
-    const testImage = testImageDataAbsoluteUrl[0];
     const testImageTags = await db.imageTag.createManyAndReturn({
       data: [
         {
@@ -440,21 +451,29 @@ describe('/api/v1/check', () => {
       ],
     });
 
-    let response = await request(app)
-      .post('/api/v1/check-tag')
-      .send({ photoId: testImage.id, posX: 0.5, posY: 0.5 });
+    let response;
+
+    // Get random image with route so startTime is recorded in session.
+    // I am aware this is a bad test. Test the result, not the
+    // implementation. But there is no other logical way to record the
+    // time and test it in an isolated way... that I can think of, anyway.
+
+    // With fake timers, this times out. Why?
+    // It was because postgres uses a method called setImmediate.
+    // I have never used it, but apparently it relates to timing,
+    // and if it is mocked out by vitest, the db call will hang
+    // since the setImmediate callback will never be invoked until
+    // time advances. Since this is await, you'd have to remove that and
+    // use .then instead, advance the time to make the callback trigger, b
+    // before running the rest of the test.
+
+    // The solution is to only mock Date with the useFakeTimers options object.
+    response = await request(app).get('/api/v1/photo');
     expect(response.status).toStrictEqual(200);
 
+    // Get cookie so we can use in future requests.
     const cookie = response.headers['set-cookie'];
     expect(cookie).toBeDefined();
-
-    expect(response.body).toStrictEqual({
-      status: 'success',
-      data: {
-        foundAllTags: false,
-        tags: [],
-      },
-    });
 
     response = await request(app)
       .post('/api/v1/check-tag')
@@ -482,6 +501,9 @@ describe('/api/v1/check', () => {
       },
     });
 
+    // Advance timer so msToFinish can be checked.
+    vi.advanceTimersByTime(10000);
+
     response = await request(app)
       .post('/api/v1/check-tag')
       .set('cookie', cookie)
@@ -491,8 +513,11 @@ describe('/api/v1/check', () => {
       status: 'success',
       data: {
         foundAllTags: true,
+        msToFinish: 10000,
         tags: testImageTags.filter((tag) => tag.name === 'Yoshi'),
       },
     });
   });
+
+  vi.useRealTimers();
 });
