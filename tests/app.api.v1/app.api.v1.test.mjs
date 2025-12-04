@@ -410,4 +410,89 @@ describe('/api/v1/check', () => {
       );
     },
   );
+
+  it('return bool foundAllTags which is self-explanatory, and when true, the time it took to find all tags', async () => {
+    await postTestData();
+    // Clear out all tags and replace with specific tags for this test.
+    await db.imageTag.deleteMany();
+    // Get the image we want to make tags for.
+    const testImage = testImageDataAbsoluteUrl[0];
+    const testImageTags = await db.imageTag.createManyAndReturn({
+      data: [
+        {
+          imageId: testImage.id,
+          name: 'Avi',
+          posX: 0.25,
+          posY: 0.25,
+        },
+        {
+          imageId: testImage.id,
+          name: 'Shera',
+          posX: 0.75,
+          posY: 0.75,
+        },
+        {
+          imageId: testImage.id,
+          name: 'Yoshi',
+          posX: 1,
+          posY: 1,
+        },
+      ],
+    });
+
+    let response = await request(app)
+      .post('/api/v1/check-tag')
+      .send({ photoId: testImage.id, posX: 0.5, posY: 0.5 });
+    expect(response.status).toStrictEqual(200);
+
+    const cookie = response.headers['set-cookie'];
+    expect(cookie).toBeDefined();
+
+    expect(response.body).toStrictEqual({
+      status: 'success',
+      data: {
+        foundAllTags: false,
+        tags: [],
+      },
+    });
+
+    response = await request(app)
+      .post('/api/v1/check-tag')
+      .set('cookie', cookie)
+      .send({ photoId: testImage.id, posX: 0.25, posY: 0.25 });
+
+    expect(response.body).toStrictEqual({
+      status: 'success',
+      data: {
+        foundAllTags: false,
+        tags: testImageTags.filter((tag) => tag.name === 'Avi'),
+      },
+    });
+
+    response = await request(app)
+      .post('/api/v1/check-tag')
+      .set('cookie', cookie)
+      .send({ photoId: testImage.id, posX: 0.75, posY: 0.75 });
+
+    expect(response.body).toStrictEqual({
+      status: 'success',
+      data: {
+        foundAllTags: false,
+        tags: testImageTags.filter((tag) => tag.name === 'Shera'),
+      },
+    });
+
+    response = await request(app)
+      .post('/api/v1/check-tag')
+      .set('cookie', cookie)
+      .send({ photoId: testImage.id, posX: 1.0, posY: 1.0 });
+
+    expect(response.body).toStrictEqual({
+      status: 'success',
+      data: {
+        foundAllTags: true,
+        tags: testImageTags.filter((tag) => tag.name === 'Yoshi'),
+      },
+    });
+  });
 });

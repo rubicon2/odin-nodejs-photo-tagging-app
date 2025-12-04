@@ -75,13 +75,37 @@ async function postCheckTag(req, res, next) {
     // Transform matched data into the query we want.
     const maxPosDiff = 0.1;
     const createQuery = createPostCheckTagQueryTransformer(maxPosDiff);
-    const query = createQuery(matchedData(req));
+    const data = matchedData(req);
+    const query = createQuery(data);
 
     const tags = await client.imageTag.findMany(query);
+    // Add any found tags to an array in the session.
+    req.session.foundTags = req.session.foundTags
+      ? [...req.session.foundTags, ...tags]
+      : tags;
+
+    // Check found tags against total number of tags on
+    // the image, so we know if the player has won.
+    const image = await client.image.findUnique({
+      where: {
+        id: data.photoId,
+      },
+      include: {
+        tags: {
+          orderBy: {
+            id: 'asc',
+          },
+        },
+      },
+    });
+
+    const totalTags = image.tags.length;
+    const foundAllTags = req.session.foundTags.length >= totalTags;
 
     return res.status(200).json({
       status: 'success',
       data: {
+        foundAllTags,
         tags,
       },
     });
