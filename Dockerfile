@@ -6,10 +6,11 @@ WORKDIR /usr/local/app
 ARG VITE_SERVER_URL
 
 COPY . .
-RUN npm ci
+RUN npm install --global pnpm
+RUN pnpm install
 RUN npx prisma generate
-RUN npm run build
+RUN pnpm run build
 
 # Migrate has to be part of start up command. Since in docker compose this service will
 # depend on the db service, we can be sure it will be running when npm run migrate happens.
-CMD ["sh", "-c", "npm run migrate && npm run start"]
+CMD ["sh", "-c", "pnpm run migrate && pnpm run start"]
