@@ -6,11 +6,15 @@ WORKDIR /usr/local/app
 ARG VITE_SERVER_URL
 
 COPY . .
-# Clean install packages.
-RUN npm ci
+# This project uses pnpm instead of npm. No npm package lockfiles, just pnpm-lock.
+RUN npm install --global pnpm
+# There is no clean-install on pnpm so just use normal.
+# Not sure there is actually any benefit to clean installing within the dockerfile.
+# Surely the node image is clean anyway and there is nothing to clear out?
+RUN pnpm install
 RUN npx prisma generate
-RUN npm run build
+RUN pnpm run build
 
 # Migrate has to be part of start up command. Since in docker compose this service will
 # depend on the db service, we can be sure it will be running when npm run migrate happens.
-CMD ["sh", "-c", "npm run migrate && npx vitest -c ./vitest.int.config.js"]
+CMD ["sh", "-c", "pnpm run migrate && npx vitest -c ./vitest.int.config.js"]
