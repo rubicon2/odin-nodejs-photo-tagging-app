@@ -493,7 +493,8 @@ describe('/api/v1/check-tag', () => {
         tag: testImageTags.find((tag) => tag.name === 'Yoshi'),
       },
     });
-  });
 
-  vi.useRealTimers();
+    // Restore mocked timers.
+    vi.useRealTimers();
+  });
 });
