@@ -372,6 +372,60 @@ describe('/api/v1/check-tag', () => {
     },
   );
 
+  it.each([
+    {
+      testType: 'a tagId of 1',
+      posX: '0.5',
+      posY: '0.5',
+      tagId: '1',
+      expectedTagId: '1',
+    },
+    {
+      testType: 'a tagId of 2',
+      posX: '0.5',
+      posY: '0.5',
+      tagId: '2',
+      expectedTagId: '2',
+    },
+  ])(
+    'with $testType and multiple tags at that location, only return the matched tag',
+    async ({ posX, posY, tagId, expectedTagId }) => {
+      // Post our own photo and tags, so we can compare to those within the test and easily see what we are comparing to.
+      const photo = await db.image.create({
+        data: {
+          altText: 'my alt text',
+          url: 'my-url.jpg',
+        },
+      });
+
+      await db.imageTag.createMany({
+        data: [
+          {
+            id: '1',
+            imageId: photo.id,
+            name: 'Jasmine',
+            posX: 0.5,
+            posY: 0.5,
+          },
+          {
+            id: '2',
+            imageId: photo.id,
+            name: 'Meg',
+            posX: 0.5,
+            posY: 0.5,
+          },
+        ],
+      });
+
+      const response = await request(app)
+        .post('/api/v1/check-tag')
+        .send({ photoId: photo.id, posX, posY, tagId });
+
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body.data.tag.id).toStrictEqual(expectedTagId);
+    },
+  );
+
   it('return foundAllTags bool which is self-explanatory, and when true, the time it took to find all tags', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
 
