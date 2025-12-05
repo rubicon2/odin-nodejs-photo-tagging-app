@@ -15,6 +15,18 @@ const createPostCheckTagValidationChain = () => [
       });
       if (!existingPhoto) throw new Error('That photo does not exist');
     }),
+  body('tagId')
+    .trim()
+    .notEmpty()
+    .withMessage('TagId is a required field')
+    .custom(async (value) => {
+      const existingTag = await db.imageTag.findUnique({
+        where: {
+          id: value,
+        },
+      });
+      if (!existingTag) throw new Error('That tag does not exist');
+    }),
   createPosXChain(),
   createPosYChain(),
 ];

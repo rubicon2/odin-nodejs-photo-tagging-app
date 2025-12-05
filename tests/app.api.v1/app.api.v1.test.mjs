@@ -81,6 +81,7 @@ describe('/api/v1/check-tag', () => {
     {
       testType: 'missing photoId',
       photoId: '',
+      tagId: '1',
       posX: '0.25',
       posY: '0.75',
       expectedValidationObj: {
@@ -105,6 +106,7 @@ describe('/api/v1/check-tag', () => {
     {
       testType: 'invalid photoId',
       photoId: 'my-made-up-photo-id',
+      tagId: '1',
       posX: '0.25',
       posY: '0.75',
       expectedValidationObj: {
@@ -120,8 +122,34 @@ describe('/api/v1/check-tag', () => {
       },
     },
     {
+      testType: 'missing tagId',
+      photoId: '1',
+      tagId: '',
+      posX: '0.5',
+      posY: '0.5',
+      expectedValidationObj: {
+        errors: [
+          {
+            location: 'body',
+            msg: 'TagId is a required field',
+            path: 'tagId',
+            type: 'field',
+            value: '',
+          },
+          {
+            location: 'body',
+            msg: 'That tag does not exist',
+            path: 'tagId',
+            type: 'field',
+            value: '',
+          },
+        ],
+      },
+    },
+    {
       testType: 'missing posX',
       photoId: '1',
+      tagId: '1',
       posX: '',
       posY: '0.75',
       expectedValidationObj: {
@@ -146,6 +174,7 @@ describe('/api/v1/check-tag', () => {
     {
       testType: 'missing posY',
       photoId: '1',
+      tagId: '1',
       posX: '0.25',
       posY: '',
       expectedValidationObj: {
@@ -170,6 +199,7 @@ describe('/api/v1/check-tag', () => {
     {
       testType: 'non-number posX',
       photoId: '1',
+      tagId: '1',
       posX: 'my_bad_pos',
       posY: '0.75',
       expectedValidationObj: {
@@ -187,6 +217,7 @@ describe('/api/v1/check-tag', () => {
     {
       testType: 'non-number posY',
       photoId: '1',
+      tagId: '1',
       posX: '0.25',
       posY: 'my_bad_pos',
       expectedValidationObj: {
@@ -203,10 +234,11 @@ describe('/api/v1/check-tag', () => {
     },
   ])(
     'with a $testType, responds with status code 400 and a json message',
-    async ({ photoId, posX, posY, expectedValidationObj }) => {
+    async ({ photoId, tagId, posX, posY, expectedValidationObj }) => {
       await postTestData();
       const response = await request(app).post(`/api/v1/check-tag`).send({
         photoId,
+        tagId,
         posX,
         posY,
       });
@@ -228,71 +260,82 @@ describe('/api/v1/check-tag', () => {
       // Makes it easier to read and compare to the tolerance value of 0.1.
       posX: -0.11,
       posY: -0.11,
-      expectedNames: [],
+      tagId: '1',
+      expectedName: undefined,
     },
     {
       testType: 'too far above posX and posY',
       posX: 0.11,
       posY: 0.11,
-      expectedNames: [],
+      tagId: '1',
+      expectedName: undefined,
     },
     {
       testType: 'too far below posX, dead on posY',
       posX: -0.11,
       posY: 0,
-      expectedNames: [],
+      tagId: '1',
+      expectedName: undefined,
     },
     {
       testType: 'too far above posX, dead on posY',
       posX: 0.11,
       posY: 0,
-      expectedNames: [],
+      tagId: '1',
+      expectedName: undefined,
     },
     {
       testType: 'dead on posX, too far below posY',
       posX: 0,
       posY: -0.11,
-      expectedNames: [],
+      tagId: '1',
+      expectedName: undefined,
     },
     {
       testType: 'dead on posX, too far above posY',
       posX: 0.5,
       posY: 0.11,
-      expectedNames: [],
+      tagId: '1',
+      expectedName: undefined,
     },
     {
       testType: 'dead on posX and posY',
       posX: 0,
       posY: 0,
-      expectedNames: ['Jasmine'],
+      tagId: '1',
+      expectedName: 'Jasmine',
     },
     {
       testType: 'at min posX, dead on posY',
       posX: -0.1,
       posY: 0,
-      expectedNames: ['Jasmine'],
+      tagId: '1',
+      expectedName: 'Jasmine',
     },
     {
       testType: 'at max posX, dead on posY',
       posX: 0.1,
       posY: 0,
-      expectedNames: ['Jasmine'],
+      tagId: '1',
+      expectedName: 'Jasmine',
     },
     {
       testType: 'dead on posX, at min posY',
       posX: 0,
       posY: -0.1,
-      expectedNames: ['Jasmine'],
+      tagId: '1',
+      expectedName: 'Jasmine',
     },
     {
       testType: 'dead on posX, at max posY',
       posX: 0,
       posY: 0.1,
-      expectedNames: ['Jasmine'],
+      tagId: '1',
+      expectedName: 'Jasmine',
     },
   ])(
     'with $testType, return tag within 0.1 of that position (the specific tolerance may need to be adjusted)',
-    async ({ posX, posY, expectedNames }) => {
+    async ({ posX, posY, tagId, expectedName }) => {
       // Post our own photo and tags, so we can compare to those within the test and easily see what we are comparing to.
       const photo = await db.image.create({
         data: {
@@ -305,7 +348,13 @@ describe('/api/v1/check-tag', () => {
 
       await db.imageTag.createMany({
         data: [
-          { imageId: photo.id, name: 'Jasmine', posX: center, posY: center },
+          {
+            id: '1',
+            imageId: photo.id,
+            name: 'Jasmine',
+            posX: center,
+            posY: center,
+          },
         ],
       });
 
@@ -313,101 +362,13 @@ describe('/api/v1/check-tag', () => {
         .post('/api/v1/check-tag')
         .send({
           photoId: photo.id,
+          tagId,
           posX: center + posX,
           posY: center + posY,
         });
       expect(response.statusCode).toStrictEqual(200);
       expect(response.body.status).toStrictEqual('success');
-      expect(response.body.data.tags.map((tag) => tag.name)).toStrictEqual(
-        expectedNames,
-      );
-    },
-  );
-
-  it.each([
-    {
-      testType: 'center',
-      posX: 0.5,
-      posY: 0.5,
-      expectedNames: ['Jasmine'],
-    },
-    {
-      testType: 'center left',
-      posX: 0.4,
-      posY: 0.5,
-      expectedNames: ['Jasmine', 'Emma'],
-    },
-    {
-      testType: 'far left',
-      posX: 0.3,
-      posY: 0.5,
-      expectedNames: ['Emma'],
-    },
-    {
-      testType: 'too far left',
-      posX: 0.2,
-      posY: 0.5,
-      expectedNames: [],
-    },
-    {
-      testType: 'center right',
-      posX: 0.6,
-      posY: 0.5,
-      expectedNames: ['Jasmine', 'Meg'],
-    },
-    {
-      testType: 'far right',
-      posX: 0.7,
-      posY: 0.5,
-      expectedNames: ['Meg'],
-    },
-    {
-      testType: 'too far right',
-      posX: 0.8,
-      posY: 0.5,
-      expectedNames: [],
-    },
-  ])(
-    'with $testType, return multiple tags within 0.1 of that position',
-    async ({ posX, posY, expectedNames }) => {
-      const photo = await db.image.create({
-        data: {
-          altText: 'my alt text',
-          url: 'my-url.jpg',
-        },
-      });
-
-      const center = 0.5;
-      const spacing = 0.15;
-
-      await db.imageTag.createMany({
-        data: [
-          { imageId: photo.id, name: 'Jasmine', posX: center, posY: center },
-          {
-            imageId: photo.id,
-            name: 'Emma',
-            posX: center - spacing,
-            posY: center,
-          },
-          {
-            imageId: photo.id,
-            name: 'Meg',
-            posX: center + spacing,
-            posY: center,
-          },
-        ],
-      });
-
-      const response = await request(app).post('/api/v1/check-tag').send({
-        photoId: photo.id,
-        posX,
-        posY,
-      });
-      expect(response.statusCode).toStrictEqual(200);
-      expect(response.body.status).toStrictEqual('success');
-      expect(response.body.data.tags.map((tag) => tag.name)).toStrictEqual(
-        expectedNames,
-      );
+      expect(response.body.data.tag?.name).toStrictEqual(expectedName);
     },
   );
 
@@ -478,26 +439,36 @@ describe('/api/v1/check-tag', () => {
     response = await request(app)
       .post('/api/v1/check-tag')
       .set('cookie', cookie)
-      .send({ photoId: testImage.id, posX: 0.25, posY: 0.25 });
+      .send({
+        photoId: testImage.id,
+        posX: 0.25,
+        posY: 0.25,
+        tagId: testImageTags.find((tag) => tag.name === 'Avi').id,
+      });
 
     expect(response.body).toStrictEqual({
       status: 'success',
       data: {
         foundAllTags: false,
-        tags: testImageTags.filter((tag) => tag.name === 'Avi'),
+        tag: testImageTags.find((tag) => tag.name === 'Avi'),
       },
     });
 
     response = await request(app)
       .post('/api/v1/check-tag')
       .set('cookie', cookie)
-      .send({ photoId: testImage.id, posX: 0.75, posY: 0.75 });
+      .send({
+        photoId: testImage.id,
+        posX: 0.75,
+        posY: 0.75,
+        tagId: testImageTags.find((tag) => tag.name === 'Shera').id,
+      });
 
     expect(response.body).toStrictEqual({
       status: 'success',
       data: {
         foundAllTags: false,
-        tags: testImageTags.filter((tag) => tag.name === 'Shera'),
+        tag: testImageTags.find((tag) => tag.name === 'Shera'),
       },
     });
 
@@ -507,14 +478,19 @@ describe('/api/v1/check-tag', () => {
     response = await request(app)
       .post('/api/v1/check-tag')
       .set('cookie', cookie)
-      .send({ photoId: testImage.id, posX: 1.0, posY: 1.0 });
+      .send({
+        photoId: testImage.id,
+        posX: 1.0,
+        posY: 1.0,
+        tagId: testImageTags.find((tag) => tag.name === 'Yoshi').id,
+      });
 
     expect(response.body).toStrictEqual({
       status: 'success',
       data: {
         foundAllTags: true,
         msToFinish: 10000,
-        tags: testImageTags.filter((tag) => tag.name === 'Yoshi'),
+        tag: testImageTags.find((tag) => tag.name === 'Yoshi'),
       },
     });
   });

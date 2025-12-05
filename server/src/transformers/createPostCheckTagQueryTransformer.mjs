@@ -9,6 +9,7 @@ const rangeParser = (tolerance) => {
 
 export default function createPostCheckTagQueryTransformer(tolerance) {
   const rules = {
+    tagId: copy({ key: 'where.id' }),
     photoId: copy({ key: 'where.imageId' }),
     posX: copy({ key: 'where.posX', parser: rangeParser(tolerance) }),
     posY: copy({ key: 'where.posY', parser: rangeParser(tolerance) }),

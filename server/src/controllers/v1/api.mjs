@@ -80,11 +80,10 @@ async function postCheckTag(req, res, next) {
     const data = matchedData(req);
     const query = createQuery(data);
 
-    const tags = await client.imageTag.findMany(query);
-    // Add any found tags to an array in the session.
-    req.session.foundTags = req.session.foundTags
-      ? [...req.session.foundTags, ...tags]
-      : tags;
+    const tag = await client.imageTag.findUnique(query);
+
+    if (!req.session.foundTags) req.session.foundTags = [];
+    if (tag) req.session.foundTags.push(tag);
 
     // Check found tags against total number of tags on
     // the image, so we know if the player has won.
@@ -115,7 +114,7 @@ async function postCheckTag(req, res, next) {
       data: {
         foundAllTags,
         msToFinish,
-        tags,
+        tag,
       },
     });
   } catch (error) {
