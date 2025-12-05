@@ -54,7 +54,7 @@ export default function ViewModePage() {
           <ViewModePhoto
             photo={photo}
             foundTags={foundTags}
-            onTagsFound={(tags) => setFoundTags([...foundTags, ...tags])}
+            onTagFound={(tag: Tag) => setFoundTags([...foundTags, tag])}
           />
           {msg && <div>{msg}</div>}
         </div>

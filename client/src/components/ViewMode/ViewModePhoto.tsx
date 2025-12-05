@@ -1,7 +1,10 @@
 import PhotoWithTagOverlays from '../PhotoWithTagOverlays';
 import Overlay from '../Overlay';
 import Container from '../../styled/Container';
+import Modal from '../Modal';
+import UnstyledList from '../../styled/UnstyledList';
 import * as api from '../../ext/api';
+import { useState, useRef } from 'react';
 import styled from 'styled-components';
 
 const PhotoContainer = styled(Container)`
@@ -12,31 +15,37 @@ const PhotoContainer = styled(Container)`
 interface Props {
   photo: UserPhoto;
   foundTags?: Array<Tag>;
-  onTagsFound?: (tags: Array<Tag>) => any;
+  onTagFound?: (tag: Tag) => any;
   onMessage?: (msg: string) => any;
 }
 
 export default function ViewModePhoto({
   photo,
   foundTags = [],
-  onTagsFound = () => {},
+  onTagFound = () => {},
   onMessage = () => {},
 }: Props) {
-  async function checkClickPos(pos: Pos) {
+  const [isTagListActive, setIsTagListActive] = useState<boolean>(false);
+  // Click pos can be kept in ref, since not used for rendering.
+  const clickPosRef = useRef<Pos | null>(null);
+
+  async function checkTag(tagId: string) {
     try {
-      if (!photo) return;
-      const response = await api.postTagCheck(photo.id as string, pos.x, pos.y);
+      if (!photo || !clickPosRef.current) return;
+      const clickPos = clickPosRef.current;
+      const response = await api.postTagCheck(
+        photo.id as string,
+        tagId,
+        clickPos.x,
+        clickPos.y,
+      );
       const json = await response?.json();
       if (response.ok) {
-        let tagsNearClickPos: Array<Tag> = json.data?.tags;
-        // Filter out any tags that have already been found.
-        tagsNearClickPos = tagsNearClickPos.filter(
-          (tagNearClickPos) =>
-            foundTags.find((tag) => tag.id === tagNearClickPos.id) ===
-            undefined,
-        );
-        // If there are any tags left, these are tags that haven't been found yet.
-        if (tagsNearClickPos.length > 0) onTagsFound(tagsNearClickPos);
+        let matchingTag: Tag = json.data?.tag;
+        // Ignore nullish, or a tag that has already been found.
+        if (!matchingTag || foundTags.includes(matchingTag)) return;
+        // If a new tag has been found, call handler.
+        onTagFound(matchingTag);
       } else {
         if (json.data?.message) {
           onMessage(json.data.message);
@@ -50,10 +59,38 @@ export default function ViewModePhoto({
 
   return (
     <PhotoContainer>
+      <Modal
+        isActive={isTagListActive}
+        onClose={() => {
+          clickPosRef.current = null;
+          setIsTagListActive(false);
+        }}
+      >
+        Who is it?
+        <UnstyledList>
+          {photo.tags.map((tag: UserTag) => {
+            return (
+              <li
+                onClick={async () => {
+                  await checkTag(tag.id as string);
+                  setIsTagListActive(false);
+                }}
+              >
+                {tag.name}
+              </li>
+            );
+          })}
+        </UnstyledList>
+      </Modal>
       <PhotoWithTagOverlays
         photo={photo}
         tags={foundTags}
-        onClick={checkClickPos}
+        onClick={(pos: Pos) => {
+          // Save pos for fetch request later.
+          clickPosRef.current = pos;
+          // Open menu for selecting who the tag is of.
+          setIsTagListActive(true);
+        }}
       />
       <Overlay>
         <div
