@@ -24,12 +24,18 @@ async function fetchRandomPhoto() {
   return response;
 }
 
-async function postTagCheck(photoId: string, posX: Number, posY: Number) {
+async function postTagCheck(
+  photoId: string,
+  tagId: string,
+  posX: Number,
+  posY: Number,
+) {
   const response = await fetch(`${SERVER_URL}/api/v1/check-tag`, {
     ...defaultOptions,
     method: 'POST',
     body: new URLSearchParams({
       photoId,
+      tagId,
       posX: posX.toString(),
       posY: posY.toString(),
     }),
