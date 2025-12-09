@@ -4,7 +4,7 @@ import Container from '../../styled/Container';
 import Modal from '../Modal';
 import UnstyledList from '../../styled/UnstyledList';
 import * as api from '../../ext/api';
-import { useState, useRef } from 'react';
+import { useState, useRef, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 
 const PhotoContainer = styled(Container)`
@@ -14,17 +14,16 @@ const PhotoContainer = styled(Container)`
 
 interface Props {
   photo: UserPhoto;
-  foundTags?: Array<Tag>;
   onTagFound?: (tag: Tag) => any;
   onMessage?: (msg: string) => any;
 }
 
 export default function ViewModePhoto({
   photo,
-  foundTags = [],
   onTagFound = () => {},
   onMessage = () => {},
 }: Props) {
+  const [foundTags, setFoundTags] = useState<Array<Tag>>([]);
   const [isTagListActive, setIsTagListActive] = useState<boolean>(false);
   // Click pos can be kept in ref, since not used for rendering.
   const clickPosRef = useRef<Pos | null>(null);
@@ -41,11 +40,12 @@ export default function ViewModePhoto({
       );
       const json = await response?.json();
       if (response.ok) {
-        let matchingTag: Tag = json.data?.tag;
-        // Ignore nullish, or a tag that has already been found.
-        if (!matchingTag || foundTags.includes(matchingTag)) return;
-        // If a new tag has been found, call handler.
-        onTagFound(matchingTag);
+        // Update with latest found tag list.
+        const updatedFoundTags: Array<Tag> = json.data?.foundTags;
+        // Only set state if the list length is different to prevent redundant rerenders.
+        if (updatedFoundTags.length > foundTags.length) {
+          setFoundTags(updatedFoundTags);
+        }
       } else {
         if (json.data?.message) {
           onMessage(json.data.message);
@@ -56,6 +56,12 @@ export default function ViewModePhoto({
       onMessage(error.message);
     }
   }
+
+  // With regular effect, could see old tags on new
+  // photo for a moment before they were cleared.
+  useLayoutEffect(() => {
+    setFoundTags([]);
+  }, [photo]);
 
   return (
     <PhotoContainer>
@@ -68,7 +74,7 @@ export default function ViewModePhoto({
       >
         Who is it?
         <UnstyledList>
-          {photo.tags.map((tag: UserTag) => {
+          {photo.tags.map((tag: Tag) => {
             return (
               <li
                 onClick={async () => {

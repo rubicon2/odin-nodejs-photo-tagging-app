@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 
 export default function ViewModePage() {
   const [photo, setPhoto] = useState<UserPhoto | null>(null);
-  const [foundTags, setFoundTags] = useState<Array<Tag>>([]);
   const [msg, setMsg] = useState<string | null>(null);
   const [showWinModal, setShowWinModal] = useState<boolean>(false);
 
@@ -30,7 +29,6 @@ export default function ViewModePage() {
   }
 
   function startNewRound() {
-    setFoundTags([]);
     fetchRandomPhoto();
   }
 
@@ -53,8 +51,6 @@ export default function ViewModePage() {
           />
           <ViewModePhoto
             photo={photo}
-            foundTags={foundTags}
-            onTagFound={(tag: Tag) => setFoundTags([...foundTags, tag])}
           />
           {msg && <div>{msg}</div>}
         </div>
