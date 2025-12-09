@@ -84,6 +84,7 @@ export default function ViewModePhoto({
           {photo.tags.map((tag: Tag) => {
             return (
               <li
+                key={tag.id}
                 onClick={async () => {
                   await checkTag(tag.id as string);
                   setIsTagListActive(false);
