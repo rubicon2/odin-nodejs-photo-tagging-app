@@ -119,7 +119,7 @@ async function postCheckTag(req, res, next) {
       data: {
         foundAllTags,
         msToFinish,
-        tag,
+        foundTags: req.session.foundTags,
       },
     });
   } catch (error) {

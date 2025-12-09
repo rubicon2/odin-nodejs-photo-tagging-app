@@ -334,7 +334,7 @@ describe('/api/v1/check-tag', () => {
       expectedName: 'Jasmine',
     },
   ])(
-    'with $testType, return tag within 0.1 of that position (the specific tolerance may need to be adjusted)',
+    'with $testType, find tag within 0.1 of that position, add to found tags list and return all found tags',
     async ({ posX, posY, tagId, expectedName }) => {
       // Post our own photo and tags, so we can compare to those within the test and easily see what we are comparing to.
       const photo = await db.image.create({
@@ -368,7 +368,7 @@ describe('/api/v1/check-tag', () => {
         });
       expect(response.statusCode).toStrictEqual(200);
       expect(response.body.status).toStrictEqual('success');
-      expect(response.body.data.tag?.name).toStrictEqual(expectedName);
+      expect(response.body.data.foundTags[0]?.name).toStrictEqual(expectedName);
     },
   );
 
@@ -388,7 +388,7 @@ describe('/api/v1/check-tag', () => {
       expectedTagId: '2',
     },
   ])(
-    'with $testType and multiple tags at that location, only return the matched tag',
+    'with $testType and multiple tags at that location, only find the matched tag, and return all found tags',
     async ({ posX, posY, tagId, expectedTagId }) => {
       // Post our own photo and tags, so we can compare to those within the test and easily see what we are comparing to.
       const photo = await db.image.create({
@@ -422,7 +422,7 @@ describe('/api/v1/check-tag', () => {
         .send({ photoId: photo.id, posX, posY, tagId });
 
       expect(response.statusCode).toStrictEqual(200);
-      expect(response.body.data.tag.id).toStrictEqual(expectedTagId);
+      expect(response.body.data.foundTags[0].id).toStrictEqual(expectedTagId);
     },
   );
 
@@ -556,7 +556,7 @@ describe('/api/v1/check-tag', () => {
       status: 'success',
       data: {
         foundAllTags: false,
-        tag: testImageTags.find((tag) => tag.name === 'Avi'),
+        foundTags: testImageTags.filter((tag) => ['Avi'].includes(tag.name)),
       },
     });
 
@@ -574,7 +574,9 @@ describe('/api/v1/check-tag', () => {
       status: 'success',
       data: {
         foundAllTags: false,
-        tag: testImageTags.find((tag) => tag.name === 'Shera'),
+        foundTags: testImageTags.filter((tag) =>
+          ['Avi', 'Shera'].includes(tag.name),
+        ),
       },
     });
 
@@ -596,7 +598,9 @@ describe('/api/v1/check-tag', () => {
       data: {
         foundAllTags: true,
         msToFinish: 10000,
-        tag: testImageTags.find((tag) => tag.name === 'Yoshi'),
+        foundTags: testImageTags.filter((tag) =>
+          ['Avi', 'Shera', 'Yoshi'].includes(tag.name),
+        ),
       },
     });
 
