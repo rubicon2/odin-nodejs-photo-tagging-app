@@ -46,6 +46,8 @@ async function getRandomPhoto(req, res, next) {
     // Save so we know what photo the user is on and
     // can avoid giving the same photo twice in a row.
     req.session.currentPhotoId = randomPhoto.id;
+    // Clear any existing foundTags.
+    req.session.foundTags = [];
     // Save start time so we can figure out how long it took for the user to find all the tags.
     req.session.startTime = Date.now();
 

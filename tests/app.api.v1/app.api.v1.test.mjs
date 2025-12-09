@@ -72,6 +72,123 @@ describe('/api/v1/photo', () => {
         },
       });
     });
+
+    it('resets found image tags upon loading a new image', async () => {
+      // This is kind of a test of both routes really. Not sure how to isolate without
+      // making assertions about implementation, which will make for britle tests.
+
+      // Post two photos and one tag for each.
+      const images = await db.image.createManyAndReturn({
+        data: [
+          {
+            id: '1',
+            url: 'jasmine.jpg',
+            altText: 'jasmine',
+          },
+          {
+            id: '2',
+            url: 'meg.jpg',
+            altText: 'meg',
+          },
+        ],
+      });
+
+      const tags = await db.imageTag.createManyAndReturn({
+        data: [
+          {
+            id: '1',
+            imageId: '1',
+            name: 'Jasmine',
+            posX: 0,
+            posY: 0,
+          },
+          {
+            id: '2',
+            imageId: '2',
+            name: 'Meg',
+            posX: 1,
+            posY: 1,
+          },
+        ],
+      });
+
+      let response;
+
+      // We don't know which photo it will give us first.
+      response = await request(app).get('/api/v1/photo');
+      expect(response.statusCode).toStrictEqual(200);
+
+      const cookie = response.headers['set-cookie'];
+      expect(cookie).toBeDefined();
+
+      // Need to repeat this for first then second photo, so make it a function.
+      const testFindingAllPhotoTags = async (photo, photoTags) => {
+        for (let i = 0; i < photoTags.length; i++) {
+          const tag = photoTags[i];
+          response = await request(app)
+            .post('/api/v1/check-tag')
+            .set('cookie', cookie)
+            .send({
+              photoId: photo.id,
+              tagId: tag.id,
+              posX: tag.posX,
+              posY: tag.posY,
+            });
+          expect(response.statusCode).toStrictEqual(200);
+          expect(response.body.data.foundTags).toContainEqual(tag);
+        }
+        expect(response.body.data.foundTags.length).toStrictEqual(
+          photoTags.length,
+        );
+        expect(response.body.data.foundAllTags).toStrictEqual(true);
+      };
+
+      // Find all tags on the first photo.
+      const photoA = response.body.data.photo;
+      expect(photoA).toBeDefined();
+      await testFindingAllPhotoTags(
+        photoA,
+        tags.filter(({ imageId }) => imageId === photoA.id),
+      );
+
+      // Get second photo, find the tag.
+      response = await request(app).get('/api/v1/photo').set('cookie', cookie);
+      expect(response.statusCode).toStrictEqual(200);
+
+      const photoB = response.body.data.photo;
+      expect(photoB).toBeDefined();
+      await testFindingAllPhotoTags(
+        photoB,
+        tags.filter(({ imageId }) => imageId === photoB.id),
+      );
+
+      // Get first photo again.
+      response = await request(app).get('/api/v1/photo').set('cookie', cookie);
+      expect(response.statusCode).toStrictEqual(200);
+      // Make sure we are dealing with the first photo that was already completed.
+      expect(response.body.data.photo).toStrictEqual(photoA);
+
+      // Fail to hit tag! Found tags should be empty, foundAllTags false.
+      response = await request(app)
+        .post('/api/v1/check-tag')
+        .set('cookie', cookie)
+        .send({
+          photoId: photoA.id,
+          tagId: tags.find((tag) => tag.id === photoA.id).id,
+          // The created tags have posX: 0 or 1, posY: 0 or 1, so this will
+          // match neither, no matter what photo and tag we are looking at.
+          posX: 0.5,
+          posY: 0.5,
+        });
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body).toStrictEqual({
+        status: 'success',
+        data: {
+          foundAllTags: false,
+          foundTags: [],
+        },
+      });
+    });
   });
 });
 
