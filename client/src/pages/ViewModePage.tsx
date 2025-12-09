@@ -51,6 +51,9 @@ export default function ViewModePage() {
           />
           <ViewModePhoto
             photo={photo}
+            onAllTagsFound={() => {
+              setShowWinModal(true);
+            }}
           />
           {msg && <div>{msg}</div>}
         </div>

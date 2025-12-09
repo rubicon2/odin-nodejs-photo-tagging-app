@@ -15,12 +15,14 @@ const PhotoContainer = styled(Container)`
 interface Props {
   photo: UserPhoto;
   onTagFound?: (tag: Tag) => any;
+  onAllTagsFound?: (msToFinish: number) => any;
   onMessage?: (msg: string) => any;
 }
 
 export default function ViewModePhoto({
   photo,
   onTagFound = () => {},
+  onAllTagsFound = () => {},
   onMessage = () => {},
 }: Props) {
   const [foundTags, setFoundTags] = useState<Array<Tag>>([]);
@@ -46,6 +48,11 @@ export default function ViewModePhoto({
         if (updatedFoundTags.length > foundTags.length) {
           setFoundTags(updatedFoundTags);
         }
+
+        // Deal with all tags found.
+        const foundAllTags: boolean = json.data?.foundAllTags;
+        const msToFinish: number = json.data?.msToFinish;
+        if (foundAllTags) onAllTagsFound(msToFinish);
       } else {
         if (json.data?.message) {
           onMessage(json.data.message);
