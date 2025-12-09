@@ -426,6 +426,58 @@ describe('/api/v1/check-tag', () => {
     },
   );
 
+  it('if the same tag is found multiple times, only count it once', async () => {
+    // Post our own photo and tags, so we can compare to those within the test and easily see what we are comparing to.
+    const photo = await db.image.create({
+      data: {
+        altText: 'my alt text',
+        url: 'my-url.jpg',
+      },
+    });
+
+    await db.imageTag.createMany({
+      data: [
+        {
+          id: '1',
+          imageId: photo.id,
+          name: 'Jasmine',
+          posX: 0,
+          posY: 0,
+        },
+        {
+          id: '2',
+          imageId: photo.id,
+          name: 'Meg',
+          posX: 1,
+          posY: 1,
+        },
+      ],
+    });
+
+    let response;
+
+    const sendObj = {
+      photoId: photo.id,
+      posX: 0,
+      posY: 0,
+      tagId: '1',
+    };
+
+    response = await request(app).post('/api/v1/check-tag').send(sendObj);
+    expect(response.statusCode).toStrictEqual(200);
+    expect(response.body.data.foundAllTags).toStrictEqual(false);
+
+    const cookie = response.headers['set-cookie'];
+    expect(cookie).toBeDefined();
+
+    response = await request(app)
+      .post('/api/v1/check-tag')
+      .set('cookie', cookie)
+      .send(sendObj);
+    expect(response.statusCode).toStrictEqual(200);
+    expect(response.body.data.foundAllTags).toStrictEqual(false);
+  });
+
   it('return foundAllTags bool which is self-explanatory, and when true, the time it took to find all tags', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
 
