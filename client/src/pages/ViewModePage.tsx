@@ -29,11 +29,7 @@ export default function ViewModePage() {
     }
   }
 
-  function startNewRound() {
-    fetchRandomPhoto();
-  }
-
-  // Fetch a random photo. Api will make sure this session doesn't get the same photo twice.
+  // Fetch a random photo on mount. Api will make sure this session doesn't get the same photo twice.
   useEffect(() => {
     fetchRandomPhoto();
   }, []);
@@ -46,10 +42,9 @@ export default function ViewModePage() {
           <ViewWinModal
             isActive={showWinModal}
             time={timeToFinish}
-            onClose={() => {
-              setShowWinModal(false);
-              startNewRound();
-            }}
+            onButtonClick={() => setShowWinModal(false)}
+            // Setting showWinModal to false will trigger this.
+            onClose={fetchRandomPhoto}
           />
           <ViewModePhoto
             photo={photo}
