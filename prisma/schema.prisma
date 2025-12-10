@@ -21,11 +21,20 @@ model Session {
   expiresAt DateTime
 }
 
+model ImageTime {
+  id      String @id
+  name    String @db.VarChar(3)
+  timeMs  Int
+  imageId String
+  image   Image  @relation(fields: [imageId], references: [id], onDelete: Cascade)
+}
+
 model Image {
-  id      String     @id @default(uuid())
+  id      String      @id @default(uuid())
   url     String
   altText String
   tags    ImageTag[]
+  times   ImageTime[]
 }
 
 model ImageTag {
