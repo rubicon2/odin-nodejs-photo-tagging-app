@@ -1,8 +1,8 @@
+import Container from '../../styled/Container';
+import ViewTagListModal from './ViewTagListModal';
 import PhotoWithTagOverlays from '../PhotoWithTagOverlays';
 import Overlay from '../Overlay';
-import Container from '../../styled/Container';
-import Modal from '../Modal';
-import UnstyledList from '../../styled/UnstyledList';
+
 import * as api from '../../ext/api';
 import { useState, useRef, useLayoutEffect } from 'react';
 import styled from 'styled-components';
@@ -76,30 +76,18 @@ export default function ViewModePhoto({
 
   return (
     <PhotoContainer>
-      <Modal
+      <ViewTagListModal
         isActive={isTagListActive}
+        tags={photo.tags}
+        onTagClick={async (id: React.Key) => {
+          await checkTag(id as string);
+          setIsTagListActive(false);
+        }}
         onClose={() => {
           clickPosRef.current = null;
           setIsTagListActive(false);
         }}
-      >
-        Who is it?
-        <UnstyledList>
-          {photo.tags.map((tag: Tag) => {
-            return (
-              <li
-                key={tag.id}
-                onClick={async () => {
-                  await checkTag(tag.id as string);
-                  setIsTagListActive(false);
-                }}
-              >
-                {tag.name}
-              </li>
-            );
-          })}
-        </UnstyledList>
-      </Modal>
+      />
       <PhotoWithTagOverlays
         photo={photo}
         tags={foundTags}
