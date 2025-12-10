@@ -5,9 +5,10 @@ import { validationResult, matchedData } from 'express-validator';
 
 async function getRandomPhoto(req, res, next) {
   try {
-    const idsToIgnore = req.session?.completedPhotoIds || [];
-    if (req.session?.currentPhotoId)
-      idsToIgnore.push(req.session.currentPhotoId);
+    // Put previous currentPhotoId in an array to make it easy to plop into prisma query.
+    const idsToIgnore = req.session?.currentPhotoId
+      ? [req.session.currentPhotoId]
+      : [];
 
     const photos = await client.image.findMany({
       where: {
