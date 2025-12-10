@@ -1,6 +1,12 @@
 import Modal from '../Modal';
-import UnstyledList from '../../styled/UnstyledList';
 import { ModalContent, ModalHeaderCentered } from '../../styled/Modal';
+import UnstyledList from '../../styled/UnstyledList';
+import FakeLink from '../../styled/FakeLink';
+import styled from 'styled-components';
+
+const CenteredList = styled(UnstyledList)`
+  text-align: center;
+`;
 
 interface Props {
   isActive: boolean;
@@ -19,7 +25,7 @@ export default function ViewTagListModal({
     <Modal isActive={isActive} onClose={onClose}>
       <ModalContent>
         <ModalHeaderCentered>Who is it?</ModalHeaderCentered>
-        <UnstyledList>
+        <CenteredList>
           {tags.map((tag: Tag) => {
             return (
               <li
@@ -28,11 +34,11 @@ export default function ViewTagListModal({
                   onTagClick(tag.id);
                 }}
               >
-                {tag.name}
+                <FakeLink>{tag.name}</FakeLink>
               </li>
             );
           })}
-        </UnstyledList>
+        </CenteredList>
       </ModalContent>
     </Modal>
   );
