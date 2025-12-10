@@ -19,25 +19,23 @@ async function postDisableAdmin() {
   return response;
 }
 
-async function fetchPhotos() {
+async function fetchRandomPhoto() {
   const response = await fetch(`${SERVER_URL}/api/v1/photo`, defaultOptions);
   return response;
 }
 
-async function fetchPhoto(photoId: string) {
-  const response = await fetch(
-    `${SERVER_URL}/api/v1/photo/${photoId}`,
-    defaultOptions,
-  );
-  return response;
-}
-
-async function postTagCheck(photoId: string, posX: Number, posY: Number) {
+async function postTagCheck(
+  photoId: string,
+  tagId: string,
+  posX: Number,
+  posY: Number,
+) {
   const response = await fetch(`${SERVER_URL}/api/v1/check-tag`, {
     ...defaultOptions,
     method: 'POST',
     body: new URLSearchParams({
       photoId,
+      tagId,
       posX: posX.toString(),
       posY: posY.toString(),
     }),
@@ -45,10 +43,4 @@ async function postTagCheck(photoId: string, posX: Number, posY: Number) {
   return response;
 }
 
-export {
-  postEnableAdmin,
-  postDisableAdmin,
-  fetchPhotos,
-  fetchPhoto,
-  postTagCheck,
-};
+export { postEnableAdmin, postDisableAdmin, fetchRandomPhoto, postTagCheck };

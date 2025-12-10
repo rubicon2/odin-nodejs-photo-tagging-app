@@ -1,4 +1,5 @@
 import PaddedContainer from '../styled/PaddedContainer';
+import FakeLink from '../styled/FakeLink';
 import styled from 'styled-components';
 
 const Item = styled.div`
@@ -19,13 +20,12 @@ interface Props {
 export default function PhotoListItem({ photo, isSelected }: Props) {
   const content = <PaddedContainer>{photo.altText}</PaddedContainer>;
   return (
-    // Wrap in link for keyboard navigation.
-    <a href="#">
+    <FakeLink>
       {isSelected ? (
         <SelectedItem>{content}</SelectedItem>
       ) : (
         <Item>{content}</Item>
       )}
-    </a>
+    </FakeLink>
   );
 }

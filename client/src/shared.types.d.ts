@@ -6,6 +6,7 @@ type Photo = {
 
 interface UserPhoto extends Photo {
   readonly tagCount: number;
+  readonly tags: Array<Tag>;
 }
 
 interface AdminPhoto extends Photo {

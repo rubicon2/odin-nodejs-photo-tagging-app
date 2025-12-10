@@ -1,23 +1,31 @@
 import Modal from '../Modal';
 import ImportantButton from '../../styled/ImportantButton';
-import styled from 'styled-components';
-
-const ModalHeader = styled.h2`
-  text-align: center;
-`;
+import { ModalContent, ModalHeaderCentered } from '../../styled/Modal';
 
 interface Props {
   isActive: boolean;
+  time: number;
+  onButtonClick?: () => any;
   onClose?: () => any;
 }
 
-export default function ViewWinModal({ isActive, onClose = () => {} }: Props) {
+export default function ViewWinModal({
+  isActive,
+  time,
+  onButtonClick = () => {},
+  onClose = () => {},
+}: Props) {
+  const time2DP = Math.round(time / 10) / 100;
+
   return (
     <Modal isActive={isActive} onClose={onClose}>
-      <ModalHeader>You Won!</ModalHeader>
-      <ImportantButton type="submit" onClick={onClose}>
-        Get New Image
-      </ImportantButton>
+      <ModalContent>
+        <ModalHeaderCentered>You Won!</ModalHeaderCentered>
+        You took {time2DP} seconds.
+        <ImportantButton type="button" onClick={onButtonClick}>
+          Get New Image
+        </ImportantButton>
+      </ModalContent>
     </Modal>
   );
 }

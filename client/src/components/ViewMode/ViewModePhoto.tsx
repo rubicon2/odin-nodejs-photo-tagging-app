@@ -1,7 +1,10 @@
+import Container from '../../styled/Container';
+import ViewTagListModal from './ViewTagListModal';
 import PhotoWithTagOverlays from '../PhotoWithTagOverlays';
 import Overlay from '../Overlay';
-import Container from '../../styled/Container';
+
 import * as api from '../../ext/api';
+import { useState, useRef, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 
 const PhotoContainer = styled(Container)`
@@ -11,32 +14,49 @@ const PhotoContainer = styled(Container)`
 
 interface Props {
   photo: UserPhoto;
-  foundTags?: Array<Tag>;
-  onTagsFound?: (tags: Array<Tag>) => any;
+  onTagFound?: (tag: Tag) => any;
+  onAllTagsFound?: (msToFinish: number) => any;
   onMessage?: (msg: string) => any;
 }
 
 export default function ViewModePhoto({
   photo,
-  foundTags = [],
-  onTagsFound = () => {},
+  onTagFound = () => {},
+  onAllTagsFound = () => {},
   onMessage = () => {},
 }: Props) {
-  async function checkClickPos(pos: Pos) {
+  const [foundTags, setFoundTags] = useState<Array<Tag>>([]);
+  const [isTagListActive, setIsTagListActive] = useState<boolean>(false);
+  // Click pos can be kept in ref, since not used for rendering.
+  const clickPosRef = useRef<Pos | null>(null);
+
+  async function checkTag(tagId: string) {
     try {
-      if (!photo) return;
-      const response = await api.postTagCheck(photo.id as string, pos.x, pos.y);
+      if (!photo || !clickPosRef.current) return;
+      const clickPos = clickPosRef.current;
+      const response = await api.postTagCheck(
+        photo.id as string,
+        tagId,
+        clickPos.x,
+        clickPos.y,
+      );
       const json = await response?.json();
       if (response.ok) {
-        let tagsNearClickPos: Array<Tag> = json.data?.tags;
-        // Filter out any tags that have already been found.
-        tagsNearClickPos = tagsNearClickPos.filter(
-          (tagNearClickPos) =>
-            foundTags.find((tag) => tag.id === tagNearClickPos.id) ===
-            undefined,
-        );
-        // If there are any tags left, these are tags that haven't been found yet.
-        if (tagsNearClickPos.length > 0) onTagsFound(tagsNearClickPos);
+        // Update with latest found tag list.
+        const updatedFoundTags: Array<Tag> = json.data?.foundTags;
+        // Only set state if the list length is different to prevent redundant rerenders.
+        if (updatedFoundTags.length > foundTags.length) {
+          setFoundTags(updatedFoundTags);
+          const newTag: Tag | undefined = updatedFoundTags.find(
+            ({ id }) => !foundTags.map((t) => t.id).includes(id),
+          );
+          if (newTag) onTagFound(newTag);
+        }
+
+        // Deal with all tags found.
+        const foundAllTags: boolean = json.data?.foundAllTags;
+        const msToFinish: number = json.data?.msToFinish;
+        if (foundAllTags) onAllTagsFound(msToFinish);
       } else {
         if (json.data?.message) {
           onMessage(json.data.message);
@@ -48,12 +68,35 @@ export default function ViewModePhoto({
     }
   }
 
+  // With regular effect, could see old tags on new
+  // photo for a moment before they were cleared.
+  useLayoutEffect(() => {
+    setFoundTags([]);
+  }, [photo]);
+
   return (
     <PhotoContainer>
+      <ViewTagListModal
+        isActive={isTagListActive}
+        tags={photo.tags}
+        onTagClick={async (id: React.Key) => {
+          await checkTag(id as string);
+          setIsTagListActive(false);
+        }}
+        onClose={() => {
+          clickPosRef.current = null;
+          setIsTagListActive(false);
+        }}
+      />
       <PhotoWithTagOverlays
         photo={photo}
         tags={foundTags}
-        onClick={checkClickPos}
+        onClick={(pos: Pos) => {
+          // Save pos for fetch request later.
+          clickPosRef.current = pos;
+          // Open menu for selecting who the tag is of.
+          setIsTagListActive(true);
+        }}
       />
       <Overlay>
         <div

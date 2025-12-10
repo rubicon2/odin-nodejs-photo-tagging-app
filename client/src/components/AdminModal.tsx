@@ -1,11 +1,7 @@
 import Modal from './Modal';
 import EnableAdminForm from './EnableAdminForm';
 import DisableAdminForm from './DisableAdminForm';
-import styled from 'styled-components';
-
-const ModalHeader = styled.h2`
-  margin-top: 0;
-`;
+import { ModalContent, ModalHeader } from '../styled/Modal';
 
 interface Props {
   isActive?: Boolean;
@@ -30,12 +26,14 @@ export default function AdminModal({
         onClose(event);
       }}
     >
-      <ModalHeader>Settings</ModalHeader>
-      {isAdmin ? (
-        <DisableAdminForm onDisable={onAdminDisabled} />
-      ) : (
-        <EnableAdminForm onEnable={onAdminEnabled} />
-      )}
+      <ModalContent>
+        <ModalHeader>Settings</ModalHeader>
+        {isAdmin ? (
+          <DisableAdminForm onDisable={onAdminDisabled} />
+        ) : (
+          <EnableAdminForm onEnable={onAdminEnabled} />
+        )}
+      </ModalContent>
     </Modal>
   );
 }

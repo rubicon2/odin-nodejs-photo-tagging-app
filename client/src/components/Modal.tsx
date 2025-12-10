@@ -71,18 +71,16 @@ export default function Modal({
   }, [dialog.current]);
 
   return (
-    <>
-      <Dialog ref={dialog} {...props}>
-        <Form method="dialog">
-          <CloseButton type="submit" title="Close modal">
-            <img
-              src={isDarkThemeActive ? closeIconDark : closeIconLight}
-              alt=""
-            />
-          </CloseButton>
-        </Form>
-        <div>{children}</div>
-      </Dialog>
-    </>
+    <Dialog ref={dialog} {...props}>
+      <Form method="dialog">
+        <CloseButton type="submit" title="Close modal">
+          <img
+            src={isDarkThemeActive ? closeIconDark : closeIconLight}
+            alt=""
+          />
+        </CloseButton>
+      </Form>
+      <div>{children}</div>
+    </Dialog>
   );
 }
