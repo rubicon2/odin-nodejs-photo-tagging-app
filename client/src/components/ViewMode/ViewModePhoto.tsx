@@ -47,6 +47,10 @@ export default function ViewModePhoto({
         // Only set state if the list length is different to prevent redundant rerenders.
         if (updatedFoundTags.length > foundTags.length) {
           setFoundTags(updatedFoundTags);
+          const newTag: Tag | undefined = updatedFoundTags.find(
+            ({ id }) => !foundTags.map((t) => t.id).includes(id),
+          );
+          if (newTag) onTagFound(newTag);
         }
 
         // Deal with all tags found.
