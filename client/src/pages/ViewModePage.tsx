@@ -7,6 +7,7 @@ export default function ViewModePage() {
   const [photo, setPhoto] = useState<UserPhoto | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [showWinModal, setShowWinModal] = useState<boolean>(false);
+  const [timeToFinish, setTimeToFinish] = useState<number>(0);
 
   async function fetchRandomPhoto() {
     try {
@@ -44,6 +45,7 @@ export default function ViewModePage() {
         <div style={{ position: 'relative' }}>
           <ViewWinModal
             isActive={showWinModal}
+            time={timeToFinish}
             onClose={() => {
               setShowWinModal(false);
               startNewRound();
@@ -51,7 +53,8 @@ export default function ViewModePage() {
           />
           <ViewModePhoto
             photo={photo}
-            onAllTagsFound={() => {
+            onAllTagsFound={(ms: number) => {
+              setTimeToFinish(ms);
               setShowWinModal(true);
             }}
           />
