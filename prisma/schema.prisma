@@ -21,14 +21,6 @@ model Session {
   expiresAt DateTime
 }
 
-model ImageTime {
-  id      String @id
-  name    String @db.VarChar(3)
-  timeMs  Int
-  imageId String
-  image   Image  @relation(fields: [imageId], references: [id], onDelete: Cascade)
-}
-
 model Image {
   id      String      @id @default(uuid())
   url     String
@@ -42,6 +34,14 @@ model ImageTag {
   posX    Float
   posY    Float
   name    String
+  imageId String
+  image   Image  @relation(fields: [imageId], references: [id], onDelete: Cascade)
+}
+
+model ImageTime {
+  id      String @id @default(uuid())
+  name    String @db.VarChar(3)
+  timeMs  Int
   imageId String
   image   Image  @relation(fields: [imageId], references: [id], onDelete: Cascade)
 }
