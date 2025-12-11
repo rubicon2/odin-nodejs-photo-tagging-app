@@ -3,7 +3,11 @@ import createImgUrl from '../../server/src/ext/createImgUrl.mjs';
 import fs from 'node:fs/promises';
 
 async function clearDb() {
-  await db.$transaction([db.image.deleteMany(), db.imageTag.deleteMany()]);
+  await db.$transaction([
+    db.image.deleteMany(),
+    db.imageTag.deleteMany(),
+    db.imageTime.deleteMany(),
+  ]);
 }
 
 async function clearFiles() {
@@ -65,6 +69,26 @@ const testImageTagData = [
   },
 ];
 
+const testImageTimeData = testImageData
+  .map((testImage, index) => {
+    // Create a number of tags for each image and return in an array which will be flattened after.
+    const testImageTimes = [];
+    const maxTags = 20;
+    for (let i = 0; i < maxTags; i++) {
+      const baseTimeMs = 30000;
+      const charCode = index + 65;
+      testImageTimes.push({
+        id: (i + 1 + index * maxTags).toString(),
+        imageId: testImage.id,
+        timeMs: baseTimeMs + baseTimeMs * i,
+        name: `${String.fromCharCode(charCode)}${String.fromCharCode(charCode + i)}${String.fromCharCode(charCode + i + 1)}`,
+      });
+    }
+    return testImageTimes;
+  })
+  // Since we are creating an array of arrays of times, i.e. multiple for each testImage, need to flatten array.
+  .flat();
+
 const testImageDataAbsoluteUrlWithTags = testImageDataAbsoluteUrl.map(
   (image) => ({
     ...image,
@@ -101,6 +125,10 @@ async function postTestData() {
   await db.imageTag.createMany({
     data: testImageTagData,
   });
+
+  await db.imageTime.createMany({
+    data: testImageTimeData,
+  });
 }
 
 function logError(error, req, res, next) {
@@ -118,6 +146,7 @@ export {
   testImageDataAbsoluteUrl,
   testImageTagData,
   testImageDataAbsoluteUrlWithTags,
+  testImageTimeData,
   postTestData,
   uploadVolumeFile,
   readVolumeFile,
