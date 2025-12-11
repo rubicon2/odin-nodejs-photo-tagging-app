@@ -173,4 +173,37 @@ async function postCheckTag(req, res, next) {
   }
 }
 
-export { getRandomPhoto, getPhotoTopTimes, postCheckTag };
+async function postPhotoTopTime(req, res, next) {
+  try {
+    const currentPhotoId = req.session?.currentPhotoId;
+
+    if (!currentPhotoId) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: `Session currentPhotoId is ${currentPhotoId}; client has not requested an image before requesting best times`,
+        },
+      });
+    }
+
+    if (req.session?.foundAllTags !== true) {
+      return res.status(400).json({
+        status: 'fail',
+        data: {
+          message: `Cannot set a time since you have not found all the tags for this image yet.`,
+        },
+      });
+    }
+
+    return res.json({
+      status: 'success',
+      data: {
+        message: 'To be implemented',
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export { getRandomPhoto, getPhotoTopTimes, postCheckTag, postPhotoTopTime };

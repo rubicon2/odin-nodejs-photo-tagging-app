@@ -256,6 +256,50 @@ describe('/api/v1/time', () => {
       });
     });
   });
+
+  describe('POST', () => {
+    it('responds with a status code 404 and json message if the user has not requested a photo yet', async () => {
+      const response = await request(app).post('/api/v1/time');
+      expect(response.statusCode).toStrictEqual(404);
+      expect(response.body).toStrictEqual({
+        status: 'fail',
+        data: {
+          message:
+            'Session currentPhotoId is undefined; client has not requested an image before requesting best times',
+        },
+      });
+    });
+
+    it('responds with a status code 400 if the user has not found all photo tags yet', async () => {
+      await postTestData();
+
+      const testImage = await db.image.findFirst({
+        include: {
+          tags: true,
+        },
+      });
+      expect(testImage).toBeDefined();
+      // Make sure there are actually tags to find on the test data, otherwise this test could be a false pass.
+      expect(testImage.tags.length).toBeGreaterThan(0);
+
+      let response;
+      response = await request(app).get('/api/v1/photo');
+      expect(response.statusCode).toStrictEqual(200);
+
+      const cookie = response.headers['set-cookie'];
+      expect(cookie).toBeDefined();
+
+      response = await request(app).post('/api/v1/time').set('cookie', cookie);
+      expect(response.statusCode).toStrictEqual(400);
+      expect(response.body).toStrictEqual({
+        status: 'fail',
+        data: {
+          message:
+            'Cannot set a time since you have not found all the tags for this image yet.',
+        },
+      });
+    });
+  });
 });
 
 describe('/api/v1/check-tag', () => {

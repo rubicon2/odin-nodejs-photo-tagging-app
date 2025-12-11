@@ -18,6 +18,7 @@ v1.use('/auth', authRouter);
 v1.get('/photo', controller.getRandomPhoto);
 v1.get('/time', controller.getPhotoTopTimes);
 
+v1.post('/time', controller.postPhotoTopTime);
 v1.post(
   '/check-tag',
   createPostCheckTagValidationChain(),
