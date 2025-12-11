@@ -49,6 +49,7 @@ async function getRandomPhoto(req, res, next) {
     req.session.currentPhotoId = randomPhoto.id;
     // Clear any existing foundTags.
     req.session.foundTags = [];
+    req.session.foundAllTags = false;
     // Save start time so we can figure out how long it took for the user to find all the tags.
     req.session.startTime = Date.now();
 
@@ -151,6 +152,7 @@ async function postCheckTag(req, res, next) {
 
     const totalTags = image.tags.length;
     const foundAllTags = req.session.foundTags.length >= totalTags;
+    req.session.foundAllTags = foundAllTags;
 
     // Make undefined, so if foundAllTags is false, will just be left out of json.
     let msToFinish = undefined;
