@@ -176,7 +176,6 @@ async function postCheckTag(req, res, next) {
 async function postPhotoTopTime(req, res, next) {
   try {
     const currentPhotoId = req.session?.currentPhotoId;
-
     if (!currentPhotoId) {
       return res.status(404).json({
         status: 'fail',
@@ -191,6 +190,17 @@ async function postPhotoTopTime(req, res, next) {
         status: 'fail',
         data: {
           message: `Cannot set a time since you have not found all the tags for this image yet.`,
+        },
+      });
+    }
+
+    const validation = validationResult(req);
+
+    if (!validation.isEmpty()) {
+      return res.status(400).json({
+        status: 'fail',
+        data: {
+          validation,
         },
       });
     }

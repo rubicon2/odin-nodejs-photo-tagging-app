@@ -299,6 +299,153 @@ describe('/api/v1/time', () => {
         },
       });
     });
+
+    // Test validation of request body fields once user has found all tags.
+    it.each([
+      {
+        testType: 'no name',
+        sendObj: {
+          imageId: '1',
+          name: undefined,
+        },
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'name is a required field',
+              path: 'name',
+              type: 'field',
+              value: '',
+            },
+            {
+              location: 'body',
+              msg: 'name should contain alphanumeric characters only',
+              path: 'name',
+              type: 'field',
+              value: '',
+            },
+            {
+              location: 'body',
+              msg: 'name should be 3 characters long',
+              path: 'name',
+              type: 'field',
+              value: '',
+            },
+          ],
+        },
+      },
+      {
+        testType: 'name of length smaller than 3',
+        sendObj: {
+          name: 'ab',
+        },
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'name should be 3 characters long',
+              path: 'name',
+              type: 'field',
+              value: 'ab',
+            },
+          ],
+        },
+      },
+      {
+        testType: 'name of length larger than 3',
+        sendObj: {
+          name: 'abcd',
+        },
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'name should be 3 characters long',
+              path: 'name',
+              type: 'field',
+              value: 'abcd',
+            },
+          ],
+        },
+      },
+      {
+        testType: 'name with invalid characters',
+        sendObj: {
+          name: '@bc',
+        },
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'name should contain alphanumeric characters only',
+              path: 'name',
+              type: 'field',
+              value: '@bc',
+            },
+          ],
+        },
+      },
+    ])(
+      'when provided with $testType, responds with a status code 400 and validation errors',
+      async ({ sendObj, expectedValidationObj }) => {
+        await postTestData();
+        const testImage = testImageDataAbsoluteUrl[0];
+
+        // Delete all but test photo so we know what /api/v1/photo will give us.
+        await db.image.deleteMany({
+          where: {
+            id: {
+              not: testImage.id,
+            },
+          },
+        });
+
+        // Get tags.
+        const tags = await db.imageTag.findMany({
+          where: {
+            imageId: testImage.id,
+          },
+        });
+        expect(tags.length).toBeGreaterThan(0);
+
+        let response;
+        // Request image so session gets properly set up.
+        response = await request(app).get('/api/v1/photo');
+        expect(response.statusCode).toStrictEqual(200);
+
+        // Save cookie for later requests.
+        const cookie = response.headers['set-cookie'];
+        expect(cookie).toBeDefined();
+
+        // Find all tags so we can then post a time.
+        for (const tag of tags) {
+          response = await request(app)
+            .post('/api/v1/check-tag')
+            .set('cookie', cookie)
+            .send({
+              tagId: tag.id,
+              photoId: testImage.id,
+              posX: tag.posX,
+              posY: tag.posY,
+            });
+          expect(response.statusCode).toStrictEqual(200);
+        }
+        expect(response.body.data.foundAllTags).toStrictEqual(true);
+
+        // Now we can test the validation of the request body fields.
+        response = await request(app)
+          .post('/api/v1/time')
+          .set('cookie', cookie)
+          .send(sendObj);
+        expect(response.statusCode).toStrictEqual(400);
+        expect(response.body).toStrictEqual({
+          status: 'fail',
+          data: {
+            validation: expectedValidationObj,
+          },
+        });
+      },
+    );
   });
 });
 

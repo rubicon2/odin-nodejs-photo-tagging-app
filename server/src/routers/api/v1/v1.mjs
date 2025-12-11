@@ -2,6 +2,7 @@ import * as controller from '../../../controllers/v1/api.mjs';
 import authRouter from './v1.auth.mjs';
 import adminRouter from './v1.admin.mjs';
 import isAdmin from '../../../middleware/isAdmin.mjs';
+import { createPostTimeValidationChain } from '../../../validators/timeValidators.mjs';
 import { createPostCheckTagValidationChain } from '../../../validators/checkTagValidators.mjs';
 import { Router } from 'express';
 
@@ -18,7 +19,7 @@ v1.use('/auth', authRouter);
 v1.get('/photo', controller.getRandomPhoto);
 v1.get('/time', controller.getPhotoTopTimes);
 
-v1.post('/time', controller.postPhotoTopTime);
+v1.post('/time', createPostTimeValidationChain(), controller.postPhotoTopTime);
 v1.post(
   '/check-tag',
   createPostCheckTagValidationChain(),
