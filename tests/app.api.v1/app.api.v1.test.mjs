@@ -194,6 +194,18 @@ describe('/api/v1/photo', () => {
 
 describe('/api/v1/time', () => {
   describe('GET', () => {
+    it('responds with a status code 404 and json message if the user has not requested a photo yet', async () => {
+      const response = await request(app).get('/api/v1/time');
+      expect(response.statusCode).toStrictEqual(404);
+      expect(response.body).toStrictEqual({
+        status: 'fail',
+        data: {
+          message:
+            'Session currentPhotoId is undefined; client has not requested an image before requesting best times',
+        },
+      });
+    });
+
     it("responds with a status code 200 and the top 10 best times for user's current photo", async () => {
       await postTestData();
       const testImage = testImageDataAbsoluteUrl[0];

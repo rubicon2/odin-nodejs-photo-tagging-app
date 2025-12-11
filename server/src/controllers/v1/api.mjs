@@ -69,6 +69,15 @@ async function getPhotoTopTimes(req, res, next) {
   try {
     const currentPhotoId = req.session?.currentPhotoId;
 
+    if (!currentPhotoId) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: `Session currentPhotoId is ${currentPhotoId}; client has not requested an image before requesting best times`,
+        },
+      });
+    }
+
     const tenQuickestTimes = await client.imageTime.findMany({
       where: {
         imageId: currentPhotoId,
