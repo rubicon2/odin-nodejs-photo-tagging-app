@@ -47,9 +47,10 @@ async function getRandomPhoto(req, res, next) {
     // Save so we know what photo the user is on and
     // can avoid giving the same photo twice in a row.
     req.session.currentPhotoId = randomPhoto.id;
-    // Clear any existing foundTags.
+    // Clear any existing data.
     req.session.foundTags = [];
     req.session.foundAllTags = false;
+    req.session.msToFinish = undefined;
     // Save start time so we can figure out how long it took for the user to find all the tags.
     req.session.startTime = Date.now();
 
@@ -158,13 +159,14 @@ async function postCheckTag(req, res, next) {
     let msToFinish = undefined;
     if (foundAllTags && req.session.startTime) {
       msToFinish = Date.now() - req.session.startTime;
+      req.session.msToFinish = msToFinish;
     }
 
     return res.status(200).json({
       status: 'success',
       data: {
-        foundAllTags,
-        msToFinish,
+        foundAllTags: req.session.foundAllTags,
+        msToFinish: req.session.msToFinish,
         foundTags: req.session.foundTags,
       },
     });
@@ -205,10 +207,21 @@ async function postPhotoTopTime(req, res, next) {
       });
     }
 
+    const data = matchedData(req);
+
+    const time = await client.imageTime.create({
+      data: {
+        imageId: req.session.currentPhotoId,
+        timeMs: req.session.msToFinish,
+        name: data.name,
+      },
+    });
+
     return res.json({
       status: 'success',
       data: {
-        message: 'To be implemented',
+        message: 'Time added to the leaderboard.',
+        time,
       },
     });
   } catch (error) {

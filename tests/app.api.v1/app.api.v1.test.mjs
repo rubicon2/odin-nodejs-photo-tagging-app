@@ -446,6 +446,73 @@ describe('/api/v1/time', () => {
         });
       },
     );
+
+    it('with all tags found and a valid request body, adds time to db', async () => {
+      // Use fake timers so we can get the best time ever, and it will be #1 on the times list returned.
+      vi.useFakeTimers({ toFake: ['Date'] });
+
+      await postTestData();
+      const testImage = testImageDataAbsoluteUrl[0];
+
+      // Remove all photos from db so we know we'll get testImage from /api/v1/photo.
+      await db.image.deleteMany({
+        where: {
+          id: {
+            not: testImage.id,
+          },
+        },
+      });
+
+      // Remove all times from db so once we post ours, should be the only one returned by get /api/v1/times.
+      await db.imageTime.deleteMany();
+
+      let response;
+      response = await request(app).get('/api/v1/photo');
+      expect(response.statusCode).toStrictEqual(200);
+
+      const cookie = response.headers['set-cookie'];
+      expect(cookie).toBeDefined();
+
+      // Get tags so we can "find" them all on the api.
+      const tags = await db.imageTag.findMany({
+        where: {
+          imageId: testImage.id,
+        },
+      });
+
+      // So the resulting msToFinish will be 100.
+      vi.advanceTimersByTime(100);
+
+      for (const tag of tags) {
+        response = await request(app)
+          .post('/api/v1/check-tag')
+          .set('cookie', cookie)
+          .send({
+            tagId: tag.id,
+            photoId: testImage.id,
+            posX: tag.posX,
+            posY: tag.posY,
+          });
+        expect(response.statusCode).toStrictEqual(200);
+      }
+      expect(response.body.data.foundAllTags).toStrictEqual(true);
+
+      // Now all tags found, we can post a time.
+      response = await request(app)
+        .post('/api/v1/time')
+        .set('cookie', cookie)
+        .send({ name: 'ZZZ' });
+      expect(response.statusCode).toStrictEqual(200);
+      const savedTime = response.body.data.time;
+
+      // Now we can check the time and name got added to the best times list.
+      response = await request(app).get('/api/v1/time').set('cookie', cookie);
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body.data.bestTimes).toContainEqual(savedTime);
+
+      // Reset timers for other tests.
+      vi.useRealTimers();
+    });
   });
 });
 
