@@ -1,4 +1,4 @@
-import { createPosXChain, createPosYChain } from './tagValidators.mjs';
+import { createPosXChain, createPosYChain } from './validators.mjs';
 import db from '../db/client.mjs';
 import { body } from 'express-validator';
 
