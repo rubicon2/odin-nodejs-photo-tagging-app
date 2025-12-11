@@ -64,6 +64,38 @@ async function getRandomPhoto(req, res, next) {
   }
 }
 
+async function getPhotoTopTimes(req, res, next) {
+  // Use session currentPhotoId to determine what times to get.
+  try {
+    const currentPhotoId = req.session?.currentPhotoId;
+
+    const tenQuickestTimes = await client.imageTime.findMany({
+      where: {
+        imageId: currentPhotoId,
+      },
+      orderBy: [
+        {
+          timeMs: 'asc',
+        },
+        {
+          // Tie breaker for entries with exactly the same time, to ensure consistent, testable results.
+          id: 'asc',
+        },
+      ],
+      take: 10,
+    });
+
+    return res.json({
+      status: 'success',
+      data: {
+        bestTimes: tenQuickestTimes,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function postCheckTag(req, res, next) {
   try {
     const validation = validationResult(req);
@@ -130,4 +162,4 @@ async function postCheckTag(req, res, next) {
   }
 }
 
-export { getRandomPhoto, postCheckTag };
+export { getRandomPhoto, getPhotoTopTimes, postCheckTag };

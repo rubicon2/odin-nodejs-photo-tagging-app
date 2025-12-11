@@ -192,6 +192,60 @@ describe('/api/v1/photo', () => {
   });
 });
 
+describe('/api/v1/time', () => {
+  describe('GET', () => {
+    it("responds with a status code 200 and the top 10 best times for user's current photo", async () => {
+      await postTestData();
+      const testImage = testImageDataAbsoluteUrl[0];
+
+      // Make sure there are more than 10 entries - want to make sure the route returns a maximum of 10.
+      const testImageTimes = await db.imageTime.findMany({
+        // Exactly the same as api prisma query.
+        where: {
+          imageId: testImage.id,
+        },
+        orderBy: [
+          {
+            timeMs: 'asc',
+          },
+          {
+            id: 'asc',
+          },
+        ],
+        take: 10,
+      });
+      expect(testImageTimes.length).toStrictEqual(10);
+
+      // Get rid of all images except image we are testing, so we know what image we will get from /api/v1/photo.
+      await db.image.deleteMany({
+        where: {
+          id: {
+            not: testImage.id,
+          },
+        },
+      });
+
+      let response;
+
+      // Grab an image to start with, so session has a currentPhotoId set.
+      response = await request(app).get('/api/v1/photo');
+      expect(response.statusCode).toStrictEqual(200);
+
+      const cookie = response.headers['set-cookie'];
+      expect(cookie).toBeDefined();
+
+      response = await request(app).get('/api/v1/time').set('cookie', cookie);
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body).toStrictEqual({
+        status: 'success',
+        data: {
+          bestTimes: testImageTimes,
+        },
+      });
+    });
+  });
+});
+
 describe('/api/v1/check-tag', () => {
   // Test validation is working correctly.
   it.each([

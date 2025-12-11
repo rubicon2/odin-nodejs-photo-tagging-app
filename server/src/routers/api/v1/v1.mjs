@@ -16,6 +16,8 @@ v1.use('/auth', authRouter);
 
 // Standard non-admin routes.
 v1.get('/photo', controller.getRandomPhoto);
+v1.get('/time', controller.getPhotoTopTimes);
+
 v1.post(
   '/check-tag',
   createPostCheckTagValidationChain(),
