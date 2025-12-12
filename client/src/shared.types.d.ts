@@ -14,6 +14,13 @@ type Tag = {
   posY: number;
 };
 
+type Time = {
+  id: React.Key;
+  imageId: string;
+  name: string;
+  timeMs: number;
+};
+
 type Pos = {
   x: number;
   y: number;
