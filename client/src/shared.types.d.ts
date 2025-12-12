@@ -1,9 +1,9 @@
 type Photo = {
-  readonly id: React.Key;
-  readonly altText: string;
-  readonly url: string;
-  readonly tagCount: number;
-  readonly tags: Array<Tag>;
+  id: React.Key;
+  altText: string;
+  url: string;
+  tagCount: number;
+  tags: Array<Tag>;
 };
 
 type Tag = {

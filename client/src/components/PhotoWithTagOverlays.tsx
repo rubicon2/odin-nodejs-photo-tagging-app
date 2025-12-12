@@ -19,7 +19,7 @@ export default function PhotoWithTagOverlays({
   tags,
   onClick = () => {},
   onTagDrag = () => {},
-}: Props) {
+}: Readonly<Props>) {
   // Once image is rendered, we can get the width and height off it to render the overlaid tags.
   const img = useRef<HTMLImageElement>(null);
   // Store the imgSize and when this is set, re-render will occur.

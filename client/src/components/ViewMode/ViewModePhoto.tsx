@@ -24,7 +24,7 @@ export default function ViewModePhoto({
   onTagFound = () => {},
   onAllTagsFound = () => {},
   onMessage = () => {},
-}: Props) {
+}: Readonly<Props>) {
   const [foundTags, setFoundTags] = useState<Array<Tag>>([]);
   const [isTagListActive, setIsTagListActive] = useState<boolean>(false);
   // Click pos can be kept in ref, since not used for rendering.

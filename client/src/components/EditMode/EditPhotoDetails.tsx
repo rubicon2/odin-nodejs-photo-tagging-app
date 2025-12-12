@@ -51,7 +51,7 @@ export default function PhotoDetails({
   photo,
   onSave = () => {},
   onDelete = () => {},
-}: Props) {
+}: Readonly<Props>) {
   const [msg, setMsg] = useState<string | null>(null);
   // We need to have tags set in state so that changes can be
   // stored, and then sent to the server if the user chooses to save them.
