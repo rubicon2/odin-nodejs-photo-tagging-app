@@ -1,6 +1,11 @@
 import Modal from '../Modal';
-import ImportantButton from '../../styled/ImportantButton';
+import ViewWinTimeForm from './ViewWinTimeForm';
 import { ModalContent, ModalHeaderCentered } from '../../styled/Modal';
+import styled from 'styled-components';
+
+const CenteredDiv = styled.div`
+  text-align: center;
+`;
 
 interface Props {
   isActive: boolean;
@@ -21,10 +26,8 @@ export default function ViewWinModal({
     <Modal isActive={isActive} onClose={onClose}>
       <ModalContent>
         <ModalHeaderCentered>You Won!</ModalHeaderCentered>
-        You took {time2DP} seconds.
-        <ImportantButton type="button" onClick={onButtonClick}>
-          Get New Image
-        </ImportantButton>
+        <CenteredDiv>You took {time2DP} seconds.</CenteredDiv>
+        <ViewWinTimeForm onFormSubmit={onButtonClick} />
       </ModalContent>
     </Modal>
   );
