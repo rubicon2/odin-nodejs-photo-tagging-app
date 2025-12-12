@@ -13,7 +13,7 @@ const PhotoContainer = styled(Container)`
 `;
 
 interface Props {
-  photo: UserPhoto;
+  photo: Photo;
   onTagFound?: (tag: Tag) => any;
   onAllTagsFound?: (msToFinish: number) => any;
   onMessage?: (msg: string) => any;

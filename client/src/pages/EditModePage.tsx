@@ -18,7 +18,7 @@ const AddPhotoFormContainer = styled(PaddedContainer)`
 `;
 
 export default function EditModePage() {
-  const [photos, setPhotos] = useState<Array<AdminPhoto>>([]);
+  const [photos, setPhotos] = useState<Array<Photo>>([]);
   const [selectedPhotoId, setSelectedPhotoId] = useState<null | React.Key>(
     null,
   );
@@ -29,7 +29,7 @@ export default function EditModePage() {
     if (response.ok) {
       const json = await response?.json();
       if (json.data?.photos) {
-        const photos: Array<AdminPhoto> = json.data.photos;
+        const photos: Array<Photo> = json.data.photos;
         photos.sort((a, b) => a.altText.localeCompare(b.altText));
         setPhotos(photos);
       }

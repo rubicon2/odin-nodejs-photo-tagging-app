@@ -41,7 +41,7 @@ const NoTopPaddedContainer = styled(PaddedContainer)`
 `;
 
 interface Props {
-  photo: AdminPhoto;
+  photo: Photo;
   onSave?: Function;
   onDelete?: Function;
 }

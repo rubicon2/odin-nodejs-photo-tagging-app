@@ -4,7 +4,7 @@ import * as api from '../ext/api';
 import { useEffect, useState } from 'react';
 
 export default function ViewModePage() {
-  const [photo, setPhoto] = useState<UserPhoto | null>(null);
+  const [photo, setPhoto] = useState<Photo | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [showWinModal, setShowWinModal] = useState<boolean>(false);
   const [timeToFinish, setTimeToFinish] = useState<number>(0);
