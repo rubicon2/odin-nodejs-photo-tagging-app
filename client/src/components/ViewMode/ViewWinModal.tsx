@@ -2,6 +2,7 @@ import Modal from '../Modal';
 import TimesTable from '../TimesTable';
 import ViewWinTimeForm from './ViewWinTimeForm';
 import { ModalContent, ModalHeaderCentered } from '../../styled/Modal';
+import roundToDigits from '../../ext/roundToDigits';
 import * as api from '../../ext/api';
 
 import { useState, useLayoutEffect } from 'react';
@@ -26,7 +27,7 @@ export default function ViewWinModal({
 }: Props) {
   const [bestTimes, setBestTimes] = useState<Array<Time>>([]);
   const [msg, setMsg] = useState<string | null>(null);
-  const time2DP = Math.round(time / 10) / 100;
+  const time2DP = roundToDigits(time, 2);
 
   // Update times every time the modal is set to active.
   useLayoutEffect(() => {
