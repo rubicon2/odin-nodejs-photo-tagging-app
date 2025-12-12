@@ -43,8 +43,10 @@ export default function ViewModePage() {
             isActive={showWinModal}
             time={timeToFinish}
             onButtonClick={() => setShowWinModal(false)}
-            // Setting showWinModal to false will trigger this.
-            onClose={fetchRandomPhoto}
+            onClose={() => {
+              setShowWinModal(false);
+              fetchRandomPhoto();
+            }}
           />
           <ViewModePhoto
             photo={photo}
