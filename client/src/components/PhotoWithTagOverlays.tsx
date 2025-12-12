@@ -9,9 +9,9 @@ const Photo = styled.img`
 
 interface Props {
   photo: Photo;
-  tags: Array<EditableTag>;
+  tags: Array<Tag>;
   onClick?: (pos: Pos) => any;
-  onTagDrag?: (index: number, updatedTag: EditableTag) => any;
+  onTagDrag?: (index: number, updatedTag: Tag) => any;
 }
 
 export default function PhotoWithTagOverlays({
@@ -58,7 +58,7 @@ export default function PhotoWithTagOverlays({
         onClick={handleClick}
         draggable={false}
       />
-      {tags.map((tag: EditableTag, index) => (
+      {tags.map((tag: Tag, index) => (
         <PhotoTagOverlay
           key={index}
           tag={tag}

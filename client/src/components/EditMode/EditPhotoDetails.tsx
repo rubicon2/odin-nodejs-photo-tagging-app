@@ -55,7 +55,7 @@ export default function PhotoDetails({
   const [msg, setMsg] = useState<string | null>(null);
   // We need to have tags set in state so that changes can be
   // stored, and then sent to the server if the user chooses to save them.
-  const [tags, setTags] = useState<Array<EditableTag>>(photo.tags);
+  const [tags, setTags] = useState<Array<Tag>>(photo.tags);
   const [tagsToDelete, setTagsToDelete] = useState<Array<Tag>>([]);
 
   // Since tags are state, without this they would persist even if the photo changes.
@@ -98,7 +98,8 @@ export default function PhotoDetails({
             tag,
             photo.tags.find((t) => t.id === tag.id),
           ),
-      ) as Array<Tag>;
+        // Use Required<Tag> since we know these will have ids, etc.
+      ) as Array<Required<Tag>>;
 
       const response = await api.putPhotoTags(
         photo.id as string,
@@ -132,7 +133,7 @@ export default function PhotoDetails({
     ]);
   }
 
-  function updateTag(index: number, updatedTag: EditableTag) {
+  function updateTag(index: number, updatedTag: Tag) {
     // Have to use index for this since new tags won't have IDs yet.
     const updatedTags = tags.map((tag, i) => {
       if (index !== i) return tag;

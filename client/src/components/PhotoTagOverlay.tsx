@@ -26,7 +26,7 @@ const TagText = styled.div`
 `;
 
 interface Props {
-  tag: EditableTag;
+  tag: Tag;
   imgSize: Pos;
   onDrag?: (pos: Pos) => any;
 }

@@ -7,18 +7,11 @@ type Photo = {
 };
 
 type Tag = {
-  readonly id: React.Key;
-  readonly name: string;
-  readonly posX: number;
-  readonly posY: number;
-  readonly imageId: string;
-};
-
-type EditableTag = {
   id?: React.Key;
+  imageId?: string;
+  name: string;
   posX: number;
   posY: number;
-  name: string;
 };
 
 type Pos = {
