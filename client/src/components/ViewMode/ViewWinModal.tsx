@@ -14,20 +14,20 @@ const CenteredDiv = styled.div`
 
 interface Props {
   isActive: boolean;
-  time: number;
+  timeMs: number;
   onButtonClick?: () => any;
   onClose?: () => any;
 }
 
 export default function ViewWinModal({
   isActive,
-  time,
+  timeMs,
   onButtonClick = () => {},
   onClose = () => {},
 }: Props) {
   const [bestTimes, setBestTimes] = useState<Array<Time>>([]);
   const [msg, setMsg] = useState<string | null>(null);
-  const time2DP = roundToDigits(time, 2);
+  const time2DP = roundToDigits(timeMs / 1000, 2);
 
   // Update times every time the modal is set to active.
   useLayoutEffect(() => {

@@ -41,7 +41,7 @@ export default function ViewModePage() {
         <div style={{ position: 'relative' }}>
           <ViewWinModal
             isActive={showWinModal}
-            time={timeToFinish}
+            timeMs={timeToFinish}
             onButtonClick={() => setShowWinModal(false)}
             onClose={() => {
               setShowWinModal(false);
