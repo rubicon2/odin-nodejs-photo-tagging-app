@@ -36,8 +36,15 @@ export default function ViewWinModal({
         const response = await api.fetchBestPhotoTimes();
         const json = await response?.json();
         if (response.ok) {
-          const bestTimes = json.data.bestTimes;
-          if (bestTimes) setBestTimes(bestTimes);
+          const updatedTimes: Array<Time> = [
+            ...json.data.bestTimes,
+            { name: 'new', timeMs },
+          ]
+            // Order from shortest to longest time.
+            .sort((a, b) => a.timeMs - b.timeMs)
+            // Remove the 11th, slowest time.
+            .filter((_time, index) => index < 10);
+          setBestTimes(updatedTimes);
         }
       } catch (error: any) {
         setMsg(error.message);
