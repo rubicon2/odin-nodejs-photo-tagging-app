@@ -15,8 +15,8 @@ type Tag = {
 };
 
 type Time = {
-  id: React.Key;
-  imageId: string;
+  id?: React.Key;
+  imageId?: string;
   name: string;
   timeMs: number;
 };
