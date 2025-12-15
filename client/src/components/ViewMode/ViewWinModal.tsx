@@ -31,9 +31,6 @@ export default function ViewWinModal({
 
   // Update times every time the modal is set to active.
   useLayoutEffect(() => {
-    // Clear out any previous messages.
-    setMsg(null);
-
     async function fetchData() {
       try {
         const response = await api.fetchBestPhotoTimes();
@@ -47,6 +44,8 @@ export default function ViewWinModal({
       }
     }
 
+    // Clear out any previous messages.
+    setMsg(null);
     fetchData();
   }, [isActive]);
 
