@@ -25,3 +25,11 @@ type Pos = {
   x: number;
   y: number;
 };
+
+type ServerValidationError = {
+  location: string;
+  path: string;
+  type: string;
+  value: string;
+  msg: string;
+};
