@@ -3,7 +3,7 @@ import DangerButton from '../../styled/DangerButton';
 import Form from '../../styled/Form';
 
 interface Props {
-  tags: Array<EditableTag>;
+  tags: Array<Tag>;
   onUpdate?: Function;
   onDelete?: Function;
   onSave?: React.FormEventHandler;

@@ -10,7 +10,7 @@ const CenteredList = styled(UnstyledList)`
 
 interface Props {
   isActive: boolean;
-  tags: Array<Tag>;
+  tags: Array<Required<Tag>>;
   onTagClick: (tagId: React.Key) => any;
   onClose?: () => any;
 }
@@ -26,7 +26,7 @@ export default function ViewTagListModal({
       <ModalContent>
         <ModalHeaderCentered>Who is it?</ModalHeaderCentered>
         <CenteredList>
-          {tags.map((tag: Tag) => {
+          {tags.map((tag) => {
             return (
               <li
                 key={tag.id}

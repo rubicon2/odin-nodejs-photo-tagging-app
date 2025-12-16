@@ -3,7 +3,7 @@ type Photo = {
   altText: string;
   url: string;
   tagCount: number;
-  tags: Array<Tag>;
+  tags: Array<Required<Tag>>;
 };
 
 type Tag = {
