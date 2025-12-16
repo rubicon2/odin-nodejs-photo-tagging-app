@@ -33,3 +33,7 @@ type ServerValidationError = {
   value: string;
   msg: string;
 };
+
+interface SimpleValidationErrors {
+  [key: string]: Array<string>;
+}
