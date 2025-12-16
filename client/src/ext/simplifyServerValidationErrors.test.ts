@@ -6,12 +6,12 @@ describe('validationToMsg', () => {
     {
       testType: 'empty validation errors array',
       validationErrors: [],
-      expectedOutput: [],
+      expectedOutput: { array: [] },
     },
     {
       testType: 'undefined validation errors array',
       validationErrors: undefined,
-      expectedOutput: [],
+      expectedOutput: { array: [] },
     },
     {
       testType:
@@ -25,9 +25,12 @@ describe('validationToMsg', () => {
           msg: `Those kinds of characters are not permitted`,
         },
       ],
-      expectedOutput: [
-        'name field error: Those kinds of characters are not permitted',
-      ],
+      expectedOutput: {
+        name: ['Those kinds of characters are not permitted'],
+        array: [
+          'name field error: Those kinds of characters are not permitted',
+        ],
+      },
     },
     {
       testType:
@@ -48,10 +51,14 @@ describe('validationToMsg', () => {
           msg: `Out of a reasonable range, get real`,
         },
       ],
-      expectedOutput: [
-        'name field error: Those kinds of characters are not permitted',
-        'age field error: Out of a reasonable range, get real',
-      ],
+      expectedOutput: {
+        name: ['Those kinds of characters are not permitted'],
+        age: ['Out of a reasonable range, get real'],
+        array: [
+          'name field error: Those kinds of characters are not permitted',
+          'age field error: Out of a reasonable range, get real',
+        ],
+      },
     },
     {
       testType:
@@ -72,13 +79,19 @@ describe('validationToMsg', () => {
           msg: `Exceeds the maximum length`,
         },
       ],
-      expectedOutput: [
-        'name field error: Those kinds of characters are not permitted',
-        'name field error: Exceeds the maximum length',
-      ],
+      expectedOutput: {
+        name: [
+          'Those kinds of characters are not permitted',
+          'Exceeds the maximum length',
+        ],
+        array: [
+          'name field error: Those kinds of characters are not permitted',
+          'name field error: Exceeds the maximum length',
+        ],
+      },
     },
   ])(
-    'given $testType, simplifies server validation errors into an array of strings',
+    'given $testType, simplifies server validation errors into a format suitable for updating form error elements',
     ({ validationErrors, expectedOutput }) => {
       expect(simplifyServerValidationErrors(validationErrors)).toStrictEqual(
         expectedOutput,
