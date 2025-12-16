@@ -82,8 +82,8 @@ async function postPhotoTag(photoId: string, body: BodyInit) {
 
 async function putPhotoTags(
   photoId: string,
-  createTags: Array<EditableTag> = [],
-  updateTags: Array<Tag> = [],
+  createTags: Array<Tag> = [],
+  updateTags: Array<Required<Tag>> = [],
   deleteTags: Array<string> = [],
 ) {
   const response = await fetch(

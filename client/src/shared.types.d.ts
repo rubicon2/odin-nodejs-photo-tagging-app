@@ -1,34 +1,39 @@
 type Photo = {
-  readonly id: React.Key;
-  readonly altText: string;
-  readonly url: string;
+  id: React.Key;
+  altText: string;
+  url: string;
+  tagCount: number;
+  tags: Array<Required<Tag>>;
 };
-
-interface UserPhoto extends Photo {
-  readonly tagCount: number;
-  readonly tags: Array<Tag>;
-}
-
-interface AdminPhoto extends Photo {
-  readonly tags: Array<Tag>;
-}
 
 type Tag = {
-  readonly id: React.Key;
-  readonly name: string;
-  readonly posX: number;
-  readonly posY: number;
-  readonly imageId: string;
-};
-
-type EditableTag = {
   id?: React.Key;
+  imageId?: string;
+  name: string;
   posX: number;
   posY: number;
+};
+
+type Time = {
+  id?: React.Key;
+  imageId?: string;
   name: string;
+  timeMs: number;
 };
 
 type Pos = {
   x: number;
   y: number;
 };
+
+type ServerValidationError = {
+  location: string;
+  path: string;
+  type: string;
+  value: string;
+  msg: string;
+};
+
+interface SimpleValidationErrors {
+  [key: string]: Array<string>;
+}

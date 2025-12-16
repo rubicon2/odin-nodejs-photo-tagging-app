@@ -17,7 +17,7 @@ interface Props {
   isSelected: boolean;
 }
 
-export default function PhotoListItem({ photo, isSelected }: Props) {
+export default function PhotoListItem({ photo, isSelected }: Readonly<Props>) {
   const content = <PaddedContainer>{photo.altText}</PaddedContainer>;
   return (
     <FakeLink>

@@ -24,6 +24,11 @@ async function fetchRandomPhoto() {
   return response;
 }
 
+async function fetchBestPhotoTimes() {
+  const response = await fetch(`${SERVER_URL}/api/v1/time`, defaultOptions);
+  return response;
+}
+
 async function postTagCheck(
   photoId: string,
   tagId: string,
@@ -43,4 +48,22 @@ async function postTagCheck(
   return response;
 }
 
-export { postEnableAdmin, postDisableAdmin, fetchRandomPhoto, postTagCheck };
+async function postPhotoTime(name: string) {
+  const response = await fetch(`${SERVER_URL}/api/v1/time`, {
+    ...defaultOptions,
+    method: 'POST',
+    body: new URLSearchParams({
+      name,
+    }),
+  });
+  return response;
+}
+
+export {
+  postEnableAdmin,
+  postDisableAdmin,
+  fetchRandomPhoto,
+  fetchBestPhotoTimes,
+  postTagCheck,
+  postPhotoTime,
+};

@@ -192,6 +192,330 @@ describe('/api/v1/photo', () => {
   });
 });
 
+describe('/api/v1/time', () => {
+  describe('GET', () => {
+    it('responds with a status code 404 and json message if the user has not requested a photo yet', async () => {
+      const response = await request(app).get('/api/v1/time');
+      expect(response.statusCode).toStrictEqual(404);
+      expect(response.body).toStrictEqual({
+        status: 'fail',
+        data: {
+          message:
+            'Session currentPhotoId is undefined; client has not requested an image before requesting best times',
+        },
+      });
+    });
+
+    it("responds with a status code 200 and the top 10 best times for user's current photo", async () => {
+      await postTestData();
+      const testImage = testImageDataAbsoluteUrl[0];
+
+      // Make sure there are more than 10 entries - want to make sure the route returns a maximum of 10.
+      const testImageTimes = await db.imageTime.findMany({
+        // Exactly the same as api prisma query.
+        where: {
+          imageId: testImage.id,
+        },
+        orderBy: [
+          {
+            timeMs: 'asc',
+          },
+          {
+            id: 'asc',
+          },
+        ],
+        take: 10,
+      });
+      expect(testImageTimes.length).toStrictEqual(10);
+
+      // Get rid of all images except image we are testing, so we know what image we will get from /api/v1/photo.
+      await db.image.deleteMany({
+        where: {
+          id: {
+            not: testImage.id,
+          },
+        },
+      });
+
+      let response;
+
+      // Grab an image to start with, so session has a currentPhotoId set.
+      response = await request(app).get('/api/v1/photo');
+      expect(response.statusCode).toStrictEqual(200);
+
+      const cookie = response.headers['set-cookie'];
+      expect(cookie).toBeDefined();
+
+      response = await request(app).get('/api/v1/time').set('cookie', cookie);
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body).toStrictEqual({
+        status: 'success',
+        data: {
+          bestTimes: testImageTimes,
+        },
+      });
+    });
+  });
+
+  describe('POST', () => {
+    it('responds with a status code 404 and json message if the user has not requested a photo yet', async () => {
+      const response = await request(app).post('/api/v1/time');
+      expect(response.statusCode).toStrictEqual(404);
+      expect(response.body).toStrictEqual({
+        status: 'fail',
+        data: {
+          message:
+            'Session currentPhotoId is undefined; client has not requested an image before requesting best times',
+        },
+      });
+    });
+
+    it('responds with a status code 400 if the user has not found all photo tags yet', async () => {
+      await postTestData();
+
+      const testImage = await db.image.findFirst({
+        include: {
+          tags: true,
+        },
+      });
+      expect(testImage).toBeDefined();
+      // Make sure there are actually tags to find on the test data, otherwise this test could be a false pass.
+      expect(testImage.tags.length).toBeGreaterThan(0);
+
+      let response;
+      response = await request(app).get('/api/v1/photo');
+      expect(response.statusCode).toStrictEqual(200);
+
+      const cookie = response.headers['set-cookie'];
+      expect(cookie).toBeDefined();
+
+      response = await request(app).post('/api/v1/time').set('cookie', cookie);
+      expect(response.statusCode).toStrictEqual(400);
+      expect(response.body).toStrictEqual({
+        status: 'fail',
+        data: {
+          message:
+            'Cannot set a time since you have not found all the tags for this image yet.',
+        },
+      });
+    });
+
+    // Test validation of request body fields once user has found all tags.
+    it.each([
+      {
+        testType: 'no name',
+        sendObj: {
+          imageId: '1',
+          name: undefined,
+        },
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'name is a required field',
+              path: 'name',
+              type: 'field',
+              value: '',
+            },
+            {
+              location: 'body',
+              msg: 'name should contain alphanumeric characters only',
+              path: 'name',
+              type: 'field',
+              value: '',
+            },
+            {
+              location: 'body',
+              msg: 'name should be 3 characters long',
+              path: 'name',
+              type: 'field',
+              value: '',
+            },
+          ],
+        },
+      },
+      {
+        testType: 'name of length smaller than 3',
+        sendObj: {
+          name: 'ab',
+        },
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'name should be 3 characters long',
+              path: 'name',
+              type: 'field',
+              value: 'ab',
+            },
+          ],
+        },
+      },
+      {
+        testType: 'name of length larger than 3',
+        sendObj: {
+          name: 'abcd',
+        },
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'name should be 3 characters long',
+              path: 'name',
+              type: 'field',
+              value: 'abcd',
+            },
+          ],
+        },
+      },
+      {
+        testType: 'name with invalid characters',
+        sendObj: {
+          name: '@bc',
+        },
+        expectedValidationObj: {
+          errors: [
+            {
+              location: 'body',
+              msg: 'name should contain alphanumeric characters only',
+              path: 'name',
+              type: 'field',
+              value: '@bc',
+            },
+          ],
+        },
+      },
+    ])(
+      'when provided with $testType, responds with a status code 400 and validation errors',
+      async ({ sendObj, expectedValidationObj }) => {
+        await postTestData();
+        const testImage = testImageDataAbsoluteUrl[0];
+
+        // Delete all but test photo so we know what /api/v1/photo will give us.
+        await db.image.deleteMany({
+          where: {
+            id: {
+              not: testImage.id,
+            },
+          },
+        });
+
+        // Get tags.
+        const tags = await db.imageTag.findMany({
+          where: {
+            imageId: testImage.id,
+          },
+        });
+        expect(tags.length).toBeGreaterThan(0);
+
+        let response;
+        // Request image so session gets properly set up.
+        response = await request(app).get('/api/v1/photo');
+        expect(response.statusCode).toStrictEqual(200);
+
+        // Save cookie for later requests.
+        const cookie = response.headers['set-cookie'];
+        expect(cookie).toBeDefined();
+
+        // Find all tags so we can then post a time.
+        for (const tag of tags) {
+          response = await request(app)
+            .post('/api/v1/check-tag')
+            .set('cookie', cookie)
+            .send({
+              tagId: tag.id,
+              photoId: testImage.id,
+              posX: tag.posX,
+              posY: tag.posY,
+            });
+          expect(response.statusCode).toStrictEqual(200);
+        }
+        expect(response.body.data.foundAllTags).toStrictEqual(true);
+
+        // Now we can test the validation of the request body fields.
+        response = await request(app)
+          .post('/api/v1/time')
+          .set('cookie', cookie)
+          .send(sendObj);
+        expect(response.statusCode).toStrictEqual(400);
+        expect(response.body).toStrictEqual({
+          status: 'fail',
+          data: {
+            validation: expectedValidationObj,
+          },
+        });
+      },
+    );
+
+    it('with all tags found and a valid request body, adds time to db', async () => {
+      // Use fake timers so we can get the best time ever, and it will be #1 on the times list returned.
+      vi.useFakeTimers({ toFake: ['Date'] });
+
+      await postTestData();
+      const testImage = testImageDataAbsoluteUrl[0];
+
+      // Remove all photos from db so we know we'll get testImage from /api/v1/photo.
+      await db.image.deleteMany({
+        where: {
+          id: {
+            not: testImage.id,
+          },
+        },
+      });
+
+      // Remove all times from db so once we post ours, should be the only one returned by get /api/v1/times.
+      await db.imageTime.deleteMany();
+
+      let response;
+      response = await request(app).get('/api/v1/photo');
+      expect(response.statusCode).toStrictEqual(200);
+
+      const cookie = response.headers['set-cookie'];
+      expect(cookie).toBeDefined();
+
+      // Get tags so we can "find" them all on the api.
+      const tags = await db.imageTag.findMany({
+        where: {
+          imageId: testImage.id,
+        },
+      });
+
+      // So the resulting msToFinish will be 100.
+      vi.advanceTimersByTime(100);
+
+      for (const tag of tags) {
+        response = await request(app)
+          .post('/api/v1/check-tag')
+          .set('cookie', cookie)
+          .send({
+            tagId: tag.id,
+            photoId: testImage.id,
+            posX: tag.posX,
+            posY: tag.posY,
+          });
+        expect(response.statusCode).toStrictEqual(200);
+      }
+      expect(response.body.data.foundAllTags).toStrictEqual(true);
+
+      // Now all tags found, we can post a time.
+      response = await request(app)
+        .post('/api/v1/time')
+        .set('cookie', cookie)
+        .send({ name: 'ZZZ' });
+      expect(response.statusCode).toStrictEqual(200);
+      const savedTime = response.body.data.time;
+
+      // Now we can check the time and name got added to the best times list.
+      response = await request(app).get('/api/v1/time').set('cookie', cookie);
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body.data.bestTimes).toContainEqual(savedTime);
+
+      // Reset timers for other tests.
+      vi.useRealTimers();
+    });
+  });
+});
+
 describe('/api/v1/check-tag', () => {
   // Test validation is working correctly.
   it.each([

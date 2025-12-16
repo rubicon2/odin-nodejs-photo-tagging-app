@@ -47,8 +47,10 @@ async function getRandomPhoto(req, res, next) {
     // Save so we know what photo the user is on and
     // can avoid giving the same photo twice in a row.
     req.session.currentPhotoId = randomPhoto.id;
-    // Clear any existing foundTags.
+    // Clear any existing data.
     req.session.foundTags = [];
+    req.session.foundAllTags = false;
+    req.session.msToFinish = undefined;
     // Save start time so we can figure out how long it took for the user to find all the tags.
     req.session.startTime = Date.now();
 
@@ -57,6 +59,47 @@ async function getRandomPhoto(req, res, next) {
       data: {
         message: 'Photo successfully retrieved.',
         photo: prismaToPhotoTransformer(randomPhoto),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getPhotoTopTimes(req, res, next) {
+  // Use session currentPhotoId to determine what times to get.
+  try {
+    const currentPhotoId = req.session?.currentPhotoId;
+
+    if (!currentPhotoId) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: `Session currentPhotoId is ${currentPhotoId}; client has not requested an image before requesting best times`,
+        },
+      });
+    }
+
+    const tenQuickestTimes = await client.imageTime.findMany({
+      where: {
+        imageId: currentPhotoId,
+      },
+      orderBy: [
+        {
+          timeMs: 'asc',
+        },
+        {
+          // Tie breaker for entries with exactly the same time, to ensure consistent, testable results.
+          id: 'asc',
+        },
+      ],
+      take: 10,
+    });
+
+    return res.json({
+      status: 'success',
+      data: {
+        bestTimes: tenQuickestTimes,
       },
     });
   } catch (error) {
@@ -110,18 +153,20 @@ async function postCheckTag(req, res, next) {
 
     const totalTags = image.tags.length;
     const foundAllTags = req.session.foundTags.length >= totalTags;
+    req.session.foundAllTags = foundAllTags;
 
     // Make undefined, so if foundAllTags is false, will just be left out of json.
     let msToFinish = undefined;
     if (foundAllTags && req.session.startTime) {
       msToFinish = Date.now() - req.session.startTime;
+      req.session.msToFinish = msToFinish;
     }
 
     return res.status(200).json({
       status: 'success',
       data: {
-        foundAllTags,
-        msToFinish,
+        foundAllTags: req.session.foundAllTags,
+        msToFinish: req.session.msToFinish,
         foundTags: req.session.foundTags,
       },
     });
@@ -130,4 +175,58 @@ async function postCheckTag(req, res, next) {
   }
 }
 
-export { getRandomPhoto, postCheckTag };
+async function postPhotoTopTime(req, res, next) {
+  try {
+    const currentPhotoId = req.session?.currentPhotoId;
+    if (!currentPhotoId) {
+      return res.status(404).json({
+        status: 'fail',
+        data: {
+          message: `Session currentPhotoId is ${currentPhotoId}; client has not requested an image before requesting best times`,
+        },
+      });
+    }
+
+    if (req.session?.foundAllTags !== true) {
+      return res.status(400).json({
+        status: 'fail',
+        data: {
+          message: `Cannot set a time since you have not found all the tags for this image yet.`,
+        },
+      });
+    }
+
+    const validation = validationResult(req);
+
+    if (!validation.isEmpty()) {
+      return res.status(400).json({
+        status: 'fail',
+        data: {
+          validation,
+        },
+      });
+    }
+
+    const data = matchedData(req);
+
+    const time = await client.imageTime.create({
+      data: {
+        imageId: req.session.currentPhotoId,
+        timeMs: req.session.msToFinish,
+        name: data.name,
+      },
+    });
+
+    return res.json({
+      status: 'success',
+      data: {
+        message: 'Time added to the leaderboard.',
+        time,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export { getRandomPhoto, getPhotoTopTimes, postCheckTag, postPhotoTopTime };

@@ -31,7 +31,7 @@ export default function PhotoList({
   selectedPhotoId,
   onUploadPhoto = () => {},
   onSelectPhoto = () => {},
-}: Props) {
+}: Readonly<Props>) {
   return (
     <div>
       <HPaddedContainer>

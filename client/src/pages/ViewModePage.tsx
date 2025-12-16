@@ -4,7 +4,7 @@ import * as api from '../ext/api';
 import { useEffect, useState } from 'react';
 
 export default function ViewModePage() {
-  const [photo, setPhoto] = useState<UserPhoto | null>(null);
+  const [photo, setPhoto] = useState<Photo | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [showWinModal, setShowWinModal] = useState<boolean>(false);
   const [timeToFinish, setTimeToFinish] = useState<number>(0);
@@ -41,10 +41,12 @@ export default function ViewModePage() {
         <div style={{ position: 'relative' }}>
           <ViewWinModal
             isActive={showWinModal}
-            time={timeToFinish}
+            timeMs={timeToFinish}
             onButtonClick={() => setShowWinModal(false)}
-            // Setting showWinModal to false will trigger this.
-            onClose={fetchRandomPhoto}
+            onClose={() => {
+              setShowWinModal(false);
+              fetchRandomPhoto();
+            }}
           />
           <ViewModePhoto
             photo={photo}
