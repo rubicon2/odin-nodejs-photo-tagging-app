@@ -25,10 +25,6 @@ const Form = styled.form`
       grid-template-rows: 1fr;
       grid-template-columns: 1fr 1fr;
     }
-
-    button {
-      justify-self: end;
-    }
   }
 `;
 

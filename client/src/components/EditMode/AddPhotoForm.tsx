@@ -3,6 +3,13 @@ import FormError from '../../styled/FormError.js';
 import ImportantButton from '../../styled/ImportantButton.js';
 import * as api from '../../ext/api.admin.js';
 import React, { useState } from 'react';
+import styled from 'styled-components';
+
+const ImportantButtonReactive = styled(ImportantButton)`
+  @media (min-width: 500px) {
+    justify-self: end;
+  }
+`;
 
 interface Props {
   onPostPhoto?: Function;
@@ -38,7 +45,7 @@ export default function AddPhotoForm({ onPostPhoto = () => {} }: Props) {
         <input type="text" name="altText" required />
       </label>
       {msg && <FormError>{msg}</FormError>}
-      <ImportantButton type="submit">Submit</ImportantButton>
+      <ImportantButtonReactive type="submit">Submit</ImportantButtonReactive>
     </Form>
   );
 }
