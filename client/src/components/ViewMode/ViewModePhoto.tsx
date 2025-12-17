@@ -4,7 +4,7 @@ import PhotoWithTagOverlays from '../PhotoWithTagOverlays';
 import Overlay from '../Overlay';
 import * as api from '../../ext/api';
 
-import { useState, useRef, useLayoutEffect } from 'react';
+import { useState, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 
 const PhotoContainer = styled(Container)`
@@ -27,13 +27,11 @@ export default function ViewModePhoto({
 }: Readonly<Props>) {
   const [foundTags, setFoundTags] = useState<Array<Tag>>([]);
   const [isTagListActive, setIsTagListActive] = useState<boolean>(false);
-  // Click pos can be kept in ref, since not used for rendering.
-  const clickPosRef = useRef<Pos | null>(null);
+  const [clickPos, setClickPos] = useState<Pos | null>(null);
 
   async function checkTag(tagId: string) {
     try {
-      if (!photo || !clickPosRef.current) return;
-      const clickPos = clickPosRef.current;
+      if (!photo || !clickPos) return;
       const response = await api.postTagCheck(
         photo.id as string,
         tagId,
@@ -84,17 +82,17 @@ export default function ViewModePhoto({
           setIsTagListActive(false);
         }}
         onClose={() => {
-          clickPosRef.current = null;
+          setClickPos(null);
           setIsTagListActive(false);
         }}
       />
       <PhotoWithTagOverlays
         photo={photo}
         tags={foundTags}
-        clickPos={clickPosRef.current}
+        clickPos={clickPos}
         onClick={(pos: Pos) => {
           // Save pos for fetch request later.
-          clickPosRef.current = pos;
+          setClickPos(pos);
           // Open menu for selecting who the tag is of.
           setIsTagListActive(true);
         }}

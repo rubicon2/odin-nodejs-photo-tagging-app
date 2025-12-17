@@ -12,7 +12,7 @@ const Photo = styled.img`
 interface Props {
   photo: Photo;
   tags: Array<Tag>;
-  clickPos: Pos | null;
+  clickPos?: Pos | null;
   onClick?: (pos: Pos) => any;
   onTagDrag?: (index: number, updatedTag: Tag) => any;
 }
