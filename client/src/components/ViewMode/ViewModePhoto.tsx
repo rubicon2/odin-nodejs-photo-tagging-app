@@ -2,8 +2,8 @@ import Container from '../../styled/Container';
 import ViewTagListModal from './ViewTagListModal';
 import PhotoWithTagOverlays from '../PhotoWithTagOverlays';
 import Overlay from '../Overlay';
-
 import * as api from '../../ext/api';
+
 import { useState, useRef, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 
@@ -91,6 +91,7 @@ export default function ViewModePhoto({
       <PhotoWithTagOverlays
         photo={photo}
         tags={foundTags}
+        clickPos={clickPosRef.current}
         onClick={(pos: Pos) => {
           // Save pos for fetch request later.
           clickPosRef.current = pos;

@@ -1,6 +1,7 @@
 import PhotoTagOverlay from './PhotoTagOverlay';
 import useElementSize from '../hooks/useElementSize';
 import getElementClickPos from '../ext/getElementClickPos';
+
 import { useRef } from 'react';
 import styled from 'styled-components';
 
@@ -11,6 +12,7 @@ const Photo = styled.img`
 interface Props {
   photo: Photo;
   tags: Array<Tag>;
+  clickPos: Pos | null;
   onClick?: (pos: Pos) => any;
   onTagDrag?: (index: number, updatedTag: Tag) => any;
 }
@@ -18,6 +20,7 @@ interface Props {
 export default function PhotoWithTagOverlays({
   photo,
   tags,
+  clickPos,
   onClick = () => {},
   onTagDrag = () => {},
 }: Readonly<Props>) {
@@ -26,8 +29,8 @@ export default function PhotoWithTagOverlays({
   const imgSize = useElementSize(img);
 
   function handleClick(event: React.MouseEvent<HTMLElement>) {
-    const clickPos = getElementClickPos(event);
-    onClick(clickPos);
+    const newClickPos = getElementClickPos(event);
+    onClick(newClickPos);
   }
 
   return (
@@ -47,6 +50,16 @@ export default function PhotoWithTagOverlays({
           onDrag={({ x, y }) => onTagDrag(index, { ...tag, posX: x, posY: y })}
         />
       ))}
+      {clickPos && (
+        <PhotoTagOverlay
+          tag={{
+            name: '???',
+            posX: clickPos.x,
+            posY: clickPos.y,
+          }}
+          imgSize={imgSize}
+        />
+      )}
     </div>
   );
 }
