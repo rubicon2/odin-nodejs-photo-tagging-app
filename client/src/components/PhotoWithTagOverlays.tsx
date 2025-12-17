@@ -12,7 +12,7 @@ const Photo = styled.img`
 interface Props {
   photo: Photo;
   tags: Array<Tag>;
-  clickPos?: Pos | null;
+  currentTag?: Tag;
   onClick?: (pos: Pos) => any;
   onTagDrag?: (index: number, updatedTag: Tag) => any;
 }
@@ -20,7 +20,7 @@ interface Props {
 export default function PhotoWithTagOverlays({
   photo,
   tags,
-  clickPos,
+  currentTag,
   onClick = () => {},
   onTagDrag = () => {},
 }: Readonly<Props>) {
@@ -50,16 +50,7 @@ export default function PhotoWithTagOverlays({
           onDrag={({ x, y }) => onTagDrag(index, { ...tag, posX: x, posY: y })}
         />
       ))}
-      {clickPos && (
-        <PhotoTagOverlay
-          tag={{
-            name: '???',
-            posX: clickPos.x,
-            posY: clickPos.y,
-          }}
-          imgSize={imgSize}
-        />
-      )}
+      {currentTag && <PhotoTagOverlay tag={currentTag} imgSize={imgSize} />}
     </div>
   );
 }

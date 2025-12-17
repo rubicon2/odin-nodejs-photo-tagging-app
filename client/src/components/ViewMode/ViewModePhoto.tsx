@@ -89,7 +89,11 @@ export default function ViewModePhoto({
       <PhotoWithTagOverlays
         photo={photo}
         tags={foundTags}
-        clickPos={clickPos}
+        currentTag={
+          clickPos
+            ? { name: '???', posX: clickPos.x, posY: clickPos.y }
+            : undefined
+        }
         onClick={(pos: Pos) => {
           // Save pos for fetch request later.
           setClickPos(pos);
