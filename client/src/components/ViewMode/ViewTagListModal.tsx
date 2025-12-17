@@ -8,9 +8,14 @@ const CenteredList = styled(UnstyledList)`
   text-align: center;
 `;
 
+const Message = styled.div`
+  text-align: center;
+`;
+
 interface Props {
   isActive: boolean;
   tags: Array<Required<Tag>>;
+  message?: string | null;
   onTagClick: (tagId: React.Key) => any;
   onClose?: () => any;
 }
@@ -18,6 +23,7 @@ interface Props {
 export default function ViewTagListModal({
   isActive,
   tags = [],
+  message = null,
   onTagClick = () => {},
   onClose = () => {},
 }: Props) {
@@ -39,6 +45,7 @@ export default function ViewTagListModal({
             );
           })}
         </CenteredList>
+        {message && <Message>{message}</Message>}
       </ModalContent>
     </Modal>
   );

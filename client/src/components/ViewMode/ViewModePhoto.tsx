@@ -28,6 +28,7 @@ export default function ViewModePhoto({
   const [foundTags, setFoundTags] = useState<Array<Tag>>([]);
   const [isTagListActive, setIsTagListActive] = useState<boolean>(false);
   const [clickPos, setClickPos] = useState<Pos | null>(null);
+  const [tagListMsg, setTagListMsg] = useState<string | null>(null);
 
   async function checkTag(tagId: string) {
     try {
@@ -45,10 +46,14 @@ export default function ViewModePhoto({
         // Only set state if the list length is different to prevent redundant rerenders.
         if (updatedFoundTags.length > foundTags.length) {
           setFoundTags(updatedFoundTags);
+          setTagListMsg('Tag found!');
           const newTag: Tag | undefined = updatedFoundTags.find(
             ({ id }) => !foundTags.map((t) => t.id).includes(id),
           );
           if (newTag) onTagFound(newTag);
+        } else {
+          // If no new tags were found.
+          setTagListMsg('Nope!');
         }
 
         // Deal with all tags found.
@@ -57,7 +62,7 @@ export default function ViewModePhoto({
         if (foundAllTags) onAllTagsFound(msToFinish);
       } else {
         if (json.data?.message) {
-          onMessage(json.data.message);
+          setTagListMsg(json.data.message);
         }
       }
     } catch (error: any) {
@@ -77,14 +82,17 @@ export default function ViewModePhoto({
       <ViewTagListModal
         isActive={isTagListActive}
         tags={photo.tags}
+        message={tagListMsg}
         onTagClick={async (id: React.Key) => {
           await checkTag(id as string);
           setTimeout(() => {
+            setTagListMsg(null);
             setIsTagListActive(false);
           }, 1000);
         }}
         onClose={() => {
           setClickPos(null);
+          setTagListMsg(null);
           setIsTagListActive(false);
         }}
       />
