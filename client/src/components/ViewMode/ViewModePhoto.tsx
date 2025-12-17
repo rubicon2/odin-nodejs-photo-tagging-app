@@ -77,7 +77,7 @@ export default function ViewModePhoto({
       }
     } catch (error: any) {
       console.error(error.message);
-      onMessage(error.message);
+      setTagListMsg(error.message);
     }
   }
 
