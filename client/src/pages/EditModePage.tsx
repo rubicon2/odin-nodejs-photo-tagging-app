@@ -1,8 +1,8 @@
 import PhotoList from '../components/PhotoList';
-import EditPhotoDetails from '../components/EditMode/EditPhotoDetails.js';
-import AddPhotoForm from '../components/EditMode/AddPhotoForm.js';
-import PaddedContainer from '../styled/PaddedContainer.js';
-import * as api from '../ext/api.admin.js';
+import EditPhotoDetails from '../components/EditMode/EditPhotoDetails';
+import AddPhotoForm from '../components/EditMode/AddPhotoForm';
+import PaddedContainer from '../styled/PaddedContainer';
+import * as api from '../ext/api.admin';
 import * as breakpoints from '../breakpoints';
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
