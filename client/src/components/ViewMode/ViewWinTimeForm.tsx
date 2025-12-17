@@ -21,11 +21,9 @@ export default function ViewWinTimeForm({ onFormSubmit = () => {} }: Props) {
       const response = await api.postPhotoTime(name as string);
       const json = await response?.json();
       if (response.ok) {
-        setMsg('Time submitted!');
-        // Fetch a new image.
         onFormSubmit();
       } else {
-        setMsg(json.data.message);
+        if (json.data?.message) setMsg(json.data.message);
       }
     } catch (error: any) {
       setMsg(error.message);
