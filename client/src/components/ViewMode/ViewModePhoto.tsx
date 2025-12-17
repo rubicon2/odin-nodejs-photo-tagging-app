@@ -64,6 +64,12 @@ export default function ViewModePhoto({
         const foundAllTags: boolean = json.data?.foundAllTags;
         const msToFinish: number = json.data?.msToFinish;
         if (foundAllTags) onAllTagsFound(msToFinish);
+
+        // Close tag list modal after a delay.
+        setTimeout(() => {
+          setTagListMsg(null);
+          setIsTagListActive(false);
+        }, 1000);
       } else {
         if (json.data?.message) {
           setTagListMsg(json.data.message);
@@ -87,12 +93,8 @@ export default function ViewModePhoto({
         isActive={isTagListActive}
         tags={photo.tags}
         message={tagListMsg}
-        onTagClick={async (id: React.Key) => {
-          await checkTag(id as string);
-          setTimeout(() => {
-            setTagListMsg(null);
-            setIsTagListActive(false);
-          }, 1000);
+        onTagClick={(id: React.Key) => {
+          checkTag(id as string);
         }}
         onClose={() => {
           setClickPos(null);
