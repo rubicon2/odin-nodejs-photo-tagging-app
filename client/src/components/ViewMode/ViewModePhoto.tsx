@@ -46,6 +46,10 @@ export default function ViewModePhoto({
         // Only set state if the list length is different to prevent redundant rerenders.
         if (updatedFoundTags.length > foundTags.length) {
           setFoundTags(updatedFoundTags);
+          // Usually the click pos is cleared after the tag list modal
+          // is closed, but to avoid it doubling up with the new found
+          // tag (which appears immediately), set to null here.
+          setClickPos(null);
           setTagListMsg('Tag found!');
           const newTag: Tag | undefined = updatedFoundTags.find(
             ({ id }) => !foundTags.map((t) => t.id).includes(id),
