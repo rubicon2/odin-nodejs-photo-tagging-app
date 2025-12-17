@@ -1,4 +1,4 @@
-import Modal from '../Modal';
+import ModalTransparent from '../ModalTransparent';
 import { ModalContent, ModalHeaderCentered } from '../../styled/Modal';
 import UnstyledList from '../../styled/UnstyledList';
 import FakeLink from '../../styled/FakeLink';
@@ -28,7 +28,7 @@ export default function ViewTagListModal({
   onClose = () => {},
 }: Props) {
   return (
-    <Modal isActive={isActive} onClose={onClose}>
+    <ModalTransparent isActive={isActive} onClose={onClose}>
       <ModalContent>
         <ModalHeaderCentered>Who is it?</ModalHeaderCentered>
         <CenteredList>
@@ -47,6 +47,6 @@ export default function ViewTagListModal({
         </CenteredList>
         {message && <Message>{message}</Message>}
       </ModalContent>
-    </Modal>
+    </ModalTransparent>
   );
 }

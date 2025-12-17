@@ -1,4 +1,4 @@
-import Modal from '../Modal';
+import ModalTransparent from '../ModalTransparent';
 import TimesTable from '../TimesTable';
 import ViewWinTimeForm from './ViewWinTimeForm';
 import { ModalContent, ModalHeaderCentered } from '../../styled/Modal';
@@ -57,7 +57,7 @@ export default function ViewWinModal({
   }, [isActive]);
 
   return (
-    <Modal isActive={isActive} onClose={onClose}>
+    <ModalTransparent isActive={isActive} onClose={onClose}>
       <ModalContent>
         <ModalHeaderCentered>You Won!</ModalHeaderCentered>
         <CenteredDiv>You took {time2DP} seconds.</CenteredDiv>
@@ -66,6 +66,6 @@ export default function ViewWinModal({
         <ViewWinTimeForm onFormSubmit={onButtonClick} />
         {msg && <span>{msg}</span>}
       </ModalContent>
-    </Modal>
+    </ModalTransparent>
   );
 }
