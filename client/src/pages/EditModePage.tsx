@@ -3,11 +3,12 @@ import EditPhotoDetails from '../components/EditMode/EditPhotoDetails.js';
 import AddPhotoForm from '../components/EditMode/AddPhotoForm.js';
 import PaddedContainer from '../styled/PaddedContainer.js';
 import * as api from '../ext/api.admin.js';
+import * as breakpoints from '../breakpoints';
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  @media (min-width: 920px) {
+  @media (min-width: ${breakpoints.desktop}) {
     display: grid;
     grid-template-columns: 1.5fr 4fr 2fr;
   }

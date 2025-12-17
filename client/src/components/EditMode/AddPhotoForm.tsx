@@ -2,11 +2,12 @@ import Form from '../../styled/Form.js';
 import FormError from '../../styled/FormError.js';
 import ImportantButton from '../../styled/ImportantButton.js';
 import * as api from '../../ext/api.admin.js';
+import * as breakpoints from '../../breakpoints';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const ImportantButtonReactive = styled(ImportantButton)`
-  @media (min-width: 500px) {
+  @media (min-width: ${breakpoints.tablet}) {
     justify-self: end;
   }
 `;
