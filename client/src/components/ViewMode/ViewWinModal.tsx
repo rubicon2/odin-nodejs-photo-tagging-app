@@ -53,7 +53,7 @@ export default function ViewWinModal({
 
     // Clear out any previous messages.
     setMsg(null);
-    fetchData();
+    if (isActive) fetchData();
   }, [isActive]);
 
   return (
