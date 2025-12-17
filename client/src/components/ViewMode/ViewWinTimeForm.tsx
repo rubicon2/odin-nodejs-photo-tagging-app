@@ -4,6 +4,11 @@ import FormError from '../../styled/FormError';
 import ImportantButton from '../../styled/ImportantButton';
 import * as api from '../../ext/api';
 import { useState } from 'react';
+import styled from 'styled-components';
+
+const FormErrorCentered = styled(FormError)`
+  text-align: center;
+`;
 
 interface Props {
   onFormSubmit?: () => any;
@@ -39,7 +44,11 @@ export default function ViewWinTimeForm({ onFormSubmit = () => {} }: Props) {
       <ImportantButton type="submit">
         Submit Time and Get New Image
       </ImportantButton>
-      {msg && <FormError aria-live="polite">{msg}</FormError>}
+      {msg && (
+        <FormErrorCentered as="div" aria-live="polite">
+          {msg}
+        </FormErrorCentered>
+      )}
     </Form>
   );
 }
