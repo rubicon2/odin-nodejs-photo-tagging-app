@@ -16,14 +16,12 @@ interface Props {
   photo: Photo;
   onTagFound?: (tag: Tag) => any;
   onAllTagsFound?: (msToFinish: number) => any;
-  onMessage?: (msg: string) => any;
 }
 
 export default function ViewModePhoto({
   photo,
   onTagFound = () => {},
   onAllTagsFound = () => {},
-  onMessage = () => {},
 }: Readonly<Props>) {
   const [foundTags, setFoundTags] = useState<Array<Tag>>([]);
   const [isTagListActive, setIsTagListActive] = useState<boolean>(false);
