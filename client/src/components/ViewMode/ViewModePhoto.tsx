@@ -79,7 +79,9 @@ export default function ViewModePhoto({
         tags={photo.tags}
         onTagClick={async (id: React.Key) => {
           await checkTag(id as string);
-          setIsTagListActive(false);
+          setTimeout(() => {
+            setIsTagListActive(false);
+          }, 1000);
         }}
         onClose={() => {
           setClickPos(null);
@@ -98,7 +100,9 @@ export default function ViewModePhoto({
           // Save pos for fetch request later.
           setClickPos(pos);
           // Open menu for selecting who the tag is of.
-          setIsTagListActive(true);
+          setTimeout(() => {
+            setIsTagListActive(true);
+          }, 1000);
         }}
       />
       <Overlay>
