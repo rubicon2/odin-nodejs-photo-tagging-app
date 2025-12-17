@@ -1,6 +1,7 @@
 import PhotoTagOverlay from './PhotoTagOverlay';
+import useElementSize from '../hooks/useElementSize';
 import getElementClickPos from '../ext/getElementClickPos';
-import { useRef, useState, useLayoutEffect } from 'react';
+import { useRef } from 'react';
 import styled from 'styled-components';
 
 const Photo = styled.img`
@@ -22,37 +23,17 @@ export default function PhotoWithTagOverlays({
 }: Readonly<Props>) {
   // Once image is rendered, we can get the width and height off it to render the overlaid tags.
   const img = useRef<HTMLImageElement>(null);
-  // Store the imgSize and when this is set, re-render will occur.
-  const [imgSize, setImgSize] = useState<Pos>({ x: 0, y: 0 });
+  const imgSize = useElementSize(img);
 
   function handleClick(event: React.MouseEvent<HTMLElement>) {
     const clickPos = getElementClickPos(event);
     onClick(clickPos);
   }
 
-  function handleImgChange(currentTarget: HTMLImageElement) {
-    const imgSize = currentTarget.getBoundingClientRect();
-    setImgSize({ x: imgSize.width, y: imgSize.height });
-  }
-
-  useLayoutEffect(() => {
-    // Don't bother handling the initial img dimensions in a layout effect.
-    // Images from server may not have loaded yet and size will be zero.
-    // Handle in onLoad handler instead.
-    function refreshImgSize() {
-      if (!img.current) return;
-      handleImgChange(img.current);
-    }
-
-    window.addEventListener('resize', refreshImgSize);
-    return () => window.removeEventListener('resize', refreshImgSize);
-  }, []);
-
   return (
     <div style={{ position: 'relative', overflow: 'hidden' }}>
       <Photo
         ref={img}
-        onLoad={(e) => handleImgChange(e.currentTarget)}
         src={photo.url}
         alt={photo.altText}
         onClick={handleClick}
