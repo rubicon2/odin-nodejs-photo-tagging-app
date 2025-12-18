@@ -45,6 +45,55 @@ describe('/api/v1/photo', () => {
       });
     });
 
+    it.only('responds with the tags of the photo in alphabetical name order', async () => {
+      const testImage = testImageDataAbsoluteUrl[0];
+      await db.image.create({
+        data: testImage,
+      });
+
+      const tagBasicProperties = { imageId: testImage.id, posX: 0, posY: 0 };
+      const tags = await db.imageTag.createManyAndReturn({
+        data: [
+          {
+            ...tagBasicProperties,
+            id: '1',
+            name: 'Z',
+          },
+          {
+            ...tagBasicProperties,
+            id: '2',
+            name: 'A',
+          },
+          {
+            ...tagBasicProperties,
+            id: '3',
+            name: '9',
+          },
+          {
+            ...tagBasicProperties,
+            id: '4',
+            name: '1',
+          },
+          {
+            ...tagBasicProperties,
+            id: '5',
+            name: 'Z',
+          },
+        ],
+      });
+
+      // Also using the id as a tie-breaker to ensure consistent results
+      const sortedAndMappedTags = tags
+        .map(({ id, name }) => ({ id, name }))
+        .sort((a, b) => a.id.localeCompare(b.id))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      const response = await request(app).get('/api/v1/photo');
+      expect(response.statusCode).toStrictEqual(200);
+      expect(response.body.data.photo.tags).toBeDefined();
+      expect(response.body.data.photo.tags).toStrictEqual(sortedAndMappedTags);
+    });
+
     it('does not respond with the same image twice', async () => {
       await postTestData();
       // Test a number of times, otherwise might just be lucky if we test only once and test passes.
