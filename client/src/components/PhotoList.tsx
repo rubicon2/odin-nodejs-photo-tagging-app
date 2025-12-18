@@ -49,7 +49,9 @@ export default function PhotoList({
           ))}
         </UnstyledList>
       ) : (
-        <p>No photos found.</p>
+        <HPaddedContainer>
+          <p>No photos found.</p>
+        </HPaddedContainer>
       )}
       <PaddedContainer>
         <MaxWidthImportantButton type="button" onClick={onUploadPhoto}>
