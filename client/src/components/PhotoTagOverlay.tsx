@@ -11,6 +11,8 @@ const Tag = styled.div`
 const TagBorder = styled.div`
   border: 2px solid white;
   border-radius: 5px;
+  box-shadow: 0px 0px 10px #000000aa;
+  background-color: #00000011;
 
   cursor: pointer;
   user-select: none;

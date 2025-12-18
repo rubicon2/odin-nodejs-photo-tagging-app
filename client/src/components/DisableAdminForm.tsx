@@ -1,7 +1,7 @@
-import { postDisableAdmin } from '../ext/api.js';
-import Form from '../styled/Form.js';
-import FormError from '../styled/FormError.js';
-import ImportantButton from '../styled/ImportantButton.js';
+import Form from '../styled/Form';
+import FormError from '../styled/FormError';
+import ImportantButton from '../styled/ImportantButton';
+import { postDisableAdmin } from '../ext/api';
 import React, { useState } from 'react';
 
 interface Props {

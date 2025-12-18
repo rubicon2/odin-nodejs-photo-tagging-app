@@ -4,6 +4,11 @@ import FormError from '../../styled/FormError';
 import ImportantButton from '../../styled/ImportantButton';
 import * as api from '../../ext/api';
 import { useState } from 'react';
+import styled from 'styled-components';
+
+const FormErrorCentered = styled(FormError)`
+  text-align: center;
+`;
 
 interface Props {
   onFormSubmit?: () => any;
@@ -21,11 +26,9 @@ export default function ViewWinTimeForm({ onFormSubmit = () => {} }: Props) {
       const response = await api.postPhotoTime(name as string);
       const json = await response?.json();
       if (response.ok) {
-        setMsg('Time submitted!');
-        // Fetch a new image.
         onFormSubmit();
       } else {
-        setMsg(json.data.message);
+        if (json.data?.message) setMsg(json.data.message);
       }
     } catch (error: any) {
       setMsg(error.message);
@@ -41,7 +44,11 @@ export default function ViewWinTimeForm({ onFormSubmit = () => {} }: Props) {
       <ImportantButton type="submit">
         Submit Time and Get New Image
       </ImportantButton>
-      {msg && <FormError aria-live="polite">{msg}</FormError>}
+      {msg && (
+        <FormErrorCentered as="div" aria-live="polite">
+          {msg}
+        </FormErrorCentered>
+      )}
     </Form>
   );
 }

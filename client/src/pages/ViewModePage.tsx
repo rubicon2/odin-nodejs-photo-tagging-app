@@ -52,7 +52,9 @@ export default function ViewModePage() {
             photo={photo}
             onAllTagsFound={(ms: number) => {
               setTimeToFinish(ms);
-              setShowWinModal(true);
+              setTimeout(() => {
+                setShowWinModal(true);
+              }, 1000);
             }}
           />
           {msg && <div>{msg}</div>}

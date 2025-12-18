@@ -22,9 +22,17 @@ async function getRandomPhoto(req, res, next) {
       include: {
         tags: {
           select: { id: true, name: true },
-          orderBy: {
-            id: 'asc',
-          },
+          orderBy: [
+            {
+              name: 'asc',
+            },
+            // As usual, use id as a tie-breaker to ensure consistent results.
+            // Otherwise, if two or more entries have the same name, they will
+            // be returned in randomly different orders.
+            {
+              id: 'asc',
+            },
+          ],
         },
         _count: {
           select: { tags: true },

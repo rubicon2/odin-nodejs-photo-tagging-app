@@ -1,9 +1,11 @@
-import PhotoWithTagOverlays from '../PhotoWithTagOverlays.js';
-import PhotoTagsForm from './PhotoTagsForm.js';
-import Form from '../../styled/Form.js';
-import DangerButton from '../../styled/DangerButton.js';
-import PaddedContainer from '../../styled/PaddedContainer.js';
-import * as api from '../../ext/api.admin.js';
+import PhotoWithTagOverlays from '../PhotoWithTagOverlays';
+import PhotoTagsForm from './PhotoTagsForm';
+import Form from '../../styled/Form';
+import DangerButton from '../../styled/DangerButton';
+import PaddedContainer from '../../styled/PaddedContainer';
+import * as api from '../../ext/api.admin';
+import * as breakpoints from '../../breakpoints';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -27,7 +29,7 @@ const InfoContainer = styled(PaddedContainer)`
   gap: 1rem;
   text-align: center;
 
-  @media (min-width: 500px) {
+  @media (min-width: ${breakpoints.tablet}) {
     grid-template-columns: 2fr 1fr;
     grid-template-rows: 1fr;
     padding-left: 0;

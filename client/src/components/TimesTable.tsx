@@ -12,7 +12,10 @@ const Table = styled.table`
 const TimeRow = styled.tr`
   border-bottom: 1px solid #00000022;
 
-  &:first-child,
+  &:first-child {
+    border-top: none;
+  }
+
   &:last-child {
     border-bottom: none;
   }
@@ -22,6 +25,12 @@ const NewTimeRow = styled(TimeRow)`
   border: 2px solid black;
   background-color: #ff3333;
   color: #f9f9f9;
+
+  // Override TimeRow getting rid of top or bottom border.
+  &:first-child,
+  &:last-child {
+    border: 2px solid black;
+  }
 `;
 
 const LeftTd = styled.td`

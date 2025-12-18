@@ -2,9 +2,9 @@ import Container from '../../styled/Container';
 import ViewTagListModal from './ViewTagListModal';
 import PhotoWithTagOverlays from '../PhotoWithTagOverlays';
 import Overlay from '../Overlay';
-
 import * as api from '../../ext/api';
-import { useState, useRef, useLayoutEffect } from 'react';
+
+import { useState, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 
 const PhotoContainer = styled(Container)`
@@ -16,24 +16,21 @@ interface Props {
   photo: Photo;
   onTagFound?: (tag: Tag) => any;
   onAllTagsFound?: (msToFinish: number) => any;
-  onMessage?: (msg: string) => any;
 }
 
 export default function ViewModePhoto({
   photo,
   onTagFound = () => {},
   onAllTagsFound = () => {},
-  onMessage = () => {},
 }: Readonly<Props>) {
   const [foundTags, setFoundTags] = useState<Array<Tag>>([]);
   const [isTagListActive, setIsTagListActive] = useState<boolean>(false);
-  // Click pos can be kept in ref, since not used for rendering.
-  const clickPosRef = useRef<Pos | null>(null);
+  const [clickPos, setClickPos] = useState<Pos | null>(null);
+  const [tagListMsg, setTagListMsg] = useState<string | null>(null);
 
   async function checkTag(tagId: string) {
     try {
-      if (!photo || !clickPosRef.current) return;
-      const clickPos = clickPosRef.current;
+      if (!photo || !clickPos) return;
       const response = await api.postTagCheck(
         photo.id as string,
         tagId,
@@ -47,24 +44,38 @@ export default function ViewModePhoto({
         // Only set state if the list length is different to prevent redundant rerenders.
         if (updatedFoundTags.length > foundTags.length) {
           setFoundTags(updatedFoundTags);
+          // Usually the click pos is cleared after the tag list modal
+          // is closed, but to avoid it doubling up with the new found
+          // tag (which appears immediately), set to null here.
+          setClickPos(null);
+          setTagListMsg('Tag found!');
           const newTag: Tag | undefined = updatedFoundTags.find(
             ({ id }) => !foundTags.map((t) => t.id).includes(id),
           );
           if (newTag) onTagFound(newTag);
+        } else {
+          // If no new tags were found.
+          setTagListMsg('Nope!');
         }
 
         // Deal with all tags found.
         const foundAllTags: boolean = json.data?.foundAllTags;
         const msToFinish: number = json.data?.msToFinish;
         if (foundAllTags) onAllTagsFound(msToFinish);
+
+        // Close tag list modal after a delay.
+        setTimeout(() => {
+          setTagListMsg(null);
+          setIsTagListActive(false);
+        }, 1000);
       } else {
         if (json.data?.message) {
-          onMessage(json.data.message);
+          setTagListMsg(json.data.message);
         }
       }
     } catch (error: any) {
       console.error(error.message);
-      onMessage(error.message);
+      setTagListMsg(error.message);
     }
   }
 
@@ -79,23 +90,31 @@ export default function ViewModePhoto({
       <ViewTagListModal
         isActive={isTagListActive}
         tags={photo.tags}
-        onTagClick={async (id: React.Key) => {
-          await checkTag(id as string);
-          setIsTagListActive(false);
+        message={tagListMsg}
+        onTagClick={(id: React.Key) => {
+          checkTag(id as string);
         }}
         onClose={() => {
-          clickPosRef.current = null;
+          setClickPos(null);
+          setTagListMsg(null);
           setIsTagListActive(false);
         }}
       />
       <PhotoWithTagOverlays
         photo={photo}
         tags={foundTags}
+        currentTag={
+          clickPos
+            ? { name: '???', posX: clickPos.x, posY: clickPos.y }
+            : undefined
+        }
         onClick={(pos: Pos) => {
           // Save pos for fetch request later.
-          clickPosRef.current = pos;
+          setClickPos(pos);
           // Open menu for selecting who the tag is of.
-          setIsTagListActive(true);
+          setTimeout(() => {
+            setIsTagListActive(true);
+          }, 1000);
         }}
       />
       <Overlay>
