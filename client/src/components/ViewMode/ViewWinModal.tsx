@@ -55,6 +55,7 @@ export default function ViewWinModal({
     // Clear out any previous messages.
     setMsg(null);
     if (isActive) fetchData();
+    else setBestTimes([]);
   }, [isActive]);
 
   return (
