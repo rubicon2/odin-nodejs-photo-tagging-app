@@ -48,30 +48,32 @@ interface Props {
 export default function TimesTable({ times }: Readonly<Props>) {
   return (
     <Table>
-      <tr>
+      <thead>
         <th>Name</th>
         <th>Seconds</th>
-      </tr>
-      {times.map((time, index) => (
-        <>
-          {/* If no id, this is the user's new time that hasn't been saved to server yet. */}
-          {time.id === undefined ? (
-            <NewTimeRow key={index}>
-              <LeftTd>{time.name}</LeftTd>
-              <RightTd>
-                {roundToDigits(time.timeMs / 1000, 2).toFixed(2)}
-              </RightTd>
-            </NewTimeRow>
-          ) : (
-            <TimeRow key={index}>
-              <LeftTd>{time.name}</LeftTd>
-              <RightTd>
-                {roundToDigits(time.timeMs / 1000, 2).toFixed(2)}
-              </RightTd>
-            </TimeRow>
-          )}
-        </>
-      ))}
+      </thead>
+      <tbody>
+        {times.map((time, index) => (
+          <>
+            {/* If no id, this is the user's new time that hasn't been saved to server yet. */}
+            {time.id === undefined ? (
+              <NewTimeRow key={index}>
+                <LeftTd>{time.name}</LeftTd>
+                <RightTd>
+                  {roundToDigits(time.timeMs / 1000, 2).toFixed(2)}
+                </RightTd>
+              </NewTimeRow>
+            ) : (
+              <TimeRow key={index}>
+                <LeftTd>{time.name}</LeftTd>
+                <RightTd>
+                  {roundToDigits(time.timeMs / 1000, 2).toFixed(2)}
+                </RightTd>
+              </TimeRow>
+            )}
+          </>
+        ))}
+      </tbody>
     </Table>
   );
 }
