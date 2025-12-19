@@ -1,6 +1,7 @@
 import Form from '../../styled/Form';
 import FormError from '../../styled/FormError';
 import ImportantButton from '../../styled/ImportantButton';
+import ValidatedInput from '../ValidatedInput';
 import * as api from '../../ext/api.admin';
 import * as breakpoints from '../../breakpoints';
 import React, { useState } from 'react';
@@ -39,11 +40,27 @@ export default function AddPhotoForm({ onPostPhoto = () => {} }: Props) {
     <Form onSubmit={postPhoto}>
       <label htmlFor="photo">
         Photo:
-        <input type="file" name="photo" required />
+        <ValidatedInput
+          type="file"
+          name="photo"
+          required
+          validationMsgFn={(v) => {
+            if (v.valueMissing) return 'Photo is a required field';
+            else return null;
+          }}
+        />
       </label>
       <label htmlFor="altText">
         Title:
-        <input type="text" name="altText" required />
+        <ValidatedInput
+          type="text"
+          name="altText"
+          required
+          validationMsgFn={(v) => {
+            if (v.valueMissing) return 'AltText is a required field';
+            else return null;
+          }}
+        />
       </label>
       {msg && <FormError>{msg}</FormError>}
       <ImportantButtonReactive type="submit">Submit</ImportantButtonReactive>
