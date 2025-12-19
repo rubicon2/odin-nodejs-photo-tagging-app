@@ -20,6 +20,11 @@ const Form = styled.form`
     grid-template-rows: min-content 1fr;
   }
 
+  // Avoid built-in :invalid since it will show as soon as input is shown on screen.
+  *.invalid {
+    background-color: pink;
+  }
+
   @media (min-width: ${breakpoints.tablet}) {
     label {
       grid-template-rows: 1fr;
