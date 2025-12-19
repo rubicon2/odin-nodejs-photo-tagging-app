@@ -49,7 +49,7 @@ export default function ValidatedInput({
   return (
     <>
       <input {...props} ref={inputRef} />
-      <FormError>{validationMsg}</FormError>
+      <FormError aria-live="polite">{validationMsg}</FormError>
     </>
   );
 }
