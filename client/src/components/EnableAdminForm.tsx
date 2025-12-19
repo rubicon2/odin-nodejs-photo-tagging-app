@@ -33,8 +33,8 @@ export default function EnableAdminForm({ onEnable = () => {} }: Props) {
         <label htmlFor="password">
           Password:
           <input type="password" name="password" id="password" required />
+          <FormError aria-live="polite">{msg}</FormError>
         </label>
-        {msg && <FormError aria-live="polite">{msg}</FormError>}
       </div>
       <ImportantButton type="submit" title="Submit form">
         Enable Admin Mode
