@@ -27,23 +27,26 @@ export default function ValidatedInput({
     return validity.valid;
   }
 
-  function checkUntilValid(event: any) {
-    const valid = checkValidity(event.currentTarget);
-    if (valid)
-      event.currentTarget.removeEventListener('input', checkUntilValid);
+  function checkUntilValid(event: Event) {
+    const target = event.target;
+    if (target) {
+      const valid = checkValidity(target as HTMLInputElement);
+      if (valid) target.removeEventListener('input', checkUntilValid);
+    }
   }
 
   useEffect(() => {
-    function blurHandler({ currentTarget }: any) {
-      if (!checkValidity(currentTarget)) {
+    function handleBlur(event: FocusEvent) {
+      const target = event.target;
+      if (target && !checkValidity(target as HTMLInputElement)) {
         // In case it is already added, remove first (there is no way of simply checking first).
-        currentTarget.removeEventListener('input', checkUntilValid);
-        currentTarget.addEventListener('input', checkUntilValid);
+        target.removeEventListener('input', checkUntilValid);
+        target.addEventListener('input', checkUntilValid);
       }
     }
 
-    inputRef.current?.addEventListener('blur', blurHandler);
-    return () => inputRef.current?.removeEventListener('blur', blurHandler);
+    inputRef.current?.addEventListener('blur', handleBlur);
+    return () => inputRef.current?.removeEventListener('blur', handleBlur);
   }, []);
 
   return (
