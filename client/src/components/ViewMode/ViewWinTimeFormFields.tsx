@@ -52,6 +52,7 @@ export default function ViewWinTimeFormFields({
         required
         minLength={3}
         maxLength={3}
+        pattern="[a-zA-Z]*"
         placeholder="aaa"
         value={name}
         onChange={onChange}
