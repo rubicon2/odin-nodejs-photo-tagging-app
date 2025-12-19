@@ -1,5 +1,5 @@
 import FormError from '../styled/FormError';
-import { useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 interface Props {
   validationMsgFn?: (validity: ValidityState) => string | null;
@@ -9,6 +9,7 @@ export default function ValidatedInput({
   validationMsgFn = () => null,
   ...props
 }: Props & React.HTMLProps<HTMLInputElement>) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [validationMsg, setValidationMsg] = useState<string | null>(null);
 
   function displayError(element: HTMLInputElement, msg: string | null) {
@@ -32,16 +33,22 @@ export default function ValidatedInput({
       event.currentTarget.removeEventListener('input', checkUntilValid);
   }
 
+  useEffect(() => {
+    function blurHandler({ currentTarget }: any) {
+      if (!checkValidity(currentTarget)) {
+        // In case it is already added, remove first (there is no way of simply checking first).
+        currentTarget.removeEventListener('input', checkUntilValid);
+        currentTarget.addEventListener('input', checkUntilValid);
+      }
+    }
+
+    inputRef.current?.addEventListener('blur', blurHandler);
+    return () => inputRef.current?.removeEventListener('blur', blurHandler);
+  }, []);
+
   return (
     <>
-      <input
-        {...props}
-        onBlur={({ currentTarget }) => {
-          if (!checkValidity(currentTarget)) {
-            currentTarget.addEventListener('input', checkUntilValid);
-          }
-        }}
-      />
+      <input {...props} ref={inputRef} />
       <FormError>{validationMsg}</FormError>
     </>
   );
