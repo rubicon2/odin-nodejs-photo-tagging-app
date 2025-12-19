@@ -3,45 +3,49 @@ import { useRef, useState, useEffect } from 'react';
 
 interface Props {
   validationMsgFn?: (validity: ValidityState) => string | null;
+  value?: any;
 }
 
 export default function ValidatedInput({
   validationMsgFn = () => null,
+  value,
   ...props
 }: Props & React.HTMLProps<HTMLInputElement>) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [validationMsg, setValidationMsg] = useState<string | null>(null);
 
-  function displayError(element: HTMLInputElement, msg: string | null) {
+  function displayError(msg: string | null) {
     setValidationMsg(msg);
-    if (msg) {
-      element.classList.add('invalid');
-    } else {
-      element.classList.remove('invalid');
+    if (inputRef.current) {
+      if (msg) {
+        inputRef.current.classList.add('invalid');
+      } else {
+        inputRef.current.classList.remove('invalid');
+      }
     }
   }
 
-  function checkValidity(element: HTMLInputElement): boolean {
-    const validity = element.validity;
-    displayError(element, validationMsgFn(validity));
-    return validity.valid;
+  function checkValidity(): boolean {
+    if (inputRef.current) {
+      const validity = inputRef.current?.validity;
+      displayError(validationMsgFn(validity));
+      return validity.valid;
+    } else return true;
   }
 
-  function checkUntilValid(event: Event) {
-    const target = event.target;
-    if (target) {
-      const valid = checkValidity(target as HTMLInputElement);
-      if (valid) target.removeEventListener('input', checkUntilValid);
+  function checkUntilValid() {
+    if (inputRef.current) {
+      const valid = checkValidity();
+      if (valid) inputRef.current.removeEventListener('input', checkUntilValid);
     }
   }
 
   useEffect(() => {
-    function handleBlur(event: FocusEvent) {
-      const target = event.target;
-      if (target && !checkValidity(target as HTMLInputElement)) {
+    function handleBlur() {
+      if (inputRef.current && !checkValidity()) {
         // In case it is already added, remove first (there is no way of simply checking first).
-        target.removeEventListener('input', checkUntilValid);
-        target.addEventListener('input', checkUntilValid);
+        inputRef.current.removeEventListener('input', checkUntilValid);
+        inputRef.current.addEventListener('input', checkUntilValid);
       }
     }
 
@@ -49,9 +53,15 @@ export default function ValidatedInput({
     return () => inputRef.current?.removeEventListener('blur', handleBlur);
   }, []);
 
+  // So that if value changes without user input (e.g. if a
+  // controlled input), the validity error will still be updated.
+  useEffect(() => {
+    checkValidity();
+  }, [value]);
+
   return (
     <>
-      <input {...props} ref={inputRef} />
+      <input value={value} {...props} ref={inputRef} />
       <FormError aria-live="polite">{validationMsg}</FormError>
     </>
   );
