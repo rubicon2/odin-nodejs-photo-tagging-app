@@ -16,8 +16,6 @@ const PhotoContainer = styled(PaddedContainer)`
   // changing the PaddedContainer styled component.
   // So if we later decided we wanted more padding as standard, we
   // could just change it in one place on PaddedContainer.
-  max-width: auto;
-  margin: 0;
   padding-top: 0;
   padding-left: 0;
   padding-right: 0;

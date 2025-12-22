@@ -1,4 +1,4 @@
-import Container from '../../styled/Container';
+import CenteredContainer from '../../styled/CenteredContainer';
 import ViewTagListModal from './ViewTagListModal';
 import PhotoWithTagOverlays from '../PhotoWithTagOverlays';
 import Overlay from '../Overlay';
@@ -7,7 +7,7 @@ import * as api from '../../ext/api';
 import { useState, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 
-const PhotoContainer = styled(Container)`
+const PhotoContainer = styled(CenteredContainer)`
   // So overlay is positioned relative to image, not whole page.
   position: relative;
 `;

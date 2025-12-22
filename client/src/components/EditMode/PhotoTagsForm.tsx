@@ -1,6 +1,7 @@
 import ImportantButton from '../../styled/ImportantButton';
 import DangerButton from '../../styled/DangerButton';
 import Form from '../../styled/Form';
+import ValidatedInput from '../ValidatedInput';
 
 interface Props {
   tags: Array<Tag>;
@@ -15,6 +16,19 @@ export default function PhotoTagsForm({
   onDelete = () => {},
   onSave = () => {},
 }: Props) {
+  function createPosValidationMsgFn(fieldName: string) {
+    return (v: ValidityState) => {
+      if (v.valueMissing) return `${fieldName} is a required field`;
+      else if (v.rangeUnderflow || v.rangeOverflow)
+        return `${fieldName} should be between 0 and 1`;
+      else if (v.typeMismatch)
+        return `${fieldName} should be a number between 0 and 1`;
+      else if (v.badInput)
+        return `${fieldName} should be a number between 0 and 1`;
+      else return null;
+    };
+  }
+
   return (
     <Form onSubmit={onSave}>
       {tags.map((tag, index) => (
@@ -32,41 +46,60 @@ export default function PhotoTagsForm({
           </label>
           <label>
             Name:
-            <input
+            <ValidatedInput
               type="text"
               name={`tags[${index}][name]`}
               required
+              pattern="[a-zA-Z]*"
               value={tag.name}
               placeholder="Tag Name"
               onChange={(e) =>
-                onUpdate(index, { ...tag, name: e.target.value })
+                onUpdate(index, { ...tag, name: e.currentTarget.value })
               }
+              validationMsgFn={(v) => {
+                if (v.valueMissing) return 'Name is a required field';
+                else if (v.patternMismatch)
+                  return 'Name should be alphabetical characters only';
+                else return null;
+              }}
             />
           </label>
           <label>
             X Position:
-            <input
+            <ValidatedInput
               type="number"
-              step="0.001"
+              step="0.0001"
               name={`tags[${index}][posX]`}
               required
-              value={tag.posX.toString()}
+              min={0}
+              max={1}
+              value={parseFloat(tag.posX.toFixed(4))}
               onChange={(e) =>
-                onUpdate(index, { ...tag, posX: e.target.value })
+                onUpdate(index, {
+                  ...tag,
+                  posX: parseFloat(e.currentTarget.value),
+                })
               }
+              validationMsgFn={createPosValidationMsgFn('PosX')}
             />
           </label>
           <label>
             Y Position:
-            <input
+            <ValidatedInput
               type="number"
-              step="0.001"
+              step="0.0001"
               name={`tags[${index}][posY]`}
               required
-              value={tag.posY.toString()}
+              min={0}
+              max={1}
+              value={parseFloat(tag.posY.toFixed(4))}
               onChange={(e) =>
-                onUpdate(index, { ...tag, posY: e.target.value })
+                onUpdate(index, {
+                  ...tag,
+                  posY: parseFloat(e.currentTarget.value),
+                })
               }
+              validationMsgFn={createPosValidationMsgFn('PosY')}
             />
           </label>
           <DangerButton type="button" onClick={() => onDelete(index)}>

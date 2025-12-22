@@ -2,6 +2,7 @@ import ModalTransparent from '../ModalTransparent';
 import TimesTable from '../TimesTable';
 import ViewWinTimeForm from './ViewWinTimeForm';
 import { ModalContent, ModalHeaderCentered } from '../../styled/Modal';
+import FormError from '../../styled/FormError';
 import roundToDigits from '../../ext/roundToDigits';
 import * as api from '../../ext/api';
 
@@ -54,6 +55,7 @@ export default function ViewWinModal({
     // Clear out any previous messages.
     setMsg(null);
     if (isActive) fetchData();
+    else setBestTimes([]);
   }, [isActive]);
 
   return (
@@ -63,8 +65,8 @@ export default function ViewWinModal({
         <CenteredDiv>You took {time2DP} seconds.</CenteredDiv>
         <ModalHeaderCentered as="h3">Best Times</ModalHeaderCentered>
         <TimesTable times={bestTimes} />
+        {msg && <FormError>{msg}</FormError>}
         <ViewWinTimeForm onFormSubmit={onButtonClick} />
-        {msg && <span>{msg}</span>}
       </ModalContent>
     </ModalTransparent>
   );
