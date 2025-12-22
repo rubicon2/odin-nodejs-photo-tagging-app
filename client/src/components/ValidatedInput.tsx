@@ -13,6 +13,7 @@ export default function ValidatedInput({
 }: Props & React.HTMLProps<HTMLInputElement>) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [validationMsg, setValidationMsg] = useState<string | null>(null);
+  const isControlledInput = value !== undefined;
 
   function displayError(msg: string | null) {
     setValidationMsg(msg);
@@ -55,13 +56,15 @@ export default function ValidatedInput({
 
   // So that if value changes without user input (e.g. if a
   // controlled input), the validity error will still be updated.
+  // Doesn't work exactly like uncontrolled input though.
+  // Well... xPos does, but name doesn't?
   useEffect(() => {
-    checkValidity();
+    if (isControlledInput && value !== '') checkValidity();
   }, [value]);
 
   return (
     <>
-      <input value={value} {...props} ref={inputRef} />
+      <input {...props} ref={inputRef} value={value} />
       <FormError aria-live="polite">{validationMsg}</FormError>
     </>
   );
