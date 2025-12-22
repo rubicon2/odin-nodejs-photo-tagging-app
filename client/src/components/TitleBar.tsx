@@ -1,3 +1,4 @@
+import Container from '../styled/Container';
 import PaddedContainer from '../styled/PaddedContainer';
 import useDarkThemeActive from '../hooks/useDarkThemeActive';
 import React from 'react';
@@ -17,6 +18,9 @@ const Content = styled(PaddedContainer)`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  padding-left: 0;
+  padding-right: 0;
 
   h1 {
     margin: 0;
@@ -39,15 +43,17 @@ export default function TitleBar({ onSettingsClick = () => {} }: Props) {
   const isDarkThemeActive = useDarkThemeActive();
   return (
     <header>
-      <Content>
-        <h1>Where&apos;s Waldo?</h1>
-        <SettingsButton onClick={onSettingsClick} title="Open settings">
-          <img
-            src={isDarkThemeActive ? settingsIconDark : settingsIconLight}
-            alt=""
-          />
-        </SettingsButton>
-      </Content>
+      <Container>
+        <Content>
+          <h1>Where&apos;s Waldo?</h1>
+          <SettingsButton onClick={onSettingsClick} title="Open settings">
+            <img
+              src={isDarkThemeActive ? settingsIconDark : settingsIconLight}
+              alt=""
+            />
+          </SettingsButton>
+        </Content>
+      </Container>
     </header>
   );
 }
