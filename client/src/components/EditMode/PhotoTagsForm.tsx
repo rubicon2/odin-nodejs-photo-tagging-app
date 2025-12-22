@@ -68,14 +68,17 @@ export default function PhotoTagsForm({
             X Position:
             <ValidatedInput
               type="number"
-              step="0.001"
+              step="0.0001"
               name={`tags[${index}][posX]`}
               required
               min={0}
               max={1}
-              value={tag.posX.toString()}
+              value={parseFloat(tag.posX.toFixed(4))}
               onChange={(e) =>
-                onUpdate(index, { ...tag, posX: e.currentTarget.value })
+                onUpdate(index, {
+                  ...tag,
+                  posX: parseFloat(e.currentTarget.value),
+                })
               }
               validationMsgFn={createPosValidationMsgFn('PosX')}
             />
@@ -84,14 +87,17 @@ export default function PhotoTagsForm({
             Y Position:
             <ValidatedInput
               type="number"
-              step="0.001"
+              step="0.0001"
               name={`tags[${index}][posY]`}
               required
               min={0}
               max={1}
-              value={tag.posY.toString()}
+              value={parseFloat(tag.posY.toFixed(4))}
               onChange={(e) =>
-                onUpdate(index, { ...tag, posY: e.currentTarget.value })
+                onUpdate(index, {
+                  ...tag,
+                  posY: parseFloat(e.currentTarget.value),
+                })
               }
               validationMsgFn={createPosValidationMsgFn('PosY')}
             />
