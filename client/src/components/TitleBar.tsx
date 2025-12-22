@@ -1,4 +1,4 @@
-import Container from '../styled/Container';
+import CenteredContainer from '../styled/CenteredContainer';
 import PaddedContainer from '../styled/PaddedContainer';
 import useDarkThemeActive from '../hooks/useDarkThemeActive';
 import React from 'react';
@@ -43,7 +43,7 @@ export default function TitleBar({ onSettingsClick = () => {} }: Props) {
   const isDarkThemeActive = useDarkThemeActive();
   return (
     <header>
-      <Container>
+      <CenteredContainer>
         <Content>
           <h1>Where&apos;s Waldo?</h1>
           <SettingsButton onClick={onSettingsClick} title="Open settings">
@@ -53,7 +53,7 @@ export default function TitleBar({ onSettingsClick = () => {} }: Props) {
             />
           </SettingsButton>
         </Content>
-      </Container>
+      </CenteredContainer>
     </header>
   );
 }
