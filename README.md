@@ -1,5 +1,18 @@
 # odin-nodejs-photo-tagging-app
 
+https://www.theodinproject.com/lessons/nodejs-where-s-waldo-a-photo-tagging-app
+
+## Packages and Services Used
+
+- Node and Express for the server
+- Postgresql for the server database
+- Prisma for the database object relational mapper
+- Docker to run containerized integration tests for the api
+- Vitest as test runner for both server and client
+- Vite with React and Typescript as the frontend framework
+- The usual Prettier and ESLint combo I use on every project
+- Railway for deployment of the server and client
+
 ## Challenges
 
 - Since this was a project with one client and server (opposed to multiple clients), I decided to make everything all within one parent folder, server, clients, everything. I am not finished yet, and can tell you this is a bad idea. Just navigating the folder to find what I need is a pain. The increased mental load of having everything there all the time, instead of hidden away when I am not working on it. I am not a fan of this way of working. So this was an experiment in project structure which has achieved a clear result: doing this is bad, don't do it.
